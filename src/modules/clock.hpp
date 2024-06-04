@@ -1,0 +1,11 @@
+#include "../module.hpp"
+
+class module_clock : public module {
+	public:
+		module_clock(bool icon_on_start = false, bool clickable = false);
+		Gtk::Button button_btn;
+		Gtk::Label label_date;
+
+	private:
+		bool update_info();
+};
