@@ -5,6 +5,7 @@
 
 // TODO: Make all of this modular at build time
 #include "modules/clock.hpp"
+#include "modules/network.hpp"
 
 #include <gtk4-layer-shell.h>
 #include <gtkmm/cssprovider.h>
@@ -63,4 +64,7 @@ void sysbar::load_modules() {
 	std::cout << "Loading modules" << std::endl;
 	module_clock *clock = new module_clock(true, false);
 	box_start.append(*clock);
+
+	module_network *network = new module_network(true, false);
+	box_end.append(*network);
 }
