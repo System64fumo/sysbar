@@ -1,5 +1,5 @@
 EXEC = sysbar
-PKGS = gtkmm-4.0 gtk4-layer-shell-0
+PKGS = gtkmm-4.0 gtk4-layer-shell-0 libcurl
 SRCS +=	$(wildcard src/*.cpp)
 SRCS +=	$(wildcard src/modules/*.cpp)
 OBJS = $(SRCS:.cpp=.o)

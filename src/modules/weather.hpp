@@ -10,7 +10,10 @@ class module_weather : public module {
 		std::string tempC;
 		std::string tempF;
 		std::string weatherDesc;
+		std::string weather_file;
+		const char *weather_file_url;
 
 		bool update_info();
+		void download_file();
 		void get_weather_data(std::string date, std::string time);
 };
