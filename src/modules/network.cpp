@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <thread>
 #include <filesystem>
+#include <algorithm>
 
 module_network::module_network(bool icon_on_start, bool clickable) : module(icon_on_start, clickable) {
 	get_style_context()->add_class("module_network");
@@ -136,9 +137,6 @@ void module_network::process_message(struct nlmsghdr *nlh) {
 		else if (strcmp(if_name, "lo") == 0)
 			continue;
 
-		// TODO: Check if an interface already exists and update it accordingly
-		// Alternatively, Delete it and re add it (Sounds easier but is very stupid)
-
 		// Has an interface been updated?
 		if (nlh->nlmsg_type == RTM_NEWADDR)
 			inet_ntop(AF_INET, RTA_DATA(rth), if_addr, sizeof(if_addr));
@@ -147,14 +145,28 @@ void module_network::process_message(struct nlmsghdr *nlh) {
 
 		// Add the interface to the list
 		if (rth->rta_type == IFA_LOCAL) {
+
+			// Print the values of the interface
 			std::cout << "Interface: " << if_name << std::endl;
 			std::cout << "Type: " << if_type << std::endl;
 			std::cout << "Address: " << if_addr << std::endl;
 			std::cout << "Index: " << if_index << "\n" << std::endl;
+
+			/// Find the interface if it already exists
+			auto it = std::find_if(adapters.begin(), adapters.end(), [if_index](const network_adapter& s) { return s.index == if_index; });
+			if (it != adapters.end()) {
+				it->ipv4 = if_addr;
+				std::cout << "Changed " << if_name << "'s address" << std::endl;
+				continue;
+			}
+
+			// Create a new interface if needed
+			std::cout << if_name << " has been added to the list\n" << std::endl;
 			network_adapter adapter;
 			adapter.interface = if_name;
 			adapter.type = if_type;
 			adapter.ipv4 = if_addr;
+			adapter.index = if_index;
 			adapters.push_back(adapter);
 		}
 	}
