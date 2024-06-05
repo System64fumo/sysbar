@@ -1,4 +1,5 @@
 #include "network.hpp"
+#include "../config.hpp"
 
 #include <iostream>
 #include <net/if.h>
@@ -51,11 +52,14 @@ void module_network::update_info() {
 	uint if_index = default_if_index;
 	auto default_if = std::find_if(adapters.begin(), adapters.end(), [if_index](const network_adapter& a) { return a.index == if_index; });
 	if (default_if == adapters.end()) {
-		std::cout << "No interface found" << std::endl;
+		std::cerr << "No interface found" << std::endl;
 		image_icon.set_from_icon_name("network-error-symbolic");
 		return;
 	}
-	std::cout << "Default interface is " << default_if->interface << std::endl;
+
+	if (verbose)
+		std::cout << "Default interface is " << default_if->interface << std::endl;
+
 	if (default_if->type == "Ethernet")
 		image_icon.set_from_icon_name("network-wired-symbolic");
 	else if (default_if->type == "Wireless")
@@ -158,10 +162,12 @@ void module_network::process_message(struct nlmsghdr *nlh) {
 		if (rth->rta_type == IFA_LOCAL) {
 
 			// Print the values of the interface
-			std::cout << "Interface: " << if_name << std::endl;
-			std::cout << "Type: " << if_type << std::endl;
-			std::cout << "Address: " << if_addr << std::endl;
-			std::cout << "Index: " << if_index << "\n" << std::endl;
+			if (verbose) {
+				std::cout << "Interface: " << if_name << std::endl;
+				std::cout << "Type: " << if_type << std::endl;
+				std::cout << "Address: " << if_addr << std::endl;
+				std::cout << "Index: " << if_index << "\n" << std::endl;
+			}
 
 			/// Find the interface if it already exists
 			auto it = std::find_if(adapters.begin(), adapters.end(), [if_index](const network_adapter& s) { return s.index == if_index; });
@@ -172,7 +178,9 @@ void module_network::process_message(struct nlmsghdr *nlh) {
 			}
 
 			// Create a new interface if needed
-			std::cout << if_name << " has been added to the list\n" << std::endl;
+			if (verbose)
+				std::cout << if_name << " has been added to the list\n" << std::endl;
+
 			network_adapter adapter;
 			adapter.interface = if_name;
 			adapter.type = if_type;

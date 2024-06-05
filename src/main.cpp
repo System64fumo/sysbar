@@ -20,13 +20,17 @@ void quit(int signum) {
 int main(int argc, char* argv[]) {
 	// Read launch arguments
 	while (true) {
-		switch(getopt(argc, argv, "p:ds:dh")) {
+		switch(getopt(argc, argv, "p:ds:dVh")) {
 			case 'p':
 				position = std::stoi(optarg);
 				continue;
 
 			case 's':
 				size = std::stoi(optarg);
+				continue;
+
+			case 'V':
+				verbose = true;
 				continue;
 
 			case 'h':
@@ -36,6 +40,7 @@ int main(int argc, char* argv[]) {
 				std::cout << "arguments:" << std::endl;
 				std::cout << "  -p	Set position" << std::endl;
 				std::cout << "  -s	Set bar size" << std::endl;
+				std::cout << "  -V	Be more verbose" << std::endl;
 				std::cout << "  -h	Show this help message" << std::endl;
 				return 0;
 
