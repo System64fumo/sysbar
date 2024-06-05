@@ -4,6 +4,8 @@
 #include <fstream>
 #include <filesystem>
 #include <curl/curl.h>
+#include <iomanip>
+#include <ctime>
 
 module_weather::module_weather(bool icon_on_start, bool clickable) : module(icon_on_start, clickable) {
 	get_style_context()->add_class("module_weather");
@@ -33,13 +35,19 @@ bool module_weather::update_info() {
 	file >> json_data;
 	file.close();
 
-	// TODO: Get time and date automatically
-	// For now use temporary test data
-	std::string date = "2024-06-06";
-	std::string time = "0";
+	// Get time and date
+	std::time_t t = std::time(nullptr);
+	std::tm* now = std::localtime(&t);
+
+	std::ostringstream date_stream;
+	date_stream << std::put_time(now, "%Y-%m-%d");
+
+	std::string date = date_stream.str();
+	std::string time = std::to_string((now->tm_hour / 3) * 300);
 
 	get_weather_data(date, time);
 
+	// TODO: Add option to pick between  celsius or fahrenheit
 	label_info.set_text(tempC);
 	return true;
 }
