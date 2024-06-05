@@ -4,6 +4,7 @@ struct network_adapter {
 	std::string interface;
 	std::string type;
 	std::string ipv4;
+	uint index;
 };
 
 class module_network : public module {
@@ -14,7 +15,7 @@ class module_network : public module {
 	private:
 		int nl_socket;
 		char buffer[4096];
-		unsigned int default_if = 0;
+		uint default_if = 0;
 		std::vector<network_adapter> adapters;
 
 		bool setup_netlink();
