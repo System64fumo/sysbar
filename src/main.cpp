@@ -1,6 +1,7 @@
 #include "main.hpp"
 #include "window.hpp"
 #include "config.hpp"
+#include "git_info.hpp"
 
 #include <glibmm.h>
 #include <unistd.h>
@@ -20,7 +21,7 @@ void quit(int signum) {
 int main(int argc, char* argv[]) {
 	// Read launch arguments
 	while (true) {
-		switch(getopt(argc, argv, "p:ds:dVh")) {
+		switch(getopt(argc, argv, "p:ds:dVvh")) {
 			case 'p':
 				position = std::stoi(optarg);
 				continue;
@@ -33,6 +34,11 @@ int main(int argc, char* argv[]) {
 				verbose = true;
 				continue;
 
+			case 'v':
+				std::cout << "Commit: " << GIT_COMMIT_MESSAGE << std::endl;
+				std::cout << "Date: " << GIT_COMMIT_DATE << std::endl;
+				return 0;
+
 			case 'h':
 			default :
 				std::cout << "usage:" << std::endl;
@@ -41,6 +47,7 @@ int main(int argc, char* argv[]) {
 				std::cout << "  -p	Set position" << std::endl;
 				std::cout << "  -s	Set bar size" << std::endl;
 				std::cout << "  -V	Be more verbose" << std::endl;
+				std::cout << "  -v	Prints version info" << std::endl;
 				std::cout << "  -h	Show this help message" << std::endl;
 				return 0;
 
