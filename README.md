@@ -26,6 +26,9 @@ arguments:
 sysbar uses your gtk4 theme by default, However it can be also load custom css,<br>
 Just copy the included menu.css file to ~/.config/sys64/bar.css<br>
 
+# Credits
+[wttr.in](https://github.com/chubin/wttr.in) for their weather service<br>
+
 # Also check out
 [waybar](https://github.com/Alexays/Waybar)<br>
 [wf-shell](https://github.com/WayfireWM/wf-shell)<br>
