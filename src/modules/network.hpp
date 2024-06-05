@@ -15,8 +15,9 @@ class module_network : public module {
 	private:
 		int nl_socket;
 		char buffer[4096];
-		uint default_if = 0;
+		uint default_if_index = 0;
 		std::vector<network_adapter> adapters;
+		Glib::Dispatcher dispatcher;
 
 		bool setup_netlink();
 		void interface_thread();

@@ -11,13 +11,13 @@
 
 module_network::module_network(bool icon_on_start, bool clickable) : module(icon_on_start, clickable) {
 	get_style_context()->add_class("module_network");
-	image_icon.set_from_icon_name("network-wired-symbolic");
 	label_info.hide();
 
 	// Set up networking stuff
 	if (!setup_netlink())
 		return;
 
+	dispatcher.connect(sigc::mem_fun(*this, &module_network::update_info));
 	std::thread thread_network(&module_network::interface_thread, this);
 	thread_network.detach();
 }
@@ -42,13 +42,24 @@ void module_network::interface_thread() {
 				process_message(nlh);
 			}
 		}
-		// TODO: Trigger a dispatcher to update UI
+		dispatcher.emit();
 	}
 }
 
 void module_network::update_info() {
-	// TODO: Figure out what the network type of the default adapter is
-	// and show the appropiate icon
+	// Get primary interface
+	uint if_index = default_if_index;
+	auto default_if = std::find_if(adapters.begin(), adapters.end(), [if_index](const network_adapter& a) { return a.index == if_index; });
+	if (default_if == adapters.end()) {
+		std::cout << "No interface found" << std::endl;
+		image_icon.set_from_icon_name("network-error-symbolic");
+		return;
+	}
+	std::cout << "Default interface is " << default_if->interface << std::endl;
+	if (default_if->type == "Ethernet")
+		image_icon.set_from_icon_name("network-wired-symbolic");
+	else if (default_if->type == "Wireless")
+		image_icon.set_from_icon_name("network-wireless-symbolic");
 }
 
 bool module_network::setup_netlink() {
@@ -131,7 +142,7 @@ void module_network::process_message(struct nlmsghdr *nlh) {
 
 		// Skip anything we don't need
 		if (rth->rta_type == RTA_OIF)
-			default_if = if_index;
+			default_if_index = if_index;
 		else if (rth->rta_type != IFA_LOCAL)
 			continue;
 		else if (strcmp(if_name, "lo") == 0)
