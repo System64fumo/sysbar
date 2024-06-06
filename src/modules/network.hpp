@@ -9,7 +9,7 @@ struct network_adapter {
 
 class module_network : public module {
 	public:
-		module_network(bool icon_on_start = false, bool clickable = false);
+		module_network(const bool &icon_on_start = false, const bool &clickable = false);
 		~module_network();
 
 	private:

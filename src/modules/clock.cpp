@@ -2,7 +2,7 @@
 
 #include <iomanip>
 
-module_clock::module_clock(bool icon_on_start, bool clickable) : module(icon_on_start, clickable) {
+module_clock::module_clock(const bool &icon_on_start, const bool &clickable) : module(icon_on_start, clickable) {
 	get_style_context()->add_class("module_clock");
 	image_icon.set_from_icon_name("preferences-system-time-symbolic");
 

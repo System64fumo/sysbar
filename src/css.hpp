@@ -2,5 +2,5 @@
 
 class css_loader : public Glib::RefPtr<Gtk::StyleProvider> {
 	public:
-		css_loader(std::string path, Gtk::Window *window);
+		css_loader(const std::string &path, Gtk::Window *window);
 };

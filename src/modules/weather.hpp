@@ -3,7 +3,7 @@
 
 class module_weather : public module {
 	public:
-		module_weather(bool icon_on_start = false, bool clickable = false);
+		module_weather(const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
 		nlohmann::json json_data;
@@ -15,5 +15,5 @@ class module_weather : public module {
 
 		bool update_info();
 		void download_file();
-		void get_weather_data(std::string date, std::string time);
+		void get_weather_data(const std::string &date, const std::string &time);
 };
