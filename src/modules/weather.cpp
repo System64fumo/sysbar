@@ -10,8 +10,7 @@
 module_weather::module_weather(bool icon_on_start, bool clickable) : module(icon_on_start, clickable) {
 	get_style_context()->add_class("module_weather");
 
-	// TODO: Set icon according to weather
-	image_icon.set_from_icon_name("weather-cloudy-symbolic");
+	image_icon.set_from_icon_name("weather-none-available-symbolic");
 
 	weather_file_url = "https://wttr.in/?format=j1";
 	update_info();
@@ -49,6 +48,26 @@ bool module_weather::update_info() {
 
 	// TODO: Add option to pick between  celsius or fahrenheit
 	label_info.set_text(tempC);
+
+	// Add more cases, Snow, Storms, ect ect
+	std::map<std::string, std::string> icon_from_desc = {
+		{"Sunny", "weather-clear-symbolic"},
+		{"Clear", "weather-clear-symbolic"},
+		{"Partly cloudy", "weather-few-clouds-symbolic"},
+		{"Cloudy", "weather-clouds-symbolic"},
+		{"Overcast", "weather-overcast-symbolic"},
+		{"Patchy rain nearby", "weather-showers-scattered-symbolic"},
+		{"Patchy rain possible", "weather-showers-scattered-symbolic"},
+		{"Patchy light rain", "weather-showers-scattered-symbolic"},
+		{"Light rain", "weather-showers-scattered-symbolic"},
+	};
+
+	// Set icon according to weather description
+	if (icon_from_desc.find(weatherDesc) != icon_from_desc.end())
+		image_icon.set_from_icon_name(icon_from_desc[weatherDesc]);
+	else
+		image_icon.set_from_icon_name("weather-none-available-symbolic");
+
 	return true;
 }
 
@@ -90,6 +109,7 @@ void module_weather::get_weather_data(std::string date, std::string time) {
 					tempC = hourly["tempC"];
 					tempF = hourly["tempF"];
 					weatherDesc = hourly["weatherDesc"][0]["value"];
+					weatherDesc.pop_back(); // ???
 					return;
 				}
 			}
