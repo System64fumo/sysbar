@@ -1,6 +1,6 @@
 #include "module.hpp"
 
-module::module(bool icon_on_start, bool clickable) {
+module::module(const bool &icon_on_start, const bool &clickable) {
 	// Initialization
 	get_style_context()->add_class("module");
 	append(label_info);

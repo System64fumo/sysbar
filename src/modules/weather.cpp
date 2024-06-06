@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <ctime>
 
-module_weather::module_weather(bool icon_on_start, bool clickable) : module(icon_on_start, clickable) {
+module_weather::module_weather(const bool &icon_on_start, const bool &clickable) : module(icon_on_start, clickable) {
 	get_style_context()->add_class("module_weather");
 
 	image_icon.set_from_icon_name("weather-none-available-symbolic");
@@ -95,7 +95,7 @@ void module_weather::download_file() {
 	}
 }
 
-void module_weather::get_weather_data(std::string date, std::string time) {
+void module_weather::get_weather_data(const std::string &date, const std::string &time) {
 	auto weatherArray = json_data["weather"];
 
 	// Iterate over each date in the weather array

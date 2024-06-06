@@ -1,9 +1,7 @@
 #include "css.hpp"
-
-#include <gtkmm/cssprovider.h>
 #include <filesystem>
 
-css_loader::css_loader(std::string path, Gtk::Window *window) {
+css_loader::css_loader(const std::string &path, Gtk::Window *window) {
 	if (!std::filesystem::exists(path))
 		return;
 
