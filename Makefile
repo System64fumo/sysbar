@@ -1,5 +1,5 @@
 EXEC = sysbar
-PKGS = gtkmm-4.0 gtk4-layer-shell-0 libcurl
+PKGS = gtkmm-4.0 gtk4-layer-shell-0 libcurl wireplumber-0.5
 SRCS +=	$(wildcard src/*.cpp)
 SRCS +=	$(wildcard src/modules/*.cpp)
 OBJS = $(patsubst src/%,build/%,$(patsubst src/modules/%,build/%,$(SRCS:.cpp=.o)))
