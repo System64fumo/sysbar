@@ -3,9 +3,10 @@
 
 module_volume::module_volume(const bool &icon_on_start, const bool &clickable) : module(icon_on_start, clickable) {
 	get_style_context()->add_class("module_volume");
-	image_icon.set_from_icon_name("audio-volume-high-symbolic");
+	volume_icons[0] = "audio-volume-low-symbolic";
+	volume_icons[1] = "audio-volume-medium-symbolic";
+	volume_icons[2] = "audio-volume-high-symbolic";
 
-	update_info();
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_volume::update_info));
 
 	// Why is this even necessary??
@@ -18,4 +19,5 @@ module_volume::module_volume(const bool &icon_on_start, const bool &clickable) :
 
 void module_volume::update_info() {
 	label_info.set_text(std::to_string(sys_wp->volume));
+	image_icon.set_from_icon_name(volume_icons[sys_wp->volume / 35]);
 }

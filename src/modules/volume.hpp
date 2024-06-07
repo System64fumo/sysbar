@@ -8,6 +8,7 @@ class module_volume : public module {
 	private:
 		sys_wireplumber *sys_wp;
 		Glib::Dispatcher dispatcher_callback;
+		std::map<int, std::string> volume_icons;
 
 		void update_info();
 };
