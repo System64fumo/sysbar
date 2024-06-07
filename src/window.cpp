@@ -6,6 +6,7 @@
 // TODO: Make all of this modular at build time
 #include "modules/clock.hpp"
 #include "modules/weather.hpp"
+#include "modules/volume.hpp"
 #include "modules/network.hpp"
 
 #include <gtk4-layer-shell.h>
@@ -68,6 +69,9 @@ void sysbar::load_modules() {
 
 	module_weather *weather = new module_weather(true, false);
 	box_start.append(*weather);
+
+	module_volume *volume = new module_volume(false, false);
+	box_end.append(*volume);
 
 	module_network *network = new module_network(true, false);
 	box_end.append(*network);
