@@ -109,7 +109,8 @@ void module_weather::get_weather_data(const std::string &date, const std::string
 					tempC = hourly["tempC"];
 					tempF = hourly["tempF"];
 					weatherDesc = hourly["weatherDesc"][0]["value"];
-					weatherDesc.pop_back(); // ???
+					// TODO: Figure out the bad last byte in some descriptions
+					//weatherDesc.pop_back();
 					return;
 				}
 			}
