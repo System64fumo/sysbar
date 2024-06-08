@@ -1,6 +1,11 @@
 #include "module.hpp"
 
 module::module(const bool &icon_on_start, const bool &clickable) {
+	// TODO: Read config to see if the icon should appear before or after
+	// the label.
+
+	// TODO: Read config to see if the label should be displayed for the module.
+
 	// Initialization
 	get_style_context()->add_class("module");
 	append(label_info);

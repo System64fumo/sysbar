@@ -12,5 +12,5 @@ class sysbar : public Gtk::Window {
 		Gtk::Box box_center;
 		Gtk::Box box_end;
 
-		void load_modules();
+		void load_modules(std::string modules, Gtk::Box &box);
 };
