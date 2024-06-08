@@ -1,6 +1,5 @@
 #include "clock.hpp"
-
-#include <iomanip>
+#include <ctime>
 
 module_clock::module_clock(const bool &icon_on_start, const bool &clickable) : module(icon_on_start, clickable) {
 	get_style_context()->add_class("module_clock");
@@ -13,8 +12,8 @@ module_clock::module_clock(const bool &icon_on_start, const bool &clickable) : m
 bool module_clock::update_info() {
 	std::time_t now = std::time(nullptr);
 	std::tm* localTime = std::localtime(&now);
-	std::stringstream ss;
-	ss << std::put_time(localTime, "%T");
-	label_info.set_text(ss.str());
+	char buffer[100];
+	std::strftime(buffer, sizeof(buffer), "%H:%M", localTime);
+	label_info.set_text(buffer);
 	return true;
 }
