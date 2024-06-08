@@ -19,6 +19,9 @@ sysbar can be configured in 2 ways<br>
 ```
 arguments:
   -p	Set position
+  -s	Set start modules (modules on the left side)
+  -c	Set center modules (modules in the middle)
+  -e	Set end modules (modules on the right side)
   -S	Set bar size (Height or Width depending on position)
   -V	Be more verbose
   -v	Prints version info
