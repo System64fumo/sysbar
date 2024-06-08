@@ -10,7 +10,6 @@
 #include "modules/network.hpp"
 
 #include <gtk4-layer-shell.h>
-#include <gtkmm/cssprovider.h>
 #include <filesystem>
 #include <iostream>
 
