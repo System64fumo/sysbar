@@ -8,7 +8,6 @@
 #include <arpa/inet.h>
 #include <thread>
 #include <filesystem>
-#include <algorithm>
 
 module_network::module_network(const bool &icon_on_start, const bool &clickable) : module(icon_on_start, clickable) {
 	get_style_context()->add_class("module_network");

@@ -1,4 +1,5 @@
 #include "../module.hpp"
+#include <gtkmm/button.h>
 
 class module_clock : public module {
 	public:

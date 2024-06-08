@@ -1,5 +1,10 @@
 #pragma once
-#include <gtkmm.h>
+#include <gtkmm/label.h>
+#include <gtkmm/image.h>
+#include <gtkmm/box.h>
+#include <gtkmm/popover.h>
+#include <gtkmm/gestureclick.h>
+#include <glibmm/dispatcher.h>
 
 class module : public Gtk::Box {
 	public:

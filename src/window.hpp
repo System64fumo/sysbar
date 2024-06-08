@@ -1,5 +1,7 @@
 #pragma once
-#include <gtkmm.h>
+#include <gtkmm/window.h>
+#include <gtkmm/centerbox.h>
+#include <gtkmm/box.h>
 
 class sysbar : public Gtk::Window {
 

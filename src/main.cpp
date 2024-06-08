@@ -1,13 +1,8 @@
 #include "main.hpp"
-#include "window.hpp"
 #include "config.hpp"
 #include "git_info.hpp"
 
-#include <glibmm.h>
-#include <unistd.h>
 #include <iostream>
-#include <string>
-#include <stdio.h>
 #include <signal.h>
 
 void quit(int signum) {
