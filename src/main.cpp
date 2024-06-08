@@ -19,7 +19,9 @@ void quit(int signum) {
 }
 
 int main(int argc, char* argv[]) {
-	// Read launch arguments
+
+	#ifdef RUNTIME_CONFIG
+	 // Read launch arguments
 	while (true) {
 		switch(getopt(argc, argv, "p:ds:c:e:S:dVvh")) {
 			case 'p':
@@ -72,6 +74,7 @@ int main(int argc, char* argv[]) {
 
 			break;
 	}
+	#endif
 
 	signal(SIGINT, quit);
 
