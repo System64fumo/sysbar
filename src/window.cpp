@@ -59,20 +59,34 @@ sysbar::sysbar() {
 	css_loader css(css_path, this);
 
 	// Load modules
-	load_modules();
+	std::cout << "Loading modules" << std::endl;
+	load_modules(m_start, box_start);
+	load_modules(m_center, box_center);
+	load_modules(m_end, box_end);
 }
 
-void sysbar::load_modules() {
-	std::cout << "Loading modules" << std::endl;
-	module_clock *clock = new module_clock(true, false);
-	box_start.append(*clock);
+void sysbar::load_modules(std::string modules, Gtk::Box &box) {
+	std::istringstream iss(modules);
+	std::string module_name;
 
-	module_weather *weather = new module_weather(true, false);
-	box_start.append(*weather);
+	while (std::getline(iss, module_name, ',')) {
+		module *my_module;
 
-	module_volume *volume = new module_volume(false, false);
-	box_end.append(*volume);
+		if (module_name == "clock")
+			my_module = new module_clock(true, false);
 
-	module_network *network = new module_network(true, false);
-	box_end.append(*network);
+		else if (module_name == "weather")
+			my_module = new module_weather(true, false);
+
+		else if (module_name == "volume")
+			my_module = new module_volume(false, false);
+
+		else if (module_name == "network")
+			my_module = new module_network(false, false);
+		else {
+			std::cout << "Unknown module: " << module_name << std::endl;
+			return;
+		}
+		box.append(*my_module);
+	}
 }

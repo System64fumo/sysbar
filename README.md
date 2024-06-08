@@ -19,9 +19,9 @@ sysbar can be configured in 2 ways<br>
 ```
 arguments:
   -p	Set position
+  -S	Set bar size (Height or Width depending on position)
   -V	Be more verbose
   -v	Prints version info
-  -s	Set bar size (Height or Width depending on position)
 ```
 
 # Theming
