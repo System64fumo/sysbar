@@ -10,3 +10,6 @@ inline bool verbose = false;						// false
 inline std::string m_start = "clock,weather";		// "clock,weather"
 inline std::string m_center = "";					// ""
 inline std::string m_end = "volume,network";		// "volume,network"
+
+// Build time configuration
+#define RUNTIME_CONFIG								// Allow the use of runtime arguments
