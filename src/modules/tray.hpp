@@ -6,7 +6,6 @@
 #include <giomm/dbusownname.h>
 #include <gtkmm/box.h>
 #include <gtkmm/image.h>
-#include <gtkmm/icontheme.h>
 #include <gtkmm/revealer.h>
 
 using DBusConnection = Glib::RefPtr<Gio::DBus::Connection>;
@@ -19,7 +18,6 @@ class tray_item : public Gtk::Image {
 		tray_item(const Glib::ustring &service);
 
 	private:
-		Glib::RefPtr<Gtk::IconTheme> icon_theme;
 		Glib::ustring dbus_name;
 		Glib::ustring dbus_path;
 		DBusProxy item_proxy;
@@ -61,6 +59,5 @@ class module_tray : public module {
 
 		tray_watcher watcher = tray_watcher(&box_container);
 		Glib::RefPtr<Gtk::GestureClick> gesture_click;
-		bool update_info();
 		void on_clicked(int n_press, double x, double y);
 };
