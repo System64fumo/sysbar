@@ -3,12 +3,12 @@ Sysbar is a modular status bar for wayland written in gtkmm4<br>
 
 > [!NOTE]
 > sysbar is work in progress and thus is missing a lot of features.<br>
-> At the moment there is no way to customize the layout besides editing the code.<br>
 > Audio stuff is provided by wireplumber only for now<br>
 
 # Modules
 * clock
 * weather (WIP)
+* tray (WIP)
 * volume
 * network (WIP)
 
