@@ -7,6 +7,7 @@
 #include <gtkmm/box.h>
 #include <gtkmm/image.h>
 #include <gtkmm/icontheme.h>
+#include <gtkmm/revealer.h>
 
 using DBusConnection = Glib::RefPtr<Gio::DBus::Connection>;
 using DBusProxy = Glib::RefPtr<Gio::DBus::Proxy>;
@@ -55,8 +56,11 @@ class module_tray : public module {
 		module_tray(const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
+		Gtk::Revealer revealer_box;
 		Gtk::Box box_container;
 
 		tray_watcher watcher = tray_watcher(&box_container);
+		Glib::RefPtr<Gtk::GestureClick> gesture_click;
 		bool update_info();
+		void on_clicked(int n_press, double x, double y);
 };
