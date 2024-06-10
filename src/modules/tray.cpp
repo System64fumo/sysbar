@@ -11,14 +11,42 @@ module_tray::module_tray(const bool &icon_on_start, const bool &clickable) : mod
 
 	box_container.get_style_context()->add_class("tray_container");
 
+	// TODO: Add an option to disable the revealer
+	// TODO: Add an option to set the revealer's transition duration
+	// TODO: Set custom transition types based on bar position or icon_on_start
+	Gtk::RevealerTransitionType transition_type = Gtk::RevealerTransitionType::SLIDE_LEFT;
+	revealer_box.set_child(box_container);
+	revealer_box.set_transition_type(transition_type);
+	revealer_box.set_transition_duration(250);
+	revealer_box.set_reveal_child(false);
+
 	if (icon_on_start)
-		append(box_container);
+		append(revealer_box);
 	else
-		prepend(box_container);
+		prepend(revealer_box);
+
+	// Custom on_clicked handle
+	gesture_click = Gtk::GestureClick::create();
+	gesture_click->set_button(GDK_BUTTON_PRIMARY);
+	gesture_click->signal_pressed().connect(sigc::mem_fun(*this, &module_tray::on_clicked));
+	add_controller(gesture_click);
 }
 
 bool module_tray::update_info() {
 	return true;
+}
+
+void module_tray::on_clicked(int n_press, double x, double y) {
+	// TODO: Change icon order when the icon is not at the start
+	// Also use top/down arrows for vertical bars
+	if (revealer_box.get_reveal_child()) {
+		image_icon.set_from_icon_name("arrow-right");
+		revealer_box.set_reveal_child(false);
+	}
+	else {
+		image_icon.set_from_icon_name("arrow-left");
+		revealer_box.set_reveal_child(true);
+	}
 }
 
 // Tray watcher
