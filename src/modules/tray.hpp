@@ -4,21 +4,21 @@
 #include <giomm/dbusproxy.h>
 #include <giomm/dbuswatchname.h>
 #include <giomm/dbusownname.h>
-#include <gtkmm/button.h>
+#include <gtkmm/box.h>
 #include <gtkmm/image.h>
+#include <gtkmm/icontheme.h>
 
 using DBusConnection = Glib::RefPtr<Gio::DBus::Connection>;
 using DBusProxy = Glib::RefPtr<Gio::DBus::Proxy>;
 using DBusVariant = Glib::VariantBase;
 using DBusSignalHandler = sigc::slot<void(const Glib::ustring&, const Glib::ustring&, const Glib::VariantContainerBase&)>;
 
-class tray_item : public Gtk::Button {
+class tray_item : public Gtk::Image {
 	public:
 		tray_item(const Glib::ustring &service);
 
 	private:
-		Gtk::Image icon;
-
+		Glib::RefPtr<Gtk::IconTheme> icon_theme;
 		Glib::ustring dbus_name;
 		Glib::ustring dbus_path;
 		DBusProxy item_proxy;
@@ -34,9 +34,10 @@ class tray_item : public Gtk::Button {
 
 class tray_watcher {
 	public:
-		tray_watcher();
+		tray_watcher(Gtk::Box *box);
 
 	private:
+		Gtk::Box *box_container;
 		std::map<Glib::ustring, tray_item> items;
 		int hosts_counter = 0;
 
@@ -54,6 +55,8 @@ class module_tray : public module {
 		module_tray(const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
-		tray_watcher watcher;
+		Gtk::Box box_container;
+
+		tray_watcher watcher = tray_watcher(&box_container);
 		bool update_info();
 };

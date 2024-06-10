@@ -1,5 +1,6 @@
 #include "tray.hpp"
 
+#include <filesystem>
 #include <iostream>
 
 // Tray module
@@ -7,6 +8,8 @@ module_tray::module_tray(const bool &icon_on_start, const bool &clickable) : mod
 	get_style_context()->add_class("module_tray");
 	image_icon.set_from_icon_name("arrow-right");
 	label_info.hide();
+
+	append(box_container);
 }
 
 bool module_tray::update_info() {
@@ -14,7 +17,8 @@ bool module_tray::update_info() {
 }
 
 // Tray watcher
-tray_watcher::tray_watcher() : watcher_id(0) {
+tray_watcher::tray_watcher(Gtk::Box *box) : watcher_id(0) {
+	box_container = box;
 	auto pid = std::to_string(getpid());
 	auto host_id = "org.kde.StatusNotifierHost-" + pid + "-" + std::to_string(++hosts_counter);
 	Gio::DBus::own_name(Gio::DBus::BusType::SESSION, host_id, sigc::mem_fun(*this, &tray_watcher::on_bus_acquired));
@@ -40,6 +44,9 @@ void tray_watcher::on_name_appeared(const DBusConnection &conn, const Glib::ustr
 			for (const auto& service : registered_items.get()) {
 				std::cout << "Adding service: " << service << std::endl;
 				items.emplace(service, service);
+				auto it = items.find(service);
+				tray_item& item = it->second;
+				box_container->prepend(item);
 			}
 		});
 }
@@ -59,9 +66,15 @@ void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustrin
 	if (signal == "StatusNotifierItemRegistered") {
 		std::cout << "Adding: " << service << std::endl;
 		items.emplace(service, service);
+		auto it = items.find(service);
+		tray_item& item = it->second;
+		box_container->prepend(item);
 	}
 	else if (signal == "StatusNotifierItemUnregistered") {
 		std::cout << "Removing: " << service << std::endl;
+		auto it = items.find(service);
+		tray_item& item = it->second;
+		box_container->remove(item);
 		items.erase(service);
 	}
 }
@@ -89,6 +102,30 @@ tray_item::tray_item(const Glib::ustring & service) {
 			update_properties();
 		}
 	);
+
+	set_size_request(20,20);
+}
+
+static Glib::RefPtr<Gdk::Pixbuf> extract_pixbuf(std::vector<std::tuple<gint32, gint32, std::vector<guint8>>> && pixbuf_data) {
+	if (pixbuf_data.empty())
+		return {};
+
+	auto chosen_image = std::max_element(pixbuf_data.begin(), pixbuf_data.end());
+	auto & [width, height, data] = *chosen_image;
+
+	// Convert ARGB to RGBA
+	for (size_t i = 0; i + 3 < data.size(); i += 4) {
+		const auto alpha = data[i];
+		data[i]	 = data[i + 1];
+		data[i + 1] = data[i + 2];
+		data[i + 2] = data[i + 3];
+		data[i + 3] = alpha;
+	}
+
+	auto *data_ptr = new auto(std::move(data));
+	return Gdk::Pixbuf::create_from_data(
+		data_ptr->data(), Gdk::Colorspace::RGB, true, 8, width, height,
+		4 * width, [data_ptr] (auto*) { delete data_ptr; });
 }
 
 void tray_item::update_properties() {
@@ -108,6 +145,17 @@ void tray_item::update_properties() {
 	std::cout << "IconName: " << icon_name << std::endl;
 	std::cout << "Status: " << status << std::endl;
 	std::cout << "menu_path: " << menu_path << std::endl;
+
+	std::string icon_path = icon_theme_path + "/" + icon_name + ".png";
+	if (std::filesystem::exists(icon_path)) {
+		std::cout << "Loading icon from: " << icon_path << std::endl;
+		set(icon_path);
+	}
+	else {
+		std::cout << "Loading icon from pixmap" << std::endl;
+		const auto pixmap_data = extract_pixbuf(get_item_property<std::vector<std::tuple<gint32, gint32, std::vector<guint8>>>>(icon_type_name + "Pixmap"));
+		set(pixmap_data);
+	}
 	std::cout << std::endl;
 
 	// TODO: Write context menu code
