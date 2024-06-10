@@ -146,6 +146,11 @@ void tray_item::update_properties() {
 	std::cout << "Status: " << status << std::endl;
 	std::cout << "menu_path: " << menu_path << std::endl;
 
+	if (!tooltip_title.empty())
+		set_tooltip_text(tooltip_title);
+	else
+		set_tooltip_text(label);
+
 	std::string icon_path = icon_theme_path + "/" + icon_name + ".png";
 	if (std::filesystem::exists(icon_path)) {
 		std::cout << "Loading icon from: " << icon_path << std::endl;
