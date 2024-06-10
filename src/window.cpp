@@ -6,6 +6,7 @@
 // TODO: Make all of this modular at build time
 #include "modules/clock.hpp"
 #include "modules/weather.hpp"
+#include "modules/tray.hpp"
 #include "modules/volume.hpp"
 #include "modules/network.hpp"
 
@@ -76,6 +77,9 @@ void sysbar::load_modules(std::string modules, Gtk::Box &box) {
 
 		else if (module_name == "weather")
 			my_module = new module_weather(true, false);
+
+		else if (module_name == "tray")
+			my_module = new module_tray(true, false);
 
 		else if (module_name == "volume")
 			my_module = new module_volume(false, false);
