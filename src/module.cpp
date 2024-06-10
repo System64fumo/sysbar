@@ -1,4 +1,5 @@
 #include "module.hpp"
+#include "config.hpp"
 
 module::module(const bool &icon_on_start, const bool &clickable) {
 	// TODO: Read config to see if the icon should appear before or after
@@ -12,13 +13,18 @@ module::module(const bool &icon_on_start, const bool &clickable) {
 	auto cursor = Gdk::Cursor::create("pointer");
 	set_cursor(cursor);
 
-	label_info.set_margin_start(5);
-	label_info.set_margin_end(5);
 
-	if (icon_on_start)
+	if (icon_on_start) {
 		prepend(image_icon);
-	else
+		label_info.set_margin_end(size / 3);
+	}
+	else {
 		append(image_icon);
+		label_info.set_margin_start(size / 3);
+	}
+
+	// TODO: add user customizable margins
+	image_icon.set_size_request(size, size);
 
 	popover_popout.set_child(box_popout);
 	popover_popout.set_has_arrow(false);

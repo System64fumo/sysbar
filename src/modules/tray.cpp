@@ -9,7 +9,12 @@ module_tray::module_tray(const bool &icon_on_start, const bool &clickable) : mod
 	image_icon.set_from_icon_name("arrow-right");
 	label_info.hide();
 
-	append(box_container);
+	box_container.get_style_context()->add_class("tray_container");
+
+	if (icon_on_start)
+		append(box_container);
+	else
+		prepend(box_container);
 }
 
 bool module_tray::update_info() {
@@ -81,6 +86,7 @@ void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustrin
 
 // Tray item
 tray_item::tray_item(const Glib::ustring & service) {
+	get_style_context()->add_class("tray_item");
 	const auto slash_ind = service.find('/');
 	dbus_name = service.substr(0, slash_ind);
 	dbus_path = (slash_ind != Glib::ustring::npos) ? service.substr(slash_ind) : "/StatusNotifierItem";
