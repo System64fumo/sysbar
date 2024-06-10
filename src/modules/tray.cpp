@@ -32,10 +32,6 @@ module_tray::module_tray(const bool &icon_on_start, const bool &clickable) : mod
 	add_controller(gesture_click);
 }
 
-bool module_tray::update_info() {
-	return true;
-}
-
 void module_tray::on_clicked(int n_press, double x, double y) {
 	// TODO: Change icon order when the icon is not at the start
 	// Also use top/down arrows for vertical bars
