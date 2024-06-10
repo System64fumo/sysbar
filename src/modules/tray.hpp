@@ -1,6 +1,9 @@
 #include "../module.hpp"
 
-#include <giomm.h>
+#include <giomm/dbusconnection.h>
+#include <giomm/dbusproxy.h>
+#include <giomm/dbuswatchname.h>
+#include <giomm/dbusownname.h>
 #include <gtkmm/button.h>
 #include <gtkmm/image.h>
 
