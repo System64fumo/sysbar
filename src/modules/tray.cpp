@@ -133,7 +133,16 @@ tray_item::tray_item(const Glib::ustring & service) {
 		}
 	);
 
-	set_size_request(20,20);
+	// TODO: add option to use custom icon sizes
+	set_size_request(22,22);
+
+	gesture_right_click = Gtk::GestureClick::create();
+	gesture_right_click->set_button(GDK_BUTTON_SECONDARY);
+	gesture_right_click->signal_pressed().connect(sigc::mem_fun(*this, &tray_item::on_right_clicked));
+	add_controller(gesture_right_click);
+
+	popovermenu_context.set_has_arrow(false);
+	popovermenu_context.set_parent(*this);
 }
 
 static Glib::RefPtr<Gdk::Pixbuf> extract_pixbuf(std::vector<std::tuple<gint32, gint32, std::vector<guint8>>> && pixbuf_data) {
@@ -174,7 +183,7 @@ void tray_item::update_properties() {
 	std::cout << "icon_type_name: " << icon_type_name << std::endl;
 	std::cout << "IconName: " << icon_name << std::endl;
 	std::cout << "Status: " << status << std::endl;
-	std::cout << "menu_path: " << menu_path << std::endl;
+	std::cout << "menu_path: " << dbus_name << menu_path << std::endl;
 
 	if (!tooltip_title.empty())
 		set_tooltip_text(tooltip_title);
@@ -196,4 +205,9 @@ void tray_item::update_properties() {
 	// TODO: Write context menu code
 	if (menu_path.empty())
 		return;
+}
+
+void tray_item::on_right_clicked(int n_press, double x, double y) {
+	std::cout << "Right clicked" << std::endl;
+	popovermenu_context.popup();
 }

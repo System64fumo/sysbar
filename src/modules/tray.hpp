@@ -7,6 +7,7 @@
 #include <gtkmm/box.h>
 #include <gtkmm/image.h>
 #include <gtkmm/revealer.h>
+#include <gtkmm/popovermenu.h>
 
 using DBusConnection = Glib::RefPtr<Gio::DBus::Connection>;
 using DBusProxy = Glib::RefPtr<Gio::DBus::Proxy>;
@@ -18,6 +19,7 @@ class tray_item : public Gtk::Image {
 		tray_item(const Glib::ustring &service);
 
 	private:
+		Gtk::PopoverMenu popovermenu_context;
 		Glib::ustring dbus_name;
 		Glib::ustring dbus_path;
 		DBusProxy item_proxy;
@@ -28,6 +30,8 @@ class tray_item : public Gtk::Image {
 			return variant && variant.is_of_type(Glib::Variant<T>::variant_type()) ? Glib::VariantBase::cast_dynamic<Glib::Variant<T>>(variant).get() : default_value;
 		}
 
+		Glib::RefPtr<Gtk::GestureClick> gesture_right_click;
+		void on_right_clicked(int n_press, double x, double y);
 		void update_properties();
 };
 
