@@ -7,7 +7,7 @@ Sysbar is a modular status bar for wayland written in gtkmm4<br>
 
 # Modules
 * clock
-* weather (WIP)
+* weather
 * tray
 * volume
 * network (WIP)
@@ -26,6 +26,11 @@ arguments:
   -V	Be more verbose
   -v	Prints version info
 ```
+
+# config.hpp
+sysbar offers some features you can enable/disable via config.hpp<br>
+By default all features are enabled, However if you wish to disable something,<br>
+You can do so by deleting the line that contains `#define FEATURE_NAME`<br>
 
 # Theming
 sysbar uses your gtk4 theme by default, However it can be also load custom css,<br>
