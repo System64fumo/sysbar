@@ -109,8 +109,9 @@ void module_weather::get_weather_data(const std::string &date, const std::string
 					tempC = hourly["tempC"];
 					tempF = hourly["tempF"];
 					weatherDesc = hourly["weatherDesc"][0]["value"];
-					// TODO: Figure out the bad last byte in some descriptions
-					//weatherDesc.pop_back();
+					 // For whatever reason, sometimes the last character is a space
+					if (weatherDesc.back() == ' ')
+						weatherDesc.pop_back();
 					return;
 				}
 			}

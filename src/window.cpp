@@ -86,6 +86,7 @@ void sysbar::load_modules(std::string modules, Gtk::Box &box) {
 
 		else if (module_name == "network")
 			my_module = new module_network(false, false);
+
 		else {
 			std::cout << "Unknown module: " << module_name << std::endl;
 			return;
