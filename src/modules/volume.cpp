@@ -12,7 +12,7 @@ module_volume::module_volume(const bool &icon_on_start, const bool &clickable) :
 	// Why is this even necessary??
 	// Why does audio not work if not initialized from another thread?
 	std::thread thread_audio = std::thread([this]() {
-		sys_wp = new sys_wireplumber(&dispatcher_callback);
+		sys_wp = new sysvol_wireplumber(&dispatcher_callback);
 	});
 	thread_audio.join();
 }
