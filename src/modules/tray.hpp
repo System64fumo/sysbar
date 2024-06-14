@@ -1,3 +1,6 @@
+#pragma once
+#ifdef MODULE_TRAY
+
 #include "../module.hpp"
 
 #include <giomm/dbusconnection.h>
@@ -65,3 +68,5 @@ class module_tray : public module {
 		Glib::RefPtr<Gtk::GestureClick> gesture_click;
 		void on_clicked(int n_press, double x, double y);
 };
+
+#endif

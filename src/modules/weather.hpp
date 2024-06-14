@@ -1,3 +1,6 @@
+#pragma once
+#ifdef MODULE_WEATHER
+
 #include "../module.hpp"
 #include <nlohmann/json.hpp>
 
@@ -17,3 +20,5 @@ class module_weather : public module {
 		void download_file();
 		void get_weather_data(const std::string &date, const std::string &time);
 };
+
+#endif

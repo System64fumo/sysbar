@@ -1,3 +1,6 @@
+#pragma once
+#ifdef MODULE_NETWORK
+
 #include "../module.hpp"
 
 struct network_adapter {
@@ -25,3 +28,5 @@ class module_network : public module {
 		void process_message(struct nlmsghdr *nlh);
 		void request_dump(int nl_socket, int type);
 };
+
+#endif

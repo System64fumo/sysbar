@@ -1,5 +1,5 @@
-#include "network.hpp"
 #include "../config.hpp"
+#include "network.hpp"
 
 #include <iostream>
 #include <net/if.h>

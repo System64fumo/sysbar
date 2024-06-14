@@ -1,3 +1,4 @@
+#include "../config.hpp"
 #include "volume.hpp"
 #include <thread>
 

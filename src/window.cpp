@@ -2,8 +2,8 @@
 #include "window.hpp"
 #include "css.hpp"
 #include "config.hpp"
+#include "module.hpp"
 
-// TODO: Make all of this modular at build time
 #include "modules/clock.hpp"
 #include "modules/weather.hpp"
 #include "modules/tray.hpp"
@@ -72,25 +72,39 @@ void sysbar::load_modules(std::string modules, Gtk::Box &box) {
 	while (std::getline(iss, module_name, ',')) {
 		module *my_module;
 
-		if (module_name == "clock")
-			my_module = new module_clock(true, false);
+		if (false)
+			std::cout << "You're not supposed to see this" << std::endl;
 
+		#ifdef MODULE_CLOCK
+		else if (module_name == "clock")
+			my_module = new module_clock(true, false);
+		#endif
+
+		#ifdef MODULE_WEATHER
 		else if (module_name == "weather")
 			my_module = new module_weather(true, false);
+		#endif
 
+		#ifdef MODULE_TRAY
 		else if (module_name == "tray")
 			my_module = new module_tray(true, false);
+		#endif
 
+		#ifdef MODULE_VOLUME
 		else if (module_name == "volume")
 			my_module = new module_volume(false, false);
+		#endif
 
+		#ifdef MODULE_NETWORK
 		else if (module_name == "network")
 			my_module = new module_network(false, false);
+		#endif
 
 		else {
 			std::cout << "Unknown module: " << module_name << std::endl;
 			return;
 		}
+
 		box.append(*my_module);
 	}
 }
