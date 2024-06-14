@@ -2,13 +2,14 @@
 #include <glibmm/dispatcher.h>
 #include <wp/wp.h>
 
-class sys_wireplumber {
+class sysvol_wireplumber {
 	public:
 		int volume;
 		bool muted;
+		bool input;
 
-		sys_wireplumber(Glib::Dispatcher* callback);
-		virtual ~sys_wireplumber();
+		sysvol_wireplumber(Glib::Dispatcher* callback);
+		virtual ~sysvol_wireplumber();
 
 	private:
 		Glib::Dispatcher* callback;
@@ -19,17 +20,17 @@ class sys_wireplumber {
 		int pending_plugins;
 
 		uint32_t node_id = 0;
+		uint32_t input_node_id = 0;
 		const gchar* node_name;
 		WpPlugin *mixer_api;
 		WpPlugin *def_nodes_api;
 
 		void activatePlugins();
 		static bool isValidNodeId(uint32_t id);
-		static void updateVolume(uint32_t id, sys_wireplumber* self);
-		static void onMixerChanged(sys_wireplumber* self);
-		static void onDefaultNodesApiChanged(sys_wireplumber* self);
-		static void onPluginActivated(WpObject* p, GAsyncResult* res, sys_wireplumber* self);
-		static void onMixerApiLoaded(WpObject* p, GAsyncResult* res, sys_wireplumber* self);
-		static void onDefaultNodesApiLoaded(WpObject* p, GAsyncResult* res, sys_wireplumber* self);
-		static void onObjectManagerInstalled(sys_wireplumber* self);
+		static void onMixerChanged(sysvol_wireplumber* self, uint32_t id);
+		static void onDefaultNodesApiChanged(sysvol_wireplumber* self);
+		static void onPluginActivated(WpObject* p, GAsyncResult* res, sysvol_wireplumber* self);
+		static void onMixerApiLoaded(WpObject* p, GAsyncResult* res, sysvol_wireplumber* self);
+		static void onDefaultNodesApiLoaded(WpObject* p, GAsyncResult* res, sysvol_wireplumber* self);
+		static void onObjectManagerInstalled(sysvol_wireplumber* self);
 };

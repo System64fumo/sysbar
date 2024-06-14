@@ -6,7 +6,7 @@ class module_volume : public module {
 		module_volume(const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
-		sys_wireplumber *sys_wp;
+		sysvol_wireplumber *sys_wp;
 		Glib::Dispatcher dispatcher_callback;
 		std::map<int, std::string> volume_icons;
 
