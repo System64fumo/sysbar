@@ -1,3 +1,6 @@
+#pragma once
+#ifdef MODULE_VOLUME
+
 #include "../module.hpp"
 #include "../wireplumber.hpp"
 
@@ -12,3 +15,5 @@ class module_volume : public module {
 
 		void update_info();
 };
+
+#endif

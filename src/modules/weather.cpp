@@ -1,3 +1,4 @@
+#include "../config.hpp"
 #include "weather.hpp"
 
 #include <iostream>

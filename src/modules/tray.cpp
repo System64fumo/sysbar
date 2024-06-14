@@ -1,3 +1,4 @@
+#include "../config.hpp"
 #include "tray.hpp"
 
 #include <filesystem>

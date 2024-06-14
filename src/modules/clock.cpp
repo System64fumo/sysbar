@@ -1,3 +1,4 @@
+#include "../config.hpp"
 #include "clock.hpp"
 #include <ctime>
 

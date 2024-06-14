@@ -1,3 +1,6 @@
+#pragma once
+#ifdef MODULE_CLOCK
+
 #include "../module.hpp"
 #include <gtkmm/button.h>
 
@@ -10,3 +13,5 @@ class module_clock : public module {
 	private:
 		bool update_info();
 };
+
+#endif
