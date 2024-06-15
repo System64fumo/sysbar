@@ -17,6 +17,9 @@ ifneq (, $(shell grep -E '^#define MODULE_TRAY' src/config.hpp))
 	SRCS += src/modules/tray.cpp
 	PKGS += dbus-1
 endif
+ifneq (, $(shell grep -E '^#define MODULE_HYPRLAND' src/config.hpp))
+	SRCS += src/modules/hyprland.cpp
+endif
 ifneq (, $(shell grep -E '^#define MODULE_VOLUME' src/config.hpp))
 	SRCS += src/modules/volume.cpp
 	PKGS += wireplumber-0.5

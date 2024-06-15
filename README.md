@@ -9,6 +9,7 @@ Sysbar is a modular status bar for wayland written in gtkmm4<br>
 * clock
 * weather
 * tray
+* hyprland
 * volume
 * network (WIP)
 

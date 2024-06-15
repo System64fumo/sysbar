@@ -7,6 +7,7 @@
 #include "modules/clock.hpp"
 #include "modules/weather.hpp"
 #include "modules/tray.hpp"
+#include "modules/hyprland.hpp"
 #include "modules/volume.hpp"
 #include "modules/network.hpp"
 
@@ -88,6 +89,11 @@ void sysbar::load_modules(std::string modules, Gtk::Box &box) {
 		#ifdef MODULE_TRAY
 		else if (module_name == "tray")
 			my_module = new module_tray(true, false);
+		#endif
+
+		#ifdef MODULE_HYPRLAND
+		else if (module_name == "hyprland")
+			my_module = new module_hyprland(false, false);
 		#endif
 
 		#ifdef MODULE_VOLUME
