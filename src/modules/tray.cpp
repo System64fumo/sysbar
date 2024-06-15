@@ -72,7 +72,8 @@ void tray_watcher::on_name_appeared(const DBusConnection &conn, const Glib::ustr
 
 			// Add existing items
 			for (const auto& service : registered_items.get()) {
-				std::cout << "Adding service: " << service << std::endl;
+				if (verbose)
+					std::cout << "Adding service: " << service << std::endl;
 				items.emplace(service, service);
 				auto it = items.find(service);
 				tray_item& item = it->second;
@@ -94,14 +95,16 @@ void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustrin
 	Glib::ustring service = item_path.get();
 
 	if (signal == "StatusNotifierItemRegistered") {
-		std::cout << "Adding: " << service << std::endl;
+		if (verbose)
+			std::cout << "Adding: " << service << std::endl;
 		items.emplace(service, service);
 		auto it = items.find(service);
 		tray_item& item = it->second;
 		box_container->prepend(item);
 	}
 	else if (signal == "StatusNotifierItemUnregistered") {
-		std::cout << "Removing: " << service << std::endl;
+		if (verbose)
+			std::cout << "Removing: " << service << std::endl;
 		auto it = items.find(service);
 		tray_item& item = it->second;
 		box_container->remove(item);
@@ -178,13 +181,15 @@ void tray_item::update_properties() {
 	auto status = get_item_property<Glib::ustring>("Status");
 	auto menu_path = get_item_property<Glib::DBusObjectPathString>("Menu");
 
-	std::cout << "Label: " << label << std::endl;
-	std::cout << "ToolTip: " << tooltip_title + tooltip_text << std::endl;
-	std::cout << "IconThemePath: " << icon_theme_path << std::endl;
-	std::cout << "icon_type_name: " << icon_type_name << std::endl;
-	std::cout << "IconName: " << icon_name << std::endl;
-	std::cout << "Status: " << status << std::endl;
-	std::cout << "menu_path: " << dbus_name << menu_path << std::endl;
+	if (verbose) {
+		std::cout << "Label: " << label << std::endl;
+		std::cout << "ToolTip: " << tooltip_title + tooltip_text << std::endl;
+		std::cout << "IconThemePath: " << icon_theme_path << std::endl;
+		std::cout << "icon_type_name: " << icon_type_name << std::endl;
+		std::cout << "IconName: " << icon_name << std::endl;
+		std::cout << "Status: " << status << std::endl;
+		std::cout << "menu_path: " << dbus_name << menu_path << std::endl;
+	}
 
 	if (!tooltip_title.empty())
 		set_tooltip_text(tooltip_title);
@@ -193,11 +198,13 @@ void tray_item::update_properties() {
 
 	std::string icon_path = icon_theme_path + "/" + icon_name + ".png";
 	if (std::filesystem::exists(icon_path)) {
-		std::cout << "Loading icon from: " << icon_path << std::endl;
+		if (verbose)
+			std::cout << "Loading icon from: " << icon_path << std::endl;
 		set(icon_path);
 	}
 	else {
-		std::cout << "Loading icon from pixmap" << std::endl;
+		if (verbose)
+			std::cout << "Loading icon from pixmap" << std::endl;
 		const auto pixmap_data = extract_pixbuf(get_item_property<std::vector<std::tuple<gint32, gint32, std::vector<guint8>>>>(icon_type_name + "Pixmap"));
 		set(pixmap_data);
 	}
@@ -209,6 +216,7 @@ void tray_item::update_properties() {
 }
 
 void tray_item::on_right_clicked(int n_press, double x, double y) {
-	std::cout << "Right clicked" << std::endl;
+	if (verbose)
+		std::cout << "Right clicked" << std::endl;
 	popovermenu_context.popup();
 }
