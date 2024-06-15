@@ -81,7 +81,8 @@ void module_hyprland::socket_listener() {
 			data = temp_buff.substr(0, pos);
 			temp_buff.erase(0, pos + 1);
 			update_info();
-			std::cout << data << std::endl;
+			if (verbose)
+				std::cout << data << std::endl;
 		}
 	}
 
