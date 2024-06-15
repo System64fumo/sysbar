@@ -7,14 +7,18 @@
 #include <curl/curl.h>
 #include <iomanip>
 #include <ctime>
+#include <thread>
 
 module_weather::module_weather(const bool &icon_on_start, const bool &clickable) : module(icon_on_start, clickable) {
 	get_style_context()->add_class("module_weather");
-
-	image_icon.set_from_icon_name("weather-none-available-symbolic");
+	image_icon.set_from_icon_name("content-loading-symbolic");
+	label_info.hide();
 
 	weather_file_url = "https://wttr.in/?format=j1";
-	update_info();
+
+	std::thread update_thread(&module_weather::update_info, this);
+	update_thread.detach();
+
 	Glib::signal_timeout().connect(sigc::mem_fun(*this, &module_weather::update_info), 60 * 60 * 1000); // Update every hour
 }
 
@@ -78,6 +82,7 @@ void module_weather::download_file() {
 	CURLcode res;
 	curl = curl_easy_init();
 	if (!curl) {
+		image_icon.set_from_icon_name("weather-none-available-symbolic");
 		std::cerr << "Error: unable to initialize curl." << std::endl;
 		return;
 	}
@@ -91,9 +96,11 @@ void module_weather::download_file() {
 	fclose(fp);
 
 	if (res != CURLE_OK) {
+		image_icon.set_from_icon_name("weather-none-available-symbolic");
 		std::cerr << "Error: curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
 		return;
 	}
+	label_info.show();
 }
 
 void module_weather::get_weather_data(const std::string &date, const std::string &time) {
