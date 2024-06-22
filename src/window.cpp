@@ -66,6 +66,15 @@ sysbar::sysbar() {
 	show();
 	revealer_box.set_reveal_child(true);
 
+	// Set orientation
+	if (position % 2) {
+		Gtk::Orientation orientation = Gtk::Orientation::VERTICAL;
+		centerbox_main.set_orientation(orientation);
+		box_start.set_orientation(orientation);
+		box_center.set_orientation(orientation);
+		box_end.set_orientation(orientation);
+	}
+
 	// Load custom css
 	std::string home_dir = getenv("HOME");
 	std::string css_path = home_dir + "/.config/sys64/bar.css";

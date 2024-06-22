@@ -13,6 +13,9 @@ module::module(const bool &icon_on_start, const bool &clickable) {
 	auto cursor = Gdk::Cursor::create("pointer");
 	set_cursor(cursor);
 
+	// Set orientation
+	if (position % 2)
+		set_orientation(Gtk::Orientation::VERTICAL);
 
 	if (icon_on_start) {
 		prepend(image_icon);
