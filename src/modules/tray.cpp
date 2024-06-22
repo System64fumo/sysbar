@@ -7,7 +7,6 @@
 // Tray module
 module_tray::module_tray(const bool &icon_on_start, const bool &clickable) : module(icon_on_start, clickable) {
 	get_style_context()->add_class("module_tray");
-	image_icon.set_from_icon_name("arrow-right");
 	label_info.hide();
 
 	box_container.get_style_context()->add_class("tray_container");
@@ -15,7 +14,19 @@ module_tray::module_tray(const bool &icon_on_start, const bool &clickable) : mod
 	// TODO: Add an option to disable the revealer
 	// TODO: Add an option to set the revealer's transition duration
 	// TODO: Set custom transition types based on bar position or icon_on_start
+
 	Gtk::RevealerTransitionType transition_type = Gtk::RevealerTransitionType::SLIDE_LEFT;
+
+	// Set orientation
+	if (position % 2) {
+		image_icon.set_from_icon_name("arrow-down");
+		transition_type = Gtk::RevealerTransitionType::SLIDE_DOWN;
+		box_container.set_orientation(Gtk::Orientation::VERTICAL);
+	}
+	else {
+		image_icon.set_from_icon_name("arrow-right");
+	}
+
 	revealer_box.set_child(box_container);
 	revealer_box.set_transition_type(transition_type);
 	revealer_box.set_transition_duration(250);
@@ -37,10 +48,16 @@ void module_tray::on_clicked(int n_press, double x, double y) {
 	// TODO: Change icon order when the icon is not at the start
 	// Also use top/down arrows for vertical bars
 	if (revealer_box.get_reveal_child()) {
+		if (position % 2)
+			image_icon.set_from_icon_name("arrow-down");
+		else
 		image_icon.set_from_icon_name("arrow-right");
 		revealer_box.set_reveal_child(false);
 	}
 	else {
+		if (position % 2)
+			image_icon.set_from_icon_name("arrow-up");
+		else
 		image_icon.set_from_icon_name("arrow-left");
 		revealer_box.set_reveal_child(true);
 	}
