@@ -12,8 +12,10 @@ module_hyprland::module_hyprland(const bool &icon_on_start, const bool &clickabl
 	image_icon.hide();
 	label_info.set_margin_end(size / 3);
 
-	std::thread socket_thread(&module_hyprland::socket_listener, this);
-	socket_thread.detach();
+	if (position %2 == 0) {
+		std::thread socket_thread(&module_hyprland::socket_listener, this);
+		socket_thread.detach();
+	}
 }
 
 void module_hyprland::update_info() {

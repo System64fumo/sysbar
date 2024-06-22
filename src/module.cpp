@@ -14,16 +14,24 @@ module::module(const bool &icon_on_start, const bool &clickable) {
 	set_cursor(cursor);
 
 	// Set orientation
-	if (position % 2)
-		set_orientation(Gtk::Orientation::VERTICAL);
+	if (position % 2) {
+		Gtk::Orientation orientation = Gtk::Orientation::VERTICAL;
+		set_orientation(orientation);
+	}
 
 	if (icon_on_start) {
 		prepend(image_icon);
-		label_info.set_margin_end(size / 3);
+		if (position % 2)
+			label_info.set_margin_bottom(size / 3);
+		else
+			label_info.set_margin_end(size / 3);
 	}
 	else {
 		append(image_icon);
-		label_info.set_margin_start(size / 3);
+		if (position % 2)
+			label_info.set_margin_top(size / 3);
+		else
+			label_info.set_margin_start(size / 3);
 	}
 
 	// TODO: add user customizable margins
