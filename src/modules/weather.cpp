@@ -34,6 +34,7 @@ bool module_weather::update_info() {
 		// Maybe add a way to set a custom URL later?
 		download_file();
 	}
+	label_info.show();
 
 	std::ifstream file(weather_file);
 	file >> json_data;
@@ -100,7 +101,6 @@ void module_weather::download_file() {
 		std::cerr << "Error: curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
 		return;
 	}
-	label_info.show();
 }
 
 void module_weather::get_weather_data(const std::string &date, const std::string &time) {
