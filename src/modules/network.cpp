@@ -84,11 +84,11 @@ bool module_network::setup_netlink() {
 	}
 
 	// Request current addresses
-	request_dump(nl_socket, RTM_GETADDR);
+	request_dump(RTM_GETADDR);
 	return true;
 }
 
-void module_network::request_dump(int nl_socket, int type) {
+void module_network::request_dump(const int &type) {
 	struct nlmsghdr nlh;
 	struct rtgenmsg rtg;
 

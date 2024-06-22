@@ -87,7 +87,7 @@ sysbar::sysbar() {
 	load_modules(m_end, box_end);
 }
 
-void sysbar::load_modules(std::string modules, Gtk::Box &box) {
+void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 	std::istringstream iss(modules);
 	std::string module_name;
 

@@ -15,8 +15,7 @@ class module : public Gtk::Box {
 
 	private:
 		Gtk::Popover popover_popout;
-		Glib::RefPtr<Gtk::GestureClick> m_click_gesture;
 
-		void on_clicked(int n_press, double x, double y);
+		void on_clicked(const int &n_press, const double &x, const double &y);
 		void on_dispatcher();
 };

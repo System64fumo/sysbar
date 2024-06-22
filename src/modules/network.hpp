@@ -26,7 +26,7 @@ class module_network : public module {
 		void interface_thread();
 		void update_info();
 		void process_message(struct nlmsghdr *nlh);
-		void request_dump(int nl_socket, int type);
+		void request_dump(const int &type);
 };
 
 #endif
