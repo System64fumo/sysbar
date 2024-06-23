@@ -7,6 +7,7 @@ module_volume::module_volume(const bool &icon_on_start, const bool &clickable) :
 	volume_icons[0] = "audio-volume-low-symbolic";
 	volume_icons[1] = "audio-volume-medium-symbolic";
 	volume_icons[2] = "audio-volume-high-symbolic";
+	label_info.hide(); // For now this is hidden, soon there will be a way to re enable this.
 
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_volume::update_info));
 
