@@ -188,6 +188,32 @@ static Glib::RefPtr<Gdk::Pixbuf> extract_pixbuf(std::vector<std::tuple<gint32, g
 		4 * width, [data_ptr] (auto*) { delete data_ptr; });
 }
 
+// TODO: Construct a menu from this mess
+void print_menu_layout(const Glib::VariantBase& layout) {
+	auto layout_tuple = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(layout);
+	auto id_variant = layout_tuple.get_child(0);
+	auto properties_variant = layout_tuple.get_child(1);
+	auto children_variant = layout_tuple.get_child(2);
+
+	std::cout << "ID variant type: " << id_variant.get_type_string() << std::endl;
+	std::cout << "Properties variant type: " << properties_variant.get_type_string() << std::endl;
+	std::cout << "Children variant type: " << children_variant.get_type_string() << std::endl;
+
+	int id = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(id_variant).get();
+	auto properties_dict = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::ustring, Glib::VariantBase>>>(properties_variant);
+	auto children = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<Glib::VariantBase>>>(children_variant);
+
+	std::cout << "ID: " << id << std::endl;
+	std::cout << "Properties:" << std::endl;
+	for (const auto& key_value : properties_dict.get()) {
+		std::cout << "  " << key_value.first << " = " << key_value.second.print() << std::endl;
+	}
+
+	for (const auto& child : children.get()) {
+		print_menu_layout(child);
+	}
+}
+
 void tray_item::update_properties() {
 	// TODO: Actually do something with the info we got
 	auto label = get_item_property<Glib::ustring>("Title");
@@ -205,7 +231,8 @@ void tray_item::update_properties() {
 		std::cout << "icon_type_name: " << icon_type_name << std::endl;
 		std::cout << "IconName: " << icon_name << std::endl;
 		std::cout << "Status: " << status << std::endl;
-		std::cout << "menu_path: " << dbus_name << menu_path << std::endl;
+		std::cout << "dbus_name: " << dbus_name << std::endl;
+		std::cout << "menu_path: " << menu_path << std::endl;
 	}
 
 	if (!tooltip_title.empty())
@@ -228,8 +255,38 @@ void tray_item::update_properties() {
 	std::cout << std::endl;
 
 	// TODO: Write context menu code
+	// At this point i don't even think this is even worth it,
+	// This is just too painful to write.
 	if (menu_path.empty())
 		return;
+
+	// Everything beyond this point is highly experimental/filler code.
+	// DBus is such a pain to work with this might get deleted/abandoned later.
+
+	auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SESSION);
+
+	auto proxy = Gio::DBus::Proxy::create_sync(
+		connection, dbus_name, menu_path,
+		"com.canonical.dbusmenu"	// Does this change?
+	);
+
+	auto parent_id = Glib::Variant<int>::create(0);
+	auto recursion_depth = Glib::Variant<int>::create(1);
+	auto property_names = Glib::Variant<std::vector<Glib::ustring>>::create({});
+
+	std::vector<Glib::VariantBase> args_vector;
+	args_vector.push_back(parent_id);
+	args_vector.push_back(recursion_depth);
+	args_vector.push_back(property_names);
+
+	auto args = Glib::VariantContainerBase::create_tuple(args_vector);
+
+	auto result = proxy->call_sync("GetLayout", args);
+	auto result_tuple = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(result);
+	auto layout_variant = result_tuple.get_child(1);
+
+	if (verbose)
+		print_menu_layout(layout_variant);
 }
 
 void tray_item::on_right_clicked(int n_press, double x, double y) {
