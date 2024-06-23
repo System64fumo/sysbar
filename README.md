@@ -4,13 +4,12 @@ Sysbar is a modular status bar for wayland written in gtkmm4<br>
 
 > [!NOTE]
 > sysbar is work in progress and thus is missing a lot of features.<br>
-> System tray currently requires another bar in the background to work atm <br>
 > Audio stuff is provided by wireplumber only for now<br>
 
 # Modules
 * clock
 * weather
-* tray (slightly broken)
+* tray
 * hyprland
 * volume
 * network (WIP)
@@ -43,6 +42,7 @@ Just copy the included bar.css file to ~/.config/sys64/bar.css<br>
 # Credits
 [wttr.in](https://github.com/chubin/wttr.in) for their weather service<br>
 [waybar](https://github.com/Alexays/Waybar) for showing how to write wireplumber stuff<br>
+[wf-shell](https://github.com/WayfireWM/wf-shell) for showing how to do system tray stuff<br>
 
 # Also check out
 [waybar](https://github.com/Alexays/Waybar)<br>
