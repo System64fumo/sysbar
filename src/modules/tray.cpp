@@ -68,13 +68,34 @@ tray_watcher::tray_watcher(Gtk::Box *box) : watcher_id(0) {
 	box_container = box;
 	auto pid = std::to_string(getpid());
 	auto host_id = "org.kde.StatusNotifierHost-" + pid + "-" + std::to_string(++hosts_counter);
-	Gio::DBus::own_name(Gio::DBus::BusType::SESSION, host_id, sigc::mem_fun(*this, &tray_watcher::on_bus_acquired));
+	auto watcher_name = "org.kde.StatusNotifierWatcher";
+	//Gio::DBus::own_name(Gio::DBus::BusType::SESSION, watcher_name, sigc::mem_fun(*this, &tray_watcher::on_bus_acquired_watcher));
+	Gio::DBus::own_name(Gio::DBus::BusType::SESSION, host_id, sigc::mem_fun(*this, &tray_watcher::on_bus_acquired_host));
 }
 
-void tray_watcher::on_bus_acquired(const DBusConnection& conn, const Glib::ustring& name) {
+void tray_watcher::on_bus_acquired_host(const DBusConnection& conn, const Glib::ustring& name) {
 	watcher_id = Gio::DBus::watch_name(conn,"org.kde.StatusNotifierWatcher",
 		sigc::mem_fun(*this, &tray_watcher::on_name_appeared),
 		sigc::mem_fun(*this, &tray_watcher::on_name_vanished));
+}
+
+void tray_watcher::on_bus_acquired_watcher(const DBusConnection& conn, const Glib::ustring& name) {
+	std::string introspection_xml =
+		"<node>"
+		"  <interface name='org.kde.StatusNotifierWatcher'>"
+		"    <method name='RegisterStatusNotifierItem'>"
+		"      <arg type='s' name='service' direction='in'/>"
+		"    </method>"
+		"    <method name='RegisterStatusNotifierHost'>"
+		"        <arg direction='in' name='service' type='s'/>"
+		"    </method>"
+		"    <property name='RegisteredStatusNotifierItems' type='as' access='read'/>"
+		"    <property name='IsStatusNotifierHostRegistered' type='b' access='read'/>"
+		"  </interface>"
+		"</node>";
+	Glib::RefPtr<Gio::DBus::NodeInfo> introspection_data = Gio::DBus::NodeInfo::create_for_xml(introspection_xml);
+	conn->register_object("/StatusNotifierWatcher", introspection_data->lookup_interface("org.kde.StatusNotifierWatcher"));
+
 }
 
 void tray_watcher::on_name_appeared(const DBusConnection &conn, const Glib::ustring &name, const Glib::ustring &owner) {
