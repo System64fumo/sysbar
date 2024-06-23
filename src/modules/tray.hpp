@@ -50,7 +50,8 @@ class tray_watcher {
 		guint watcher_id;
 		DBusProxy watcher_proxy;
 
-		void on_bus_acquired(const DBusConnection &conn, const Glib::ustring &name);
+		void on_bus_acquired_host(const DBusConnection &conn, const Glib::ustring &name);
+		void on_bus_acquired_watcher(const DBusConnection &conn, const Glib::ustring &name);
 		void on_name_appeared(const DBusConnection &conn, const Glib::ustring &name, const Glib::ustring &owner);
 		void on_name_vanished(const DBusConnection &conn, const Glib::ustring &name);
 		void handle_signal(const Glib::ustring &sender, const Glib::ustring &signal, const Glib::VariantContainerBase &params);
