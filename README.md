@@ -4,12 +4,13 @@ Sysbar is a modular status bar for wayland written in gtkmm4<br>
 
 > [!NOTE]
 > sysbar is work in progress and thus is missing a lot of features.<br>
+> System tray currently requires another bar in the background to work atm <br>
 > Audio stuff is provided by wireplumber only for now<br>
 
 # Modules
 * clock
 * weather
-* tray
+* tray (slightly broken)
 * hyprland
 * volume
 * network (WIP)
