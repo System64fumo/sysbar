@@ -48,7 +48,24 @@ class tray_watcher {
 		int hosts_counter = 0;
 
 		guint watcher_id;
+		DBusConnection watcher_connection;
 		DBusProxy watcher_proxy;
+
+	const Gio::DBus::InterfaceVTable interface_table =
+		Gio::DBus::InterfaceVTable(
+		sigc::mem_fun(*this, &tray_watcher::on_interface_method_call),
+		sigc::mem_fun(*this, &tray_watcher::on_interface_get_property));
+
+	void on_interface_method_call(const Glib::RefPtr<Gio::DBus::Connection> &connection,
+		const Glib::ustring &sender,
+		const Glib::ustring &object_path, const Glib::ustring &interface_name,
+		const Glib::ustring &method_name, const Glib::VariantContainerBase &parameters,
+		const Glib::RefPtr<Gio::DBus::MethodInvocation> &invocation);
+
+	void on_interface_get_property(Glib::VariantBase &property,
+		const Glib::RefPtr<Gio::DBus::Connection> &connection,
+		const Glib::ustring &sender, const Glib::ustring &object_path,
+		const Glib::ustring &interface_name, const Glib::ustring &property_name);
 
 		void on_bus_acquired_host(const DBusConnection &conn, const Glib::ustring &name);
 		void on_bus_acquired_watcher(const DBusConnection &conn, const Glib::ustring &name);

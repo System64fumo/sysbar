@@ -69,36 +69,95 @@ tray_watcher::tray_watcher(Gtk::Box *box) : watcher_id(0) {
 	auto pid = std::to_string(getpid());
 	auto host_id = "org.kde.StatusNotifierHost-" + pid + "-" + std::to_string(++hosts_counter);
 	auto watcher_name = "org.kde.StatusNotifierWatcher";
-	//Gio::DBus::own_name(Gio::DBus::BusType::SESSION, watcher_name, sigc::mem_fun(*this, &tray_watcher::on_bus_acquired_watcher));
+	Gio::DBus::own_name(Gio::DBus::BusType::SESSION, watcher_name, sigc::mem_fun(*this, &tray_watcher::on_bus_acquired_watcher));
 	Gio::DBus::own_name(Gio::DBus::BusType::SESSION, host_id, sigc::mem_fun(*this, &tray_watcher::on_bus_acquired_host));
 }
 
 void tray_watcher::on_bus_acquired_host(const DBusConnection& conn, const Glib::ustring& name) {
+	if (verbose)
+		std::cout << "on_bus_acquired: " << name << std::endl;
+
 	watcher_id = Gio::DBus::watch_name(conn,"org.kde.StatusNotifierWatcher",
 		sigc::mem_fun(*this, &tray_watcher::on_name_appeared),
 		sigc::mem_fun(*this, &tray_watcher::on_name_vanished));
 }
 
 void tray_watcher::on_bus_acquired_watcher(const DBusConnection& conn, const Glib::ustring& name) {
-	std::string introspection_xml =
-		"<node>"
-		"  <interface name='org.kde.StatusNotifierWatcher'>"
-		"    <method name='RegisterStatusNotifierItem'>"
-		"      <arg type='s' name='service' direction='in'/>"
-		"    </method>"
-		"    <method name='RegisterStatusNotifierHost'>"
-		"        <arg direction='in' name='service' type='s'/>"
-		"    </method>"
-		"    <property name='RegisteredStatusNotifierItems' type='as' access='read'/>"
-		"    <property name='IsStatusNotifierHostRegistered' type='b' access='read'/>"
-		"  </interface>"
-		"</node>";
-	Glib::RefPtr<Gio::DBus::NodeInfo> introspection_data = Gio::DBus::NodeInfo::create_for_xml(introspection_xml);
-	conn->register_object("/StatusNotifierWatcher", introspection_data->lookup_interface("org.kde.StatusNotifierWatcher"));
+	if (verbose)
+		std::cout << "on_bus_acquired_watcher: " << name << std::endl;
 
+	const auto introspection_data = Gio::DBus::NodeInfo::create_for_xml(
+	R"(
+	<?xml version="1.0" encoding="UTF-8"?>
+	<node name="/StatusNotifierWatcher">
+		<interface name="org.kde.StatusNotifierWatcher">
+			<method name="RegisterStatusNotifierItem">
+				<arg direction="in" name="service" type="s"/>
+			</method>
+			<method name="RegisterStatusNotifierHost">
+				<arg direction="in" name="service" type="s"/>
+			</method>
+	
+			<property name="RegisteredStatusNotifierItems" type="as" access="read"/>
+			<property name="IsStatusNotifierHostRegistered" type="b" access="read"/>
+			<property name="ProtocolVersion" type="i" access="read"/>
+	
+			<signal name="StatusNotifierItemRegistered">
+				<arg name="service" type="s"/>
+			</signal>
+			<signal name="StatusNotifierItemUnregistered">
+				<arg name="service" type="s"/>
+			</signal>
+			<signal name="StatusNotifierHostRegistered"/>
+		</interface>
+	</node>
+	)")->lookup_interface();
+
+	conn->register_object("/StatusNotifierWatcher", introspection_data, interface_table);
+	watcher_connection = conn;
+}
+
+void tray_watcher::on_interface_method_call(const Glib::RefPtr<Gio::DBus::Connection> & connection,
+	const Glib::ustring & sender, const Glib::ustring & object_path,
+	const Glib::ustring & interface_name, const Glib::ustring & method_name,
+	const Glib::VariantContainerBase & parameters,
+	const Glib::RefPtr<Gio::DBus::MethodInvocation> & invocation) {
+
+	if (verbose)
+		std::cerr << "on_interface_method_call: " << method_name << std::endl;
+
+	handle_signal(sender, method_name, parameters);
+
+	invocation->return_value(Glib::VariantContainerBase());
+}
+
+void tray_watcher::on_interface_get_property(Glib::VariantBase & property,
+	const Glib::RefPtr<Gio::DBus::Connection> & connection,
+	const Glib::ustring & sender, const Glib::ustring & object_path,
+	const Glib::ustring & interface_name, const Glib::ustring & property_name) {
+
+	// TODO: This sucks, Use real data!!
+	// Write actual code to get stuff
+	if (property_name == "RegisteredStatusNotifierItems") {
+		std::vector<Glib::ustring> sn_items_names;
+		sn_items_names.reserve(1);
+		property = Glib::Variant<std::vector<Glib::ustring>>::create(sn_items_names);
+	}
+	else if (property_name == "IsStatusNotifierHostRegistered") {
+		property = Glib::Variant<bool>::create(0);
+	}
+	else if (property_name == "ProtocolVersion") {
+		property = Glib::Variant<int>::create(0);
+	}
+	else {
+		std::cerr << "Unknown property: " << property_name << std::endl;
+	}
 }
 
 void tray_watcher::on_name_appeared(const DBusConnection &conn, const Glib::ustring &name, const Glib::ustring &owner) {
+	if (verbose)
+		std::cout << "on_name_appeared: " << name << ", Owner: " << owner << std::endl;
+
 	Gio::DBus::Proxy::create(conn, "org.kde.StatusNotifierWatcher", "/StatusNotifierWatcher", "org.kde.StatusNotifierWatcher",
 		[this, host_name = name](const Glib::RefPtr<Gio::AsyncResult> &result) {
 			watcher_proxy = Gio::DBus::Proxy::create_finish(result);
@@ -121,10 +180,16 @@ void tray_watcher::on_name_appeared(const DBusConnection &conn, const Glib::ustr
 }
 
 void tray_watcher::on_name_vanished(const DBusConnection& conn, const Glib::ustring& name) {
+	if (verbose)
+		std::cout << "on_name_vanished: " << name << std::endl;
+
 	Gio::DBus::unwatch_name(watcher_id);
 }
 
 void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustring& signal, const Glib::VariantContainerBase& params) {
+	if (verbose)
+		std::cout << "handle_signal: " << sender << ", Signal: " << signal << std::endl;
+
 	if (!params.is_of_type(Glib::VariantType("(s)")))
 		return;
 
@@ -132,17 +197,31 @@ void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustrin
 	params.get_child(item_path);
 	Glib::ustring service = item_path.get();
 
-	if (signal == "StatusNotifierItemRegistered") {
+	if (signal == "RegisterStatusNotifierItem") {
 		if (verbose)
 			std::cout << "Adding: " << service << std::endl;
+
 		items.emplace(service, service);
 		auto it = items.find(service);
 		tray_item& item = it->second;
 		box_container->prepend(item);
+
+		// TODO: Add cleanup code
+		Gio::DBus::watch_name(
+			Gio::DBus::BusType::SESSION,
+			sender, {}, [this, service] (const DBusConnection &conn, const Glib::ustring &name) {
+			watcher_connection->emit_signal(
+				"/StatusNotifierWatcher",
+				"org.kde.StatusNotifierWatcher",
+				"StatusNotifierItemUnregistered",
+				{},
+				Glib::Variant<std::tuple<Glib::ustring>>::create(std::tuple(service)));
+		});
 	}
 	else if (signal == "StatusNotifierItemUnregistered") {
 		if (verbose)
 			std::cout << "Removing: " << service << std::endl;
+
 		auto it = items.find(service);
 		tray_item& item = it->second;
 		box_container->remove(item);
