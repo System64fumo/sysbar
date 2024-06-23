@@ -29,6 +29,9 @@ endif
 ifneq (, $(shell grep -E '^#define MODULE_NETWORK' src/config.hpp))
 	SRCS += src/modules/network.cpp
 endif
+ifneq (, $(shell grep -E '^#define MODULE_NOTIFICATION' src/config.hpp))
+	SRCS += src/modules/notifications.cpp
+endif
 
 OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(patsubst src/modules/%,$(BUILDDIR)/%,$(SRCS:.cpp=.o)))
 
