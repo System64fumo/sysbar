@@ -10,6 +10,7 @@
 #include "modules/hyprland.hpp"
 #include "modules/volume.hpp"
 #include "modules/network.hpp"
+#include "modules/notifications.hpp"
 
 #include <gtk4-layer-shell.h>
 #include <filesystem>
@@ -125,6 +126,11 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 		#ifdef MODULE_NETWORK
 		else if (module_name == "network")
 			my_module = new module_network(false, false);
+		#endif
+
+		#ifdef MODULE_NOTIFICATION
+		else if (module_name == "notification")
+			my_module = new module_notifications(false, false);
 		#endif
 
 		else {
