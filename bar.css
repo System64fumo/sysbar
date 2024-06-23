@@ -1,0 +1,18 @@
+window {
+	background: @theme_bg_color;
+	border-bottom: 1px solid @borders;
+}
+
+.module {
+	border-radius: 4px;
+}
+
+.module:hover {
+	background: alpha(CurrentColor, 0.1);
+}
+
+.tray_container {
+}
+
+.tray_item {
+}

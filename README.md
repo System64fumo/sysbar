@@ -1,5 +1,6 @@
 # Sysbar
 Sysbar is a modular status bar for wayland written in gtkmm4<br>
+![preview](https://github.com/System64fumo/sysbar/blob/main/preview.jpg "preview")
 
 > [!NOTE]
 > sysbar is work in progress and thus is missing a lot of features.<br>
@@ -12,6 +13,7 @@ Sysbar is a modular status bar for wayland written in gtkmm4<br>
 * hyprland
 * volume
 * network (WIP)
+* notification (WIP)
 
 # Configuration
 sysbar can be configured in 2 ways<br>
@@ -35,7 +37,7 @@ You can do so by deleting the line that contains `#define FEATURE_NAME`<br>
 
 # Theming
 sysbar uses your gtk4 theme by default, However it can be also load custom css,<br>
-Just copy the included menu.css file to ~/.config/sys64/bar.css<br>
+Just copy the included bar.css file to ~/.config/sys64/bar.css<br>
 
 # Credits
 [wttr.in](https://github.com/chubin/wttr.in) for their weather service<br>
