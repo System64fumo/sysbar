@@ -199,23 +199,26 @@ void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustrin
 
 	if (signal == "RegisterStatusNotifierItem") {
 		if (verbose)
-			std::cout << "Adding: " << service << std::endl;
+			std::cout << "Adding: " << sender << std::endl;
 
-		items.emplace(service, service);
-		auto it = items.find(service);
+		auto dbus_name = ((service[0] == '/') ? sender : service);
+		auto dbus_path = ((service[0] == '/') ? service : "/StatusNotifierItem");
+
+		items.emplace(sender, dbus_name + dbus_path);
+		auto it = items.find(sender);
 		tray_item& item = it->second;
 		box_container->prepend(item);
 
 		// TODO: Add cleanup code
 		Gio::DBus::watch_name(
 			Gio::DBus::BusType::SESSION,
-			sender, {}, [this, service] (const DBusConnection &conn, const Glib::ustring &name) {
+			sender, {}, [this, sender] (const DBusConnection &conn, const Glib::ustring &name) {
 			watcher_connection->emit_signal(
 				"/StatusNotifierWatcher",
 				"org.kde.StatusNotifierWatcher",
 				"StatusNotifierItemUnregistered",
 				{},
-				Glib::Variant<std::tuple<Glib::ustring>>::create(std::tuple(service)));
+				Glib::Variant<std::tuple<Glib::ustring>>::create(std::tuple(sender)));
 		});
 	}
 	else if (signal == "StatusNotifierItemUnregistered") {
@@ -230,7 +233,7 @@ void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustrin
 }
 
 // Tray item
-tray_item::tray_item(const Glib::ustring & service) {
+tray_item::tray_item(const Glib::ustring &service) {
 	get_style_context()->add_class("tray_item");
 	const auto slash_ind = service.find('/');
 	dbus_name = service.substr(0, slash_ind);
