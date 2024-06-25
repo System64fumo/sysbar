@@ -332,7 +332,7 @@ void tray_item::build_menu(const Glib::VariantBase &layout) {
 			flowbox_context.append(*item);
 
 			item->signal_clicked().connect([this, id]() {
-				if (debug)
+				if (verbose)
 					std::cout << "Clicked: " << dbus_name << ", ID: " << id << std::endl;
 
 				auto message = Gio::DBus::Message::create_method_call(

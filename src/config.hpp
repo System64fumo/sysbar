@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <map>
+#include <string>
 
 /*
 	Default config.
@@ -23,3 +25,14 @@ inline std::string m_end = "volume,network,notification";	// "volume,network,not
 #define MODULE_VOLUME			// Include the volume module
 #define MODULE_NETWORK			// Include the network module
 #define MODULE_NOTIFICATION		// Include the notifications module
+
+// INI parser
+class config_parser {
+	public:
+		config_parser(const std::string &filename);
+		std::string get_value(const std::string &section, const std::string &key);
+
+	private:
+		std::map<std::string, std::map<std::string, std::string>> data;
+		std::string trim(const std::string &str);
+};
