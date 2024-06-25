@@ -328,8 +328,65 @@ void tray_item::build_menu(const Glib::VariantBase &layout) {
 				label.erase(0, 1);
 			}
 
-			Gtk::Button item(label);
-			flowbox_context.append(item);
+			Gtk::Button *item = Gtk::manage(new Gtk::Button(label));
+			flowbox_context.append(*item);
+
+			item->signal_clicked().connect([this, id]() {
+				if (debug)
+					std::cout << "Clicked: " << dbus_name << ", ID: " << id << std::endl;
+
+				auto message = Gio::DBus::Message::create_method_call(
+					dbus_name,
+					menu_path,
+					"com.canonical.dbusmenu",	// Does this change? (Part 2)
+					"EventGroup"
+				);
+
+				auto struct_variant = Glib::Variant<std::tuple<int32_t, Glib::ustring, Glib::Variant<int32_t>, uint32_t>>::create(
+					std::make_tuple(
+						id,
+						"clicked",
+						Glib::Variant<int32_t>::create(0), // No clue what this is
+						4144182 // No clue what this is either
+					)
+				);
+
+				auto array_variant = Glib::Variant<std::vector<Glib::Variant<std::tuple<int32_t, Glib::ustring, Glib::Variant<int32_t>, uint32_t>>>>::create(
+					std::vector<Glib::Variant<std::tuple<int32_t, Glib::ustring, Glib::Variant<int32_t>, uint32_t>>>{struct_variant}
+				);
+
+				auto tuple_variant = Glib::Variant<std::tuple<Glib::Variant<std::vector<Glib::Variant<std::tuple<int32_t, Glib::ustring, Glib::Variant<int32_t>, uint32_t>>>>>>::create(
+					std::make_tuple(array_variant)
+				);
+
+				// The data structure is wrong here
+				// I have no idea how to correct it
+
+				// Desired output:
+				//    array [
+				//      struct {
+				//         int32 5
+				//         string "clicked"
+				//         variant             int32 0
+				//         uint32 5174789
+				//      }
+				//   ]
+
+				// Actual output:
+				//    variant       array [
+				//         variant             struct {
+				//               int32 5
+				//               string "clicked"
+				//               variant                   int32 0
+				//               uint32 4144182
+				//            }
+				//      ]
+
+				message->set_body(tuple_variant);
+
+				auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SESSION);
+				auto response = connection->send_message_with_reply_sync(message, -1);
+			});
 		}
 	}
 
@@ -346,7 +403,7 @@ void tray_item::update_properties() {
 	Glib::ustring icon_type_name = get_item_property<Glib::ustring>("Status") == "NeedsAttention" ? "AttentionIcon" : "Icon";
 	auto icon_name = get_item_property<Glib::ustring>(icon_type_name + "Name");
 	auto status = get_item_property<Glib::ustring>("Status");
-	auto menu_path = get_item_property<Glib::DBusObjectPathString>("Menu");
+	menu_path = get_item_property<Glib::DBusObjectPathString>("Menu");
 
 	if (verbose) {
 		std::cout << "Label: " << label << std::endl;

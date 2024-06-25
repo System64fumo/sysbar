@@ -27,6 +27,7 @@ class tray_item : public Gtk::Image {
 		Gtk::FlowBox flowbox_context;
 		Glib::ustring dbus_name;
 		Glib::ustring dbus_path;
+		Glib::DBusObjectPathString menu_path;
 		DBusProxy item_proxy;
 
 		template<typename T> T get_item_property(const Glib::ustring &name, const T &default_value = {}) const {
