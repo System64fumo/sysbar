@@ -1,6 +1,7 @@
 #include "../config.hpp"
 #include "tray.hpp"
 
+#include <gtkmm/button.h>
 #include <filesystem>
 #include <iostream>
 
@@ -260,13 +261,16 @@ tray_item::tray_item(const Glib::ustring &service) {
 	// TODO: add option to use custom icon sizes
 	set_size_request(22,22);
 
+	// Right click menu
 	gesture_right_click = Gtk::GestureClick::create();
 	gesture_right_click->set_button(GDK_BUTTON_SECONDARY);
 	gesture_right_click->signal_pressed().connect(sigc::mem_fun(*this, &tray_item::on_right_clicked));
 	add_controller(gesture_right_click);
 
-	popovermenu_context.set_has_arrow(false);
-	popovermenu_context.set_parent(*this);
+	flowbox_context.set_selection_mode(Gtk::SelectionMode::NONE);
+	popover_context.set_child(flowbox_context);
+	popover_context.set_has_arrow(false);
+	popover_context.set_parent(*this);
 }
 
 static Glib::RefPtr<Gdk::Pixbuf> extract_pixbuf(std::vector<std::tuple<gint32, gint32, std::vector<guint8>>> && pixbuf_data) {
@@ -292,28 +296,45 @@ static Glib::RefPtr<Gdk::Pixbuf> extract_pixbuf(std::vector<std::tuple<gint32, g
 }
 
 // TODO: Construct a menu from this mess
-void print_menu_layout(const Glib::VariantBase& layout) {
+// Menu constructed, Now how the hell do i bind actions?
+void tray_item::build_menu(const Glib::VariantBase &layout) {
 	auto layout_tuple = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(layout);
 	auto id_variant = layout_tuple.get_child(0);
 	auto properties_variant = layout_tuple.get_child(1);
 	auto children_variant = layout_tuple.get_child(2);
 
-	std::cout << "ID variant type: " << id_variant.get_type_string() << std::endl;
-	std::cout << "Properties variant type: " << properties_variant.get_type_string() << std::endl;
-	std::cout << "Children variant type: " << children_variant.get_type_string() << std::endl;
-
 	int id = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(id_variant).get();
 	auto properties_dict = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::ustring, Glib::VariantBase>>>(properties_variant);
 	auto children = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<Glib::VariantBase>>>(children_variant);
 
-	std::cout << "ID: " << id << std::endl;
-	std::cout << "Properties:" << std::endl;
+	if (verbose) {
+		std::cout << "ID variant type: " << id_variant.get_type_string() << std::endl;
+		std::cout << "Properties variant type: " << properties_variant.get_type_string() << std::endl;
+		std::cout << "Children variant type: " << children_variant.get_type_string() << std::endl;
+		std::cout << "ID: " << id << std::endl;
+		std::cout << "Properties:" << std::endl;
+	}
+
 	for (const auto& key_value : properties_dict.get()) {
-		std::cout << "  " << key_value.first << " = " << key_value.second.print() << std::endl;
+		if (verbose)
+			std::cout << "  " << key_value.first << " = " << key_value.second.print() << std::endl;
+
+		if (key_value.first == "label") {
+			std::string label = key_value.second.print();
+
+			// Cleanup
+			label = label.substr(1, label.length() - 2);
+			if (label[0] == '_') {
+				label.erase(0, 1);
+			}
+
+			Gtk::Button item(label);
+			flowbox_context.append(item);
+		}
 	}
 
 	for (const auto& child : children.get()) {
-		print_menu_layout(child);
+		build_menu(child);
 	}
 }
 
@@ -355,7 +376,6 @@ void tray_item::update_properties() {
 		const auto pixmap_data = extract_pixbuf(get_item_property<std::vector<std::tuple<gint32, gint32, std::vector<guint8>>>>(icon_type_name + "Pixmap"));
 		set(pixmap_data);
 	}
-	std::cout << std::endl;
 
 	// TODO: Write context menu code
 	// At this point i don't even think this is even worth it,
@@ -388,12 +408,11 @@ void tray_item::update_properties() {
 	auto result_tuple = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(result);
 	auto layout_variant = result_tuple.get_child(1);
 
-	if (verbose)
-		print_menu_layout(layout_variant);
+	build_menu(layout_variant);
 }
 
 void tray_item::on_right_clicked(int n_press, double x, double y) {
 	if (verbose)
 		std::cout << "Right clicked" << std::endl;
-	popovermenu_context.popup();
+	popover_context.popup();
 }

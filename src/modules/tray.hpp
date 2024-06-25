@@ -8,9 +8,10 @@
 #include <giomm/dbuswatchname.h>
 #include <giomm/dbusownname.h>
 #include <gtkmm/box.h>
+#include <gtkmm/flowbox.h>
 #include <gtkmm/image.h>
 #include <gtkmm/revealer.h>
-#include <gtkmm/popovermenu.h>
+#include <gtkmm/popover.h>
 
 using DBusConnection = Glib::RefPtr<Gio::DBus::Connection>;
 using DBusProxy = Glib::RefPtr<Gio::DBus::Proxy>;
@@ -22,7 +23,8 @@ class tray_item : public Gtk::Image {
 		tray_item(const Glib::ustring &service);
 
 	private:
-		Gtk::PopoverMenu popovermenu_context;
+		Gtk::Popover popover_context;
+		Gtk::FlowBox flowbox_context;
 		Glib::ustring dbus_name;
 		Glib::ustring dbus_path;
 		DBusProxy item_proxy;
@@ -36,6 +38,7 @@ class tray_item : public Gtk::Image {
 		Glib::RefPtr<Gtk::GestureClick> gesture_right_click;
 		void on_right_clicked(int n_press, double x, double y);
 		void update_properties();
+		void build_menu(const Glib::VariantBase &layout);
 };
 
 class tray_watcher {
