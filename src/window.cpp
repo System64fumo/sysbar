@@ -66,6 +66,7 @@ sysbar::sysbar() {
 	centerbox_main.set_end_widget(box_end);
 	show();
 	revealer_box.set_reveal_child(true);
+	revealer_box.queue_resize();
 
 	// Set orientation
 	if (position % 2) {
@@ -100,37 +101,37 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 
 		#ifdef MODULE_CLOCK
 		else if (module_name == "clock")
-			my_module = new module_clock(true, false);
+			my_module = Gtk::make_managed<module_clock>(true, false);
 		#endif
 
 		#ifdef MODULE_WEATHER
 		else if (module_name == "weather")
-			my_module = new module_weather(true, false);
+			my_module = Gtk::make_managed<module_weather>(true, false);
 		#endif
 
 		#ifdef MODULE_TRAY
 		else if (module_name == "tray")
-			my_module = new module_tray(true, false);
+			my_module = Gtk::make_managed<module_tray>(true, false);
 		#endif
 
 		#ifdef MODULE_HYPRLAND
 		else if (module_name == "hyprland")
-			my_module = new module_hyprland(false, false);
+			my_module = Gtk::make_managed<module_hyprland>(false, false);
 		#endif
 
 		#ifdef MODULE_VOLUME
 		else if (module_name == "volume")
-			my_module = new module_volume(false, false);
+			my_module = Gtk::make_managed<module_volume>(false, false);
 		#endif
 
 		#ifdef MODULE_NETWORK
 		else if (module_name == "network")
-			my_module = new module_network(false, false);
+			my_module = Gtk::make_managed<module_network>(false, false);
 		#endif
 
 		#ifdef MODULE_NOTIFICATION
 		else if (module_name == "notification")
-			my_module = new module_notifications(false, false);
+			my_module = Gtk::make_managed<module_notifications>(false, false);
 		#endif
 
 		else {

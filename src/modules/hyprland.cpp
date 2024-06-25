@@ -24,7 +24,7 @@ void module_hyprland::update_info() {
 		int pos = active_window_data.find(',');
 
 		std::string active_window = active_window_data.substr(0, pos);
-		std::string active_window_title = active_window_data.substr(pos + 1);
+		Glib::ustring active_window_title = active_window_data.substr(pos + 1);
 
 		label_info.set_text(active_window_title);
 	}
