@@ -21,7 +21,7 @@ sysbar::sysbar() {
 	gtk_layer_init_for_window(gobj());
 	gtk_layer_set_namespace(gobj(), "sysbar");
 	gtk_layer_set_layer(gobj(), GTK_LAYER_SHELL_LAYER_TOP);
-	gtk_layer_set_exclusive_zone(gobj(), size);
+	gtk_layer_set_exclusive_zone(gobj(), config_main.size);
 
 	gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_TOP, true);
 	gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_RIGHT, true);
@@ -30,26 +30,26 @@ sysbar::sysbar() {
 
 	Gtk::RevealerTransitionType transition_type = Gtk::RevealerTransitionType::SLIDE_UP;
 
-	switch (position) {
+	switch (config_main.position) {
 		case 0:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_DOWN;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_BOTTOM, false);
-			set_default_size(-1, size);
+			set_default_size(-1, config_main.size);
 			break;
 		case 1:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_LEFT;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_LEFT, false);
-			set_default_size(size, -1);
+			set_default_size(config_main.size, -1);
 			break;
 		case 2:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_UP;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_TOP, false);
-			set_default_size(-1, size);
+			set_default_size(-1, config_main.size);
 			break;
 		case 3:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_RIGHT;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_RIGHT, false);
-			set_default_size(size, -1);
+			set_default_size(config_main.size, -1);
 			break;
 	}
 
@@ -69,7 +69,7 @@ sysbar::sysbar() {
 	revealer_box.queue_resize();
 
 	// Set orientation
-	if (position % 2) {
+	if (config_main.position % 2) {
 		Gtk::Orientation orientation = Gtk::Orientation::VERTICAL;
 		centerbox_main.set_orientation(orientation);
 		box_start.set_orientation(orientation);
@@ -84,9 +84,9 @@ sysbar::sysbar() {
 
 	// Load modules
 	std::cout << "Loading modules" << std::endl;
-	load_modules(m_start, box_start);
-	load_modules(m_center, box_center);
-	load_modules(m_end, box_end);
+	load_modules(config_main.m_start, box_start);
+	load_modules(config_main.m_center, box_center);
+	load_modules(config_main.m_end, box_end);
 }
 
 void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {

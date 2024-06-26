@@ -9,12 +9,14 @@
 */
 
 // Current													Default
-inline int position = 0;									// 0
-inline int size = 40;										// 40
-inline bool verbose = false;								// false
-inline std::string m_start = "clock,weather,tray";			// "clock,weather,tray"
-inline std::string m_center = "hyprland";					// ""
-inline std::string m_end = "volume,network,notification";	// "volume,network,notification"
+inline struct config {
+	int position = 0;									// 0
+	int size = 40;										// 40
+	bool verbose = false;								// false
+	std::string m_start = "clock,weather,tray";			// "clock,weather,tray"
+	std::string m_center = "hyprland";					// ""
+	std::string m_end = "volume,network,notification";	// "volume,network,notification"
+} config_main;
 
 // Build time configuration		Description
 #define RUNTIME_CONFIG			// Allow the use of runtime arguments

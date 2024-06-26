@@ -19,7 +19,7 @@ module_tray::module_tray(const bool &icon_on_start, const bool &clickable) : mod
 	Gtk::RevealerTransitionType transition_type = Gtk::RevealerTransitionType::SLIDE_LEFT;
 
 	// Set orientation
-	if (position % 2) {
+	if (config_main.position % 2) {
 		image_icon.set_from_icon_name("arrow-down");
 		transition_type = Gtk::RevealerTransitionType::SLIDE_DOWN;
 		box_container.set_orientation(Gtk::Orientation::VERTICAL);
@@ -49,14 +49,14 @@ void module_tray::on_clicked(int n_press, double x, double y) {
 	// TODO: Change icon order when the icon is not at the start
 	// Also use top/down arrows for vertical bars
 	if (revealer_box.get_reveal_child()) {
-		if (position % 2)
+		if (config_main.position % 2)
 			image_icon.set_from_icon_name("arrow-down");
 		else
 		image_icon.set_from_icon_name("arrow-right");
 		revealer_box.set_reveal_child(false);
 	}
 	else {
-		if (position % 2)
+		if (config_main.position % 2)
 			image_icon.set_from_icon_name("arrow-up");
 		else
 		image_icon.set_from_icon_name("arrow-left");
@@ -75,7 +75,7 @@ tray_watcher::tray_watcher(Gtk::Box *box) : watcher_id(0) {
 }
 
 void tray_watcher::on_bus_acquired_host(const DBusConnection& conn, const Glib::ustring& name) {
-	if (verbose)
+	if (config_main.verbose)
 		std::cout << "on_bus_acquired: " << name << std::endl;
 
 	watcher_id = Gio::DBus::watch_name(conn,"org.kde.StatusNotifierWatcher",
@@ -84,7 +84,7 @@ void tray_watcher::on_bus_acquired_host(const DBusConnection& conn, const Glib::
 }
 
 void tray_watcher::on_bus_acquired_watcher(const DBusConnection& conn, const Glib::ustring& name) {
-	if (verbose)
+	if (config_main.verbose)
 		std::cout << "on_bus_acquired_watcher: " << name << std::endl;
 
 	const auto introspection_data = Gio::DBus::NodeInfo::create_for_xml(
@@ -124,7 +124,7 @@ void tray_watcher::on_interface_method_call(const Glib::RefPtr<Gio::DBus::Connec
 	const Glib::VariantContainerBase & parameters,
 	const Glib::RefPtr<Gio::DBus::MethodInvocation> & invocation) {
 
-	if (verbose)
+	if (config_main.verbose)
 		std::cerr << "on_interface_method_call: " << method_name << std::endl;
 
 	handle_signal(sender, method_name, parameters);
@@ -156,7 +156,7 @@ void tray_watcher::on_interface_get_property(Glib::VariantBase & property,
 }
 
 void tray_watcher::on_name_appeared(const DBusConnection &conn, const Glib::ustring &name, const Glib::ustring &owner) {
-	if (verbose)
+	if (config_main.verbose)
 		std::cout << "on_name_appeared: " << name << ", Owner: " << owner << std::endl;
 
 	Gio::DBus::Proxy::create(conn, "org.kde.StatusNotifierWatcher", "/StatusNotifierWatcher", "org.kde.StatusNotifierWatcher",
@@ -170,7 +170,7 @@ void tray_watcher::on_name_appeared(const DBusConnection &conn, const Glib::ustr
 
 			// Add existing items
 			for (const auto& service : registered_items.get()) {
-				if (verbose)
+				if (config_main.verbose)
 					std::cout << "Adding service: " << service << std::endl;
 				items.emplace(service, service);
 				auto it = items.find(service);
@@ -181,14 +181,14 @@ void tray_watcher::on_name_appeared(const DBusConnection &conn, const Glib::ustr
 }
 
 void tray_watcher::on_name_vanished(const DBusConnection& conn, const Glib::ustring& name) {
-	if (verbose)
+	if (config_main.verbose)
 		std::cout << "on_name_vanished: " << name << std::endl;
 
 	Gio::DBus::unwatch_name(watcher_id);
 }
 
 void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustring& signal, const Glib::VariantContainerBase& params) {
-	if (verbose)
+	if (config_main.verbose)
 		std::cout << "handle_signal: " << sender << ", Signal: " << signal << std::endl;
 
 	if (!params.is_of_type(Glib::VariantType("(s)")))
@@ -199,7 +199,7 @@ void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustrin
 	Glib::ustring service = item_path.get();
 
 	if (signal == "RegisterStatusNotifierItem") {
-		if (verbose)
+		if (config_main.verbose)
 			std::cout << "Adding: " << sender << std::endl;
 
 		auto dbus_name = ((service[0] == '/') ? sender : service);
@@ -223,7 +223,7 @@ void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustrin
 		});
 	}
 	else if (signal == "StatusNotifierItemUnregistered") {
-		if (verbose)
+		if (config_main.verbose)
 			std::cout << "Removing: " << service << std::endl;
 
 		auto it = items.find(service);
@@ -307,7 +307,7 @@ void tray_item::build_menu(const Glib::VariantBase &layout) {
 	auto properties_dict = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::ustring, Glib::VariantBase>>>(properties_variant);
 	auto children = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<Glib::VariantBase>>>(children_variant);
 
-	if (verbose) {
+	if (config_main.verbose) {
 		std::cout << "ID variant type: " << id_variant.get_type_string() << std::endl;
 		std::cout << "Properties variant type: " << properties_variant.get_type_string() << std::endl;
 		std::cout << "Children variant type: " << children_variant.get_type_string() << std::endl;
@@ -316,7 +316,7 @@ void tray_item::build_menu(const Glib::VariantBase &layout) {
 	}
 
 	for (const auto& key_value : properties_dict.get()) {
-		if (verbose)
+		if (config_main.verbose)
 			std::cout << "  " << key_value.first << " = " << key_value.second.print() << std::endl;
 
 		if (key_value.first == "label") {
@@ -332,7 +332,7 @@ void tray_item::build_menu(const Glib::VariantBase &layout) {
 			flowbox_context.append(*item);
 
 			item->signal_clicked().connect([this, id]() {
-				if (verbose)
+				if (config_main.verbose)
 					std::cout << "Clicked: " << dbus_name << ", ID: " << id << std::endl;
 
 				auto message = Gio::DBus::Message::create_method_call(
@@ -405,7 +405,7 @@ void tray_item::update_properties() {
 	auto status = get_item_property<Glib::ustring>("Status");
 	menu_path = get_item_property<Glib::DBusObjectPathString>("Menu");
 
-	if (verbose) {
+	if (config_main.verbose) {
 		std::cout << "Label: " << label << std::endl;
 		std::cout << "ToolTip: " << tooltip_title + tooltip_text << std::endl;
 		std::cout << "IconThemePath: " << icon_theme_path << std::endl;
@@ -423,12 +423,12 @@ void tray_item::update_properties() {
 
 	std::string icon_path = icon_theme_path + "/" + icon_name + ".png";
 	if (std::filesystem::exists(icon_path)) {
-		if (verbose)
+		if (config_main.verbose)
 			std::cout << "Loading icon from: " << icon_path << std::endl;
 		set(icon_path);
 	}
 	else {
-		if (verbose)
+		if (config_main.verbose)
 			std::cout << "Loading icon from pixmap" << std::endl;
 		const auto pixmap_data = extract_pixbuf(get_item_property<std::vector<std::tuple<gint32, gint32, std::vector<guint8>>>>(icon_type_name + "Pixmap"));
 		set(pixmap_data);
@@ -469,7 +469,7 @@ void tray_item::update_properties() {
 }
 
 void tray_item::on_right_clicked(int n_press, double x, double y) {
-	if (verbose)
+	if (config_main.verbose)
 		std::cout << "Right clicked" << std::endl;
 	popover_context.popup();
 }

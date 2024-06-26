@@ -20,27 +20,27 @@ int main(int argc, char* argv[]) {
 	while (true) {
 		switch(getopt(argc, argv, "p:ds:c:e:S:dVvh")) {
 			case 'p':
-				position = std::stoi(optarg);
+				config_main.position = std::stoi(optarg);
 				continue;
 
 			case 's':
-				m_start = optarg;
+				config_main.m_start = optarg;
 				continue;
 
 			case 'c':
-				m_center = optarg;
+				config_main.m_center = optarg;
 				continue;
 
 			case 'e':
-				m_end = optarg;
+				config_main.m_end = optarg;
 				continue;
 
 			case 'S':
-				size = std::stoi(optarg);
+				config_main.size = std::stoi(optarg);
 				continue;
 
 			case 'V':
-				verbose = true;
+				config_main.verbose = true;
 				continue;
 
 			case 'v':
