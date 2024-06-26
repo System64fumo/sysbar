@@ -1,25 +1,14 @@
 #pragma once
 #include <string>
-#include <map>
-#include <string>
 
 /*
 	Default config.
 	Can be configured instead of using launch arguments.
 */
 
-// Current													Default
-inline struct config {
-	int position = 0;									// 0
-	int size = 40;										// 40
-	bool verbose = false;								// false
-	std::string m_start = "clock,weather,tray";			// "clock,weather,tray"
-	std::string m_center = "hyprland";					// ""
-	std::string m_end = "volume,network,notification";	// "volume,network,notification"
-} config_main;
-
 // Build time configuration		Description
-#define RUNTIME_CONFIG			// Allow the use of runtime arguments
+#define CONFIG_RUNTIME			// Allow the use of runtime arguments
+#define CONFIG_FILE				// Allow the use of a config file
 #define MODULE_CLOCK			// Include the clock module
 #define MODULE_WEATHER			// Include the weather module
 #define MODULE_TRAY				// Include the tray module
@@ -28,13 +17,11 @@ inline struct config {
 #define MODULE_NETWORK			// Include the network module
 #define MODULE_NOTIFICATION		// Include the notifications module
 
-// INI parser
-class config_parser {
-	public:
-		config_parser(const std::string &filename);
-		std::string get_value(const std::string &section, const std::string &key);
-
-	private:
-		std::map<std::string, std::map<std::string, std::string>> data;
-		std::string trim(const std::string &str);
-};
+inline struct config {
+	int position = 0;
+	int size = 40;
+	bool verbose = false;
+	std::string m_start = "clock,weather,tray";
+	std::string m_center = "hyprland";
+	std::string m_end = "volume,network,notification";
+} config_main;

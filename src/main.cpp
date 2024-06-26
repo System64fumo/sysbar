@@ -1,5 +1,6 @@
 #include "main.hpp"
 #include "config.hpp"
+#include "config_parser.hpp"
 #include "git_info.hpp"
 
 #include <iostream>
@@ -69,6 +70,34 @@ int main(int argc, char* argv[]) {
 
 			break;
 	}
+	#endif
+
+	#ifdef CONFIG_FILE
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar.conf");
+
+	std::string position = config.get_value("main", "position");
+	if (position != "empty")
+		config_main.position = std::stoi(position);
+
+	std::string size = config.get_value("main", "size");
+	if (size != "empty")
+		config_main.size = std::stoi(size);
+
+	std::string verbose = config.get_value("main", "verbose");
+	if (verbose == "true")
+		config_main.verbose = true;
+
+	std::string m_start = config.get_value("main", "m_start");
+	if (m_start != "empty")
+		config_main.m_start = m_start;
+
+	std::string m_center = config.get_value("main", "m_center");
+	if (m_center != "empty")
+		config_main.m_center = m_center;
+
+	std::string m_end = config.get_value("main", "m_end");
+	if (m_end != "empty")
+		config_main.m_end = m_end;
 	#endif
 
 	signal(SIGINT, quit);

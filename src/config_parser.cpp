@@ -1,4 +1,4 @@
-#include "config.hpp"
+#include "config_parser.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -48,7 +48,7 @@ std::string config_parser::get_value(const std::string &section, const std::stri
 	else {
 		std::cerr << "Section '" << section << "' not found" << std::endl;
 	}
-	return "";
+	return "empty";
 }
 
 std::string config_parser::trim(const std::string &str) {
