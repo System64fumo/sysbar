@@ -8,6 +8,7 @@ class module_clock : public module {
 		module_clock(const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
+		int interval = 1000;
 		std::string format = "%H:%M";
 		bool update_info();
 };
