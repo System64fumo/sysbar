@@ -21,6 +21,7 @@ using DBusSignalHandler = sigc::slot<void(const Glib::ustring&, const Glib::ustr
 class tray_item : public Gtk::Image {
 	public:
 		tray_item(const Glib::ustring &service);
+		~tray_item();
 
 	private:
 		Gtk::Popover popover_context;

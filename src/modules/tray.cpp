@@ -273,6 +273,10 @@ tray_item::tray_item(const Glib::ustring &service) {
 	popover_context.set_parent(*this);
 }
 
+tray_item::~tray_item() {
+	popover_context.unparent();
+}
+
 static Glib::RefPtr<Gdk::Pixbuf> extract_pixbuf(std::vector<std::tuple<gint32, gint32, std::vector<guint8>>> && pixbuf_data) {
 	if (pixbuf_data.empty())
 		return {};
