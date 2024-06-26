@@ -10,9 +10,9 @@
 module_hyprland::module_hyprland(const bool &icon_on_start, const bool &clickable) : module(icon_on_start, clickable) {
 	get_style_context()->add_class("module_hyprland");
 	image_icon.hide();
-	label_info.set_margin_end(size / 3);
+	label_info.set_margin_end(config_main.size / 3);
 
-	if (position %2 == 0) {
+	if (config_main.position %2 == 0) {
 		std::thread socket_thread(&module_hyprland::socket_listener, this);
 		socket_thread.detach();
 	}
@@ -83,7 +83,7 @@ void module_hyprland::socket_listener() {
 			data = temp_buff.substr(0, pos);
 			temp_buff.erase(0, pos + 1);
 			update_info();
-			if (verbose)
+			if (config_main.verbose)
 				std::cout << data << std::endl;
 		}
 	}

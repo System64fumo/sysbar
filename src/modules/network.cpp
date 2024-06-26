@@ -56,7 +56,7 @@ void module_network::update_info() {
 		return;
 	}
 
-	if (verbose)
+	if (config_main.verbose)
 		std::cout << "Default interface is " << default_if->interface << std::endl;
 
 	if (default_if->type == "Ethernet")
@@ -161,7 +161,7 @@ void module_network::process_message(struct nlmsghdr *nlh) {
 		if (rth->rta_type == IFA_LOCAL) {
 
 			// Print the values of the interface
-			if (verbose) {
+			if (config_main.verbose) {
 				std::cout << "Interface: " << if_name << std::endl;
 				std::cout << "Type: " << if_type << std::endl;
 				std::cout << "Address: " << if_addr << std::endl;
@@ -177,7 +177,7 @@ void module_network::process_message(struct nlmsghdr *nlh) {
 			}
 
 			// Create a new interface if needed
-			if (verbose)
+			if (config_main.verbose)
 				std::cout << if_name << " has been added to the list\n" << std::endl;
 
 			network_adapter adapter;

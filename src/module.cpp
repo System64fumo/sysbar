@@ -14,28 +14,28 @@ module::module(const bool &icon_on_start, const bool &clickable) {
 	set_cursor(cursor);
 
 	// Set orientation
-	if (position % 2) {
+	if (config_main.position % 2) {
 		Gtk::Orientation orientation = Gtk::Orientation::VERTICAL;
 		set_orientation(orientation);
 	}
 
 	if (icon_on_start) {
 		prepend(image_icon);
-		if (position % 2)
-			label_info.set_margin_bottom(size / 3);
+		if (config_main.position % 2)
+			label_info.set_margin_bottom(config_main.size / 3);
 		else
-			label_info.set_margin_end(size / 3);
+			label_info.set_margin_end(config_main.size / 3);
 	}
 	else {
 		append(image_icon);
-		if (position % 2)
-			label_info.set_margin_top(size / 3);
+		if (config_main.position % 2)
+			label_info.set_margin_top(config_main.size / 3);
 		else
-			label_info.set_margin_start(size / 3);
+			label_info.set_margin_start(config_main.size / 3);
 	}
 
 	// TODO: add user customizable margins
-	image_icon.set_size_request(size, size);
+	image_icon.set_size_request(config_main.size, config_main.size);
 
 	// Life would be simpler if buttons would not get stuck in a :hover
 	// or :active state permenantly..
