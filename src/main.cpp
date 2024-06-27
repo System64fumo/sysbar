@@ -16,7 +16,7 @@ void quit(int signum) {
 
 int main(int argc, char* argv[]) {
 
-	#ifdef RUNTIME_CONFIG
+	#ifdef CONFIG_RUNTIME
 	 // Read launch arguments
 	while (true) {
 		switch(getopt(argc, argv, "p:ds:c:e:S:dVvh")) {
