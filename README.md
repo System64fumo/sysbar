@@ -12,7 +12,7 @@ Sysbar is a modular status bar for wayland written in gtkmm4<br>
 * tray
 * hyprland
 * volume
-* network (WIP)
+* network
 * notification (WIP)
 
 # Configuration

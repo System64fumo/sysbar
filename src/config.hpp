@@ -1,11 +1,6 @@
 #pragma once
 #include <string>
 
-/*
-	Default config.
-	Can be configured instead of using launch arguments.
-*/
-
 // Build time configuration		Description
 #define CONFIG_RUNTIME			// Allow the use of runtime arguments
 #define CONFIG_FILE				// Allow the use of a config file
@@ -16,6 +11,11 @@
 #define MODULE_VOLUME			// Include the volume module
 #define MODULE_NETWORK			// Include the network module
 #define MODULE_NOTIFICATION		// Include the notifications module
+
+/*
+	Default config.
+	Can be configured instead of using launch arguments.
+*/
 
 inline struct config {
 	int position = 0;
