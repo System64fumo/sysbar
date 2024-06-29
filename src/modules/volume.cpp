@@ -1,3 +1,4 @@
+#include "../config_parser.hpp"
 #include "../config.hpp"
 #include "volume.hpp"
 #include <thread>
@@ -7,7 +8,14 @@ module_volume::module_volume(const bool &icon_on_start, const bool &clickable) :
 	volume_icons[0] = "audio-volume-low-symbolic";
 	volume_icons[1] = "audio-volume-medium-symbolic";
 	volume_icons[2] = "audio-volume-high-symbolic";
-	label_info.hide(); // For now this is hidden, soon there will be a way to re enable this.
+	label_info.hide();
+
+	#ifdef CONFIG_FILE
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar.conf");
+	std::string cfg_label = config.get_value("volume", "label");
+	if (cfg_label == "true")
+		label_info.show(); 
+	#endif
 
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_volume::update_info));
 
