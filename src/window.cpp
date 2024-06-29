@@ -28,26 +28,20 @@ sysbar::sysbar() {
 	gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_BOTTOM, true);
 	gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_LEFT, true);
 
-	Gtk::RevealerTransitionType transition_type = Gtk::RevealerTransitionType::SLIDE_UP;
-
 	switch (config_main.position) {
 		case 0:
-			transition_type = Gtk::RevealerTransitionType::SLIDE_DOWN;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_BOTTOM, false);
 			set_default_size(-1, config_main.size);
 			break;
 		case 1:
-			transition_type = Gtk::RevealerTransitionType::SLIDE_LEFT;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_LEFT, false);
 			set_default_size(config_main.size, -1);
 			break;
 		case 2:
-			transition_type = Gtk::RevealerTransitionType::SLIDE_UP;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_TOP, false);
 			set_default_size(-1, config_main.size);
 			break;
 		case 3:
-			transition_type = Gtk::RevealerTransitionType::SLIDE_RIGHT;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_RIGHT, false);
 			set_default_size(config_main.size, -1);
 			break;
@@ -55,18 +49,12 @@ sysbar::sysbar() {
 
 	// Initialize
 	set_hide_on_close(true);
-	set_child(revealer_box);
-	revealer_box.set_child(centerbox_main);
-	revealer_box.set_transition_type(transition_type);
-	revealer_box.set_transition_duration(1000);
-
+	set_child(centerbox_main);
 	centerbox_main.get_style_context()->add_class("centerbox_main");
 	centerbox_main.set_start_widget(box_start);
 	centerbox_main.set_center_widget(box_center);
 	centerbox_main.set_end_widget(box_end);
 	show();
-	revealer_box.set_reveal_child(true);
-	revealer_box.queue_resize();
 
 	// Set orientation
 	if (config_main.position % 2) {
