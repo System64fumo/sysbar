@@ -29,6 +29,9 @@ endif
 ifneq (, $(shell grep -E '^#define MODULE_NETWORK' src/config.hpp))
 	SRCS += src/modules/network.cpp
 endif
+ifneq (, $(shell grep -E '^#define MODULE_BATTERY' src/config.hpp))
+	SRCS += src/modules/battery.cpp
+endif
 ifneq (, $(shell grep -E '^#define MODULE_NOTIFICATION' src/config.hpp))
 	SRCS += src/modules/notifications.cpp
 endif

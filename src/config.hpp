@@ -10,6 +10,7 @@
 #define MODULE_HYPRLAND			// Include the tray module
 #define MODULE_VOLUME			// Include the volume module
 #define MODULE_NETWORK			// Include the network module
+#define MODULE_BATTERY			// Include the battery module
 #define MODULE_NOTIFICATION		// Include the notifications module
 
 /*
