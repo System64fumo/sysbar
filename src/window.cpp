@@ -10,6 +10,7 @@
 #include "modules/hyprland.hpp"
 #include "modules/volume.hpp"
 #include "modules/network.hpp"
+#include "modules/battery.hpp"
 #include "modules/notifications.hpp"
 
 #include <gtk4-layer-shell.h>
@@ -115,6 +116,11 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 		#ifdef MODULE_NETWORK
 		else if (module_name == "network")
 			my_module = Gtk::make_managed<module_network>(false, false);
+		#endif
+
+		#ifdef MODULE_BATTERY
+		else if (module_name == "battery")
+			my_module = Gtk::make_managed<module_battery>(false, false);
 		#endif
 
 		#ifdef MODULE_NOTIFICATION
