@@ -9,7 +9,8 @@ class module_clock : public module {
 
 	private:
 		int interval = 1000;
-		std::string format = "%H:%M";
+		std::string label_format = "%H:%M";
+		std::string tooltip_format = "%Y/%m/%d";
 		bool update_info();
 };
 
