@@ -11,9 +11,13 @@ module_clock::module_clock(const bool &icon_on_start, const bool &clickable) : m
 	#ifdef CONFIG_FILE
 	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar.conf");
 
-	std::string cfg_format = config.get_value("clock", "format");
-	if (cfg_format != "empty")
-		format = cfg_format;
+	std::string cfg_label_format = config.get_value("clock", "label-format");
+	if (cfg_label_format != "empty")
+		tooltip_format = cfg_label_format;
+
+	std::string cfg_tooltip_format = config.get_value("clock", "tooltip-format");
+	if (cfg_tooltip_format != "empty")
+		tooltip_format = cfg_tooltip_format;
 
 	std::string cfg_interval = config.get_value("clock", "interval");
 	if (cfg_interval != "empty")
@@ -27,8 +31,14 @@ module_clock::module_clock(const bool &icon_on_start, const bool &clickable) : m
 bool module_clock::update_info() {
 	std::time_t now = std::time(nullptr);
 	std::tm* local_time = std::localtime(&now);
-	char buffer[32];
-	std::strftime(buffer, sizeof(buffer), format.c_str(), local_time);
-	label_info.set_text(buffer);
+
+	char label_buffer[32];
+	std::strftime(label_buffer, sizeof(label_buffer), label_format.c_str(), local_time);
+	label_info.set_text(label_buffer);
+
+	char tooltip_buffer[32];
+	std::strftime(tooltip_buffer, sizeof(tooltip_buffer), tooltip_format.c_str() , local_time);
+	set_tooltip_text(tooltip_buffer);
+
 	return true;
 }
