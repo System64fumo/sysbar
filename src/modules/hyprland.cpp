@@ -1,3 +1,4 @@
+#include "../config_parser.hpp"
 #include "../config.hpp"
 #include "hyprland.hpp"
 
@@ -12,6 +13,14 @@ module_hyprland::module_hyprland(const bool &icon_on_start, const bool &clickabl
 	image_icon.hide();
 	label_info.set_margin_end(config_main.size / 3);
 
+	#ifdef CONFIG_FILE
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar.conf");
+
+	std::string cfg_char_limit = config.get_value("hyprland", "character-limit");
+	if (cfg_char_limit != "empty")
+		character_limit = std::stoi(cfg_char_limit);
+	#endif
+
 	if (config_main.position %2 == 0) {
 		std::thread socket_thread(&module_hyprland::socket_listener, this);
 		socket_thread.detach();
@@ -25,6 +34,9 @@ void module_hyprland::update_info() {
 
 		std::string active_window = active_window_data.substr(0, pos);
 		Glib::ustring active_window_title = active_window_data.substr(pos + 1);
+
+		if (active_window_title.size() > character_limit)
+			active_window_title = active_window_title.substr(0, character_limit + 3) + "...";
 
 		label_info.set_text(active_window_title);
 	}
