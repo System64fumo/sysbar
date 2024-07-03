@@ -339,57 +339,31 @@ void tray_item::build_menu(const Glib::VariantBase &layout) {
 				if (config_main.verbose)
 					std::cout << "Clicked: " << dbus_name << ", ID: " << id << std::endl;
 
+				auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SESSION);
+
+				auto now = std::chrono::system_clock::now();
+				auto duration = now.time_since_epoch();
+				auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
+				auto parameters_variant = Glib::Variant<std::tuple<int32_t, Glib::ustring, Glib::VariantBase, uint32_t>>::create(
+					std::make_tuple(
+							id,
+							"clicked",
+							Glib::Variant<int32_t>::create(0), // No clue what this is
+							timestamp
+						)
+				);
+
 				auto message = Gio::DBus::Message::create_method_call(
 					dbus_name,
 					menu_path,
 					"com.canonical.dbusmenu",	// Does this change? (Part 2)
-					"EventGroup"
+					"Event"
 				);
 
-				auto struct_variant = Glib::Variant<std::tuple<int32_t, Glib::ustring, Glib::Variant<int32_t>, uint32_t>>::create(
-					std::make_tuple(
-						id,
-						"clicked",
-						Glib::Variant<int32_t>::create(0), // No clue what this is
-						4144182 // No clue what this is either
-					)
-				);
-
-				auto array_variant = Glib::Variant<std::vector<Glib::Variant<std::tuple<int32_t, Glib::ustring, Glib::Variant<int32_t>, uint32_t>>>>::create(
-					std::vector<Glib::Variant<std::tuple<int32_t, Glib::ustring, Glib::Variant<int32_t>, uint32_t>>>{struct_variant}
-				);
-
-				auto tuple_variant = Glib::Variant<std::tuple<Glib::Variant<std::vector<Glib::Variant<std::tuple<int32_t, Glib::ustring, Glib::Variant<int32_t>, uint32_t>>>>>>::create(
-					std::make_tuple(array_variant)
-				);
-
-				// The data structure is wrong here
-				// I have no idea how to correct it
-
-				// Desired output:
-				//    array [
-				//      struct {
-				//         int32 5
-				//         string "clicked"
-				//         variant             int32 0
-				//         uint32 5174789
-				//      }
-				//   ]
-
-				// Actual output:
-				//    variant       array [
-				//         variant             struct {
-				//               int32 5
-				//               string "clicked"
-				//               variant                   int32 0
-				//               uint32 4144182
-				//            }
-				//      ]
-
-				message->set_body(tuple_variant);
-
-				auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SESSION);
+				message->set_body(parameters_variant);
 				auto response = connection->send_message_with_reply_sync(message, -1);
+				popover_context.popdown();
 			});
 		}
 	}
