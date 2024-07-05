@@ -10,11 +10,12 @@ class module_weather : public module {
 
 	private:
 		nlohmann::json json_data;
+		char unit = 'c';
 		std::string tempC;
 		std::string tempF;
 		std::string weatherDesc;
 		std::string weather_file;
-		const char *weather_file_url;
+		std::string weather_file_url = "https://wttr.in/?format=j1";
 
 		bool update_info();
 		void download_file();

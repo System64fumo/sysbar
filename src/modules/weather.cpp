@@ -1,3 +1,4 @@
+#include "../config_parser.hpp"
 #include "../config.hpp"
 #include "weather.hpp"
 
@@ -14,7 +15,18 @@ module_weather::module_weather(const bool &icon_on_start, const bool &clickable)
 	image_icon.set_from_icon_name("content-loading-symbolic");
 	label_info.hide();
 
-	weather_file_url = "https://wttr.in/?format=j1";
+	#ifdef CONFIG_FILE
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar.conf");
+
+	std::string cfg_url = config.get_value("weather", "url");
+	if (!cfg_url.empty())
+		weather_file_url = cfg_url;
+
+	std::string cfg_unit = config.get_value("weather", "unit");
+	if (!cfg_unit.empty())
+		unit = cfg_unit[0];
+
+	#endif
 
 	std::thread update_thread(&module_weather::update_info, this);
 	update_thread.detach();
@@ -31,7 +43,6 @@ bool module_weather::update_info() {
 
 	if (!std::filesystem::exists(weather_file)) {
 		// TODO: Check for internet before trying to download
-		// Maybe add a way to set a custom URL later?
 		download_file();
 	}
 	if (std::filesystem::file_size(weather_file) == 0) {
@@ -56,8 +67,12 @@ bool module_weather::update_info() {
 
 	get_weather_data(date, time);
 
-	// TODO: Add option to pick between  celsius or fahrenheit
-	label_info.set_text(tempC);
+	if (unit == 'c')
+		label_info.set_text(tempC);\
+	else if (unit == 'f')
+		label_info.set_text(tempF);
+	else
+		std::cerr << "Unknown unit: " << unit << std::endl;
 
 	// Add more cases, Snow, Storms, ect ect
 	std::map<std::string, std::string> icon_from_desc = {
@@ -78,6 +93,9 @@ bool module_weather::update_info() {
 	else
 		image_icon.set_from_icon_name("weather-none-available-symbolic");
 
+	// TODO: For some reason this flickers?
+	set_tooltip_text(weatherDesc);
+
 	return true;
 }
 
@@ -95,7 +113,7 @@ void module_weather::download_file() {
 	fp = fopen(weather_file.c_str(), "wb");
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
 	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
-	curl_easy_setopt(curl, CURLOPT_URL, weather_file_url);
+	curl_easy_setopt(curl, CURLOPT_URL, weather_file_url.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fwrite);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 	res = curl_easy_perform(curl);
