@@ -72,7 +72,6 @@ sysbar::sysbar() {
 	css_loader css(css_path, this);
 
 	// Load modules
-	std::cout << "Loading modules" << std::endl;
 	load_modules(config_main.m_start, box_start);
 	load_modules(config_main.m_center, box_center);
 	load_modules(config_main.m_end, box_end);
@@ -84,6 +83,9 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 
 	while (std::getline(iss, module_name, ',')) {
 		module *my_module;
+
+		if (config_main.verbose)
+			std::cout << "Loading module: " << module_name << std::endl;
 
 		if (false)
 			std::cout << "You're not supposed to see this" << std::endl;

@@ -327,17 +327,13 @@ void tray_item::build_menu(const Glib::VariantBase &layout) {
 			std::cout << "  " << key_value.first << " = " << key_value.second.print() << std::endl;
 
 		if (key_value.first == "label") {
-			std::string label = key_value.second.print();
+			std::string label_str = key_value.second.print();
+			label_str = label_str.substr(1, label_str.length() - 2);
 
-			// Cleanup
-			label = label.substr(1, label.length() - 2);
-			if (label[0] == '_') {
-				label.erase(0, 1);
-			}
-
-			Gtk::Label *item = Gtk::make_managed<Gtk::Label>(label);
-			flowbox_context.append(*item);
-			item->set_name(std::to_string(id));
+			Gtk::Label *label = Gtk::make_managed<Gtk::Label>(label_str);
+			label->set_name(std::to_string(id));
+			label->set_use_underline(true);
+			flowbox_context.append(*label);
 		}
 		else if (key_value.first == "type") {
 			std::string type = key_value.second.print();
@@ -358,7 +354,6 @@ void tray_item::build_menu(const Glib::VariantBase &layout) {
 }
 
 void tray_item::update_properties() {
-	// TODO: Actually do something with the info we got
 	auto label = get_item_property<Glib::ustring>("Title");
 	auto [tooltip_icon_name, tooltip_icon_data, tooltip_title, tooltip_text] = get_item_property<std::tuple<Glib::ustring, std::vector<std::tuple<gint32, gint32, std::vector<guint8>>>, Glib::ustring, Glib::ustring>>("ToolTip");
 	auto icon_theme_path = get_item_property<Glib::ustring>("IconThemePath");
@@ -396,14 +391,11 @@ void tray_item::update_properties() {
 		set(pixmap_data);
 	}
 
-	// TODO: Write context menu code
-	// At this point i don't even think this is even worth it,
-	// This is just too painful to write.
 	if (menu_path.empty())
 		return;
 
-	// Everything beyond this point is highly experimental/filler code.
-	// DBus is such a pain to work with this might get deleted/abandoned later.
+	// TODO: Maybe don't rebuild the menu on EVERY update?
+	// This is very horrible
 
 	auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SESSION);
 
