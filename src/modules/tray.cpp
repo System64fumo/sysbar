@@ -1,7 +1,7 @@
 #include "../config.hpp"
 #include "tray.hpp"
 
-#include <gtkmm/button.h>
+#include <gtkmm/separator.h>
 #include <filesystem>
 #include <iostream>
 
@@ -267,8 +267,13 @@ tray_item::tray_item(const Glib::ustring &service) {
 	gesture_right_click->signal_pressed().connect(sigc::mem_fun(*this, &tray_item::on_right_clicked));
 	add_controller(gesture_right_click);
 
+	flowbox_context.signal_child_activated().connect(sigc::mem_fun(*this, &tray_item::on_menu_item_click));
 	flowbox_context.set_selection_mode(Gtk::SelectionMode::NONE);
+	flowbox_context.set_max_children_per_line(1);
+
+	popover_context.get_style_context()->add_class("context_menu");
 	popover_context.set_child(flowbox_context);
+	popover_context.set_offset(0, 5);
 	popover_context.set_has_arrow(false);
 	popover_context.set_parent(*this);
 }
@@ -299,8 +304,6 @@ static Glib::RefPtr<Gdk::Pixbuf> extract_pixbuf(std::vector<std::tuple<gint32, g
 		4 * width, [data_ptr] (auto*) { delete data_ptr; });
 }
 
-// TODO: Construct a menu from this mess
-// Menu constructed, Now how the hell do i bind actions?
 void tray_item::build_menu(const Glib::VariantBase &layout) {
 	auto layout_tuple = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(layout);
 	auto id_variant = layout_tuple.get_child(0);
@@ -332,39 +335,20 @@ void tray_item::build_menu(const Glib::VariantBase &layout) {
 				label.erase(0, 1);
 			}
 
-			Gtk::Button *item = Gtk::manage(new Gtk::Button(label));
+			Gtk::Label *item = Gtk::make_managed<Gtk::Label>(label);
 			flowbox_context.append(*item);
+			item->set_name(std::to_string(id));
+		}
+		else if (key_value.first == "type") {
+			std::string type = key_value.second.print();
+			type = type.substr(1, type.size() - 2);
 
-			item->signal_clicked().connect([this, id]() {
-				if (config_main.verbose)
-					std::cout << "Clicked: " << dbus_name << ", ID: " << id << std::endl;
-
-				auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SESSION);
-
-				auto now = std::chrono::system_clock::now();
-				auto duration = now.time_since_epoch();
-				auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-
-				auto parameters_variant = Glib::Variant<std::tuple<int32_t, Glib::ustring, Glib::VariantBase, uint32_t>>::create(
-					std::make_tuple(
-							id,
-							"clicked",
-							Glib::Variant<int32_t>::create(0), // No clue what this is
-							timestamp
-						)
-				);
-
-				auto message = Gio::DBus::Message::create_method_call(
-					dbus_name,
-					menu_path,
-					"com.canonical.dbusmenu",	// Does this change? (Part 2)
-					"Event"
-				);
-
-				message->set_body(parameters_variant);
-				auto response = connection->send_message_with_reply_sync(message, -1);
-				popover_context.popdown();
-			});
+			if (type == "separator") {
+				Gtk::FlowBoxChild *child = Gtk::make_managed<Gtk::FlowBoxChild>();
+				child->set_child(*Gtk::make_managed<Gtk::Separator>());
+				child->set_sensitive(false);
+				flowbox_context.append(*child);
+			}
 		}
 	}
 
@@ -450,4 +434,36 @@ void tray_item::on_right_clicked(int n_press, double x, double y) {
 	if (config_main.verbose)
 		std::cout << "Right clicked" << std::endl;
 	popover_context.popup();
+}
+
+void tray_item::on_menu_item_click(Gtk::FlowBoxChild *child) {
+	Gtk::Label *label = dynamic_cast<Gtk::Label*>(child->get_child());
+	if (config_main.verbose)
+		std::cout << "Clicked: " << dbus_name << ", ID: " << label->get_name() << std::endl;
+
+	auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SESSION);
+
+	auto now = std::chrono::system_clock::now();
+	auto duration = now.time_since_epoch();
+	auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
+	auto parameters_variant = Glib::Variant<std::tuple<int32_t, Glib::ustring, Glib::VariantBase, uint32_t>>::create(
+		std::make_tuple(
+				std::stoi(label->get_name()),
+				"clicked",
+				Glib::Variant<int32_t>::create(0), // No clue what this is
+				timestamp
+			)
+	);
+
+	auto message = Gio::DBus::Message::create_method_call(
+		dbus_name,
+		menu_path,
+		"com.canonical.dbusmenu",	// Does this change? (Part 2)
+		"Event"
+	);
+
+	message->set_body(parameters_variant);
+	auto response = connection->send_message_with_reply_sync(message, -1);
+	popover_context.popdown();
 }

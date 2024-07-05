@@ -35,7 +35,7 @@ void module_hyprland::update_info() {
 		std::string active_window = active_window_data.substr(0, pos);
 		Glib::ustring active_window_title = active_window_data.substr(pos + 1);
 
-		if (active_window_title.size() > character_limit)
+		if ((int)active_window_title.size() > character_limit)
 			active_window_title = active_window_title.substr(0, character_limit + 3) + "...";
 
 		label_info.set_text(active_window_title);
