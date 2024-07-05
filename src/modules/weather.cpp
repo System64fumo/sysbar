@@ -34,6 +34,10 @@ bool module_weather::update_info() {
 		// Maybe add a way to set a custom URL later?
 		download_file();
 	}
+	if (std::filesystem::file_size(weather_file) == 0) {
+		download_file();
+	}
+
 	label_info.show();
 
 	std::ifstream file(weather_file);
@@ -89,6 +93,8 @@ void module_weather::download_file() {
 	}
 
 	fp = fopen(weather_file.c_str(), "wb");
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
+	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
 	curl_easy_setopt(curl, CURLOPT_URL, weather_file_url);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fwrite);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
