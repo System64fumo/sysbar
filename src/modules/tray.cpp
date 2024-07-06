@@ -45,7 +45,7 @@ module_tray::module_tray(const bool &icon_on_start, const bool &clickable) : mod
 	add_controller(gesture_click);
 }
 
-void module_tray::on_clicked(int n_press, double x, double y) {
+void module_tray::on_clicked(const int &n_press, const double &x, const double &y) {
 	// TODO: Change icon order when the icon is not at the start
 	// Also use top/down arrows for vertical bars
 	if (revealer_box.get_reveal_child()) {
@@ -422,7 +422,7 @@ void tray_item::update_properties() {
 	build_menu(layout_variant);
 }
 
-void tray_item::on_right_clicked(int n_press, double x, double y) {
+void tray_item::on_right_clicked(const int &n_press, const double &x, const double &y) {
 	if (config_main.verbose)
 		std::cout << "Right clicked" << std::endl;
 	popover_context.popup();

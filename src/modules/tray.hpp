@@ -38,7 +38,7 @@ class tray_item : public Gtk::Image {
 		}
 
 		Glib::RefPtr<Gtk::GestureClick> gesture_right_click;
-		void on_right_clicked(int n_press, double x, double y);
+		void on_right_clicked(const int &n_press, const double &x, const double &y);
 		void on_menu_item_click(Gtk::FlowBoxChild *child);
 		void update_properties();
 		void build_menu(const Glib::VariantBase &layout);
@@ -90,7 +90,7 @@ class module_tray : public module {
 
 		tray_watcher watcher = tray_watcher(&box_container);
 		Glib::RefPtr<Gtk::GestureClick> gesture_click;
-		void on_clicked(int n_press, double x, double y);
+		void on_clicked(const int &n_press, const double &x, const double &y);
 };
 
 #endif

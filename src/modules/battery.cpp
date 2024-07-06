@@ -28,7 +28,7 @@ void module_battery::on_properties_changed(
 	const std::vector<Glib::ustring> &invalidated) {
 
 	// TODO: Check for more stuff
-	for (auto& prop : properties) {
+	for (const auto& prop : properties) {
 		if (config_main.verbose)
 			std::cout << "Value: " << prop.first << std::endl;
 
