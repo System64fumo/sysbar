@@ -55,7 +55,7 @@ sysbar::sysbar() {
 	centerbox_main.set_start_widget(box_start);
 	centerbox_main.set_center_widget(box_center);
 	centerbox_main.set_end_widget(box_end);
-	show();
+	present();
 
 	// Set orientation
 	if (config_main.position % 2) {

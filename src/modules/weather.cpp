@@ -78,7 +78,7 @@ bool module_weather::update_info() {
 	std::map<std::string, std::string> icon_from_desc = {
 		{"Sunny", "weather-clear-symbolic"},
 		{"Clear", "weather-clear-symbolic"},
-		{"Partly cloudy", "weather-few-clouds-symbolic"},
+		{"Partly Cloudy", "weather-few-clouds-symbolic"},
 		{"Cloudy", "weather-clouds-symbolic"},
 		{"Overcast", "weather-overcast-symbolic"},
 		{"Patchy rain nearby", "weather-showers-scattered-symbolic"},
