@@ -19,7 +19,7 @@ Sysbar is a modular status bar for wayland written in gtkmm4<br>
 # Configuration
 sysbar can be configured in 3 ways<br>
 1: By changing config.hpp and recompiling (Suckless style)<br>
-2: Using a config file (~/.config/sys64/bar.conf)<br>
+2: Using a config file (~/.config/sys64/bar/config.conf)<br>
 3: Using launch arguments<br>
 ```
 arguments:
@@ -39,7 +39,7 @@ You can do so by deleting the line that contains `#define FEATURE_NAME`<br>
 
 # Theming
 sysbar uses your gtk4 theme by default, However it can be also load custom css,<br>
-Just copy the included bar.css file to ~/.config/sys64/bar.css<br>
+Just copy the included style.css file to ~/.config/sys64/bar/style.css<br>
 
 # Credits
 [wttr.in](https://github.com/chubin/wttr.in) for their weather service<br>

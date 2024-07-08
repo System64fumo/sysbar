@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
 	#endif
 
 	#ifdef CONFIG_FILE
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar.conf");
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
 
 	std::string position = config.get_value("main", "position");
 	if (position != "empty")
