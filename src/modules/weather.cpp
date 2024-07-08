@@ -16,7 +16,7 @@ module_weather::module_weather(const bool &icon_on_start, const bool &clickable)
 	label_info.hide();
 
 	#ifdef CONFIG_FILE
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar.conf");
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
 
 	std::string cfg_url = config.get_value("weather", "url");
 	if (!cfg_url.empty())

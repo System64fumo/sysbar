@@ -11,7 +11,7 @@ module_volume::module_volume(const bool &icon_on_start, const bool &clickable) :
 	label_info.hide();
 
 	#ifdef CONFIG_FILE
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar.conf");
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
 	std::string cfg_label = config.get_value("volume", "label");
 	if (cfg_label == "true")
 		label_info.show(); 

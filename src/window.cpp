@@ -68,7 +68,7 @@ sysbar::sysbar() {
 
 	// Load custom css
 	std::string home_dir = getenv("HOME");
-	std::string css_path = home_dir + "/.config/sys64/bar.css";
+	std::string css_path = home_dir + "/.config/sys64/bar/style.css";
 	css_loader css(css_path, this);
 
 	// Load modules

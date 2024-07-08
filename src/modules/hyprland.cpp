@@ -14,7 +14,7 @@ module_hyprland::module_hyprland(const bool &icon_on_start, const bool &clickabl
 	label_info.set_margin_end(config_main.size / 3);
 
 	#ifdef CONFIG_FILE
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar.conf");
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
 
 	std::string cfg_char_limit = config.get_value("hyprland", "character-limit");
 	if (cfg_char_limit != "empty")

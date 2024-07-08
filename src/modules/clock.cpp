@@ -9,7 +9,7 @@ module_clock::module_clock(const bool &icon_on_start, const bool &clickable) : m
 	image_icon.set_from_icon_name("preferences-system-time-symbolic");
 
 	#ifdef CONFIG_FILE
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar.conf");
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
 
 	std::string cfg_label_format = config.get_value("clock", "label-format");
 	if (cfg_label_format != "empty")
