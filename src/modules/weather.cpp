@@ -49,11 +49,17 @@ bool module_weather::update_info() {
 		download_file();
 	}
 
-	label_info.show();
-
-	std::ifstream file(weather_file);
-	file >> json_data;
-	file.close();
+	try {
+		std::ifstream file(weather_file);
+		file >> json_data;
+		file.close();
+	}
+	catch (...) {
+		image_icon.set_from_icon_name("weather-none-available-symbolic");
+		std::cout << "Failed to parse weather data" << std::endl;
+		std::filesystem::remove(weather_file);
+		return true;
+	}
 
 	// Get time and date
 	std::time_t t = std::time(nullptr);
@@ -144,6 +150,7 @@ void module_weather::get_weather_data(const std::string &date, const std::string
 					 // For whatever reason, sometimes the last character is a space
 					if (weatherDesc.back() == ' ')
 						weatherDesc.pop_back();
+					label_info.show();
 					return;
 				}
 			}
