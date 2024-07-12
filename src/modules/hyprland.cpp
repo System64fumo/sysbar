@@ -22,12 +22,20 @@ module_hyprland::module_hyprland(const bool &icon_on_start, const bool &clickabl
 	#endif
 
 	if (config_main.position %2 == 0) {
+		dispatcher.connect(sigc::mem_fun(*this, &module_hyprland::update_info));
 		std::thread socket_thread(&module_hyprland::socket_listener, this);
 		socket_thread.detach();
 	}
 }
 
 void module_hyprland::update_info() {
+	std::lock_guard<std::mutex> lock(mutex);
+	std::string data = data_queue.front();
+	data_queue.pop();
+
+	if (config_main.verbose)
+		std::cout << data << std::endl;
+
 	if (data.find("activewindow>>") != std::string::npos) {
 		std::string active_window_data = data.substr(14);
 		int pos = active_window_data.find(',');
@@ -57,7 +65,6 @@ void module_hyprland::socket_listener() {
 		std::cout << "Hyprland instance signature not found, Is hyprland running?" << hyprland_socket << std::endl;
 		return;
 	}
-
 
 	std::filesystem::path socket_path = hyprland_socket / instance_signature / ".socket2.sock";
 
@@ -92,11 +99,11 @@ void module_hyprland::socket_listener() {
 
 		// On new line
 		while ((pos = temp_buff.find('\n')) != std::string::npos) {
-			data = temp_buff.substr(0, pos);
+			std::lock_guard<std::mutex> lock(mutex);
+			data_queue.push(temp_buff.substr(0, pos));
 			temp_buff.erase(0, pos + 1);
-			update_info();
-			if (config_main.verbose)
-				std::cout << data << std::endl;
+
+			dispatcher.emit();
 		}
 	}
 
