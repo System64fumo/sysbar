@@ -6,7 +6,7 @@
 
 class module_weather : public module {
 	public:
-		module_weather(const bool &icon_on_start = false, const bool &clickable = false);
+		module_weather(const config &cfg, const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
 		nlohmann::json json_data;

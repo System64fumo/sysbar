@@ -6,7 +6,7 @@
 
 class module_volume : public module {
 	public:
-		module_volume(const bool &icon_on_start = false, const bool &clickable = false);
+		module_volume(const config &cfg, const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
 		sysvol_wireplumber *sys_wp;

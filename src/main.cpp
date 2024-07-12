@@ -5,6 +5,23 @@
 
 #include <iostream>
 #include <signal.h>
+#include <dlfcn.h>
+
+void load_libsysbar() {
+	void* handle = dlopen("libsysbar.so", RTLD_LAZY);
+	if (!handle) {
+		std::cerr << "Cannot open library: " << dlerror() << '\n';
+		exit(1);
+	}
+
+	sysbar_create_ptr = (sysbar_create_func)dlsym(handle, "sysbar_create");
+
+	if (!sysbar_create_ptr) {
+		std::cerr << "Cannot load symbols: " << dlerror() << '\n';
+		dlclose(handle);
+		exit(1);
+	}
+}
 
 void quit(int signum) {
 	// Remove window
@@ -104,7 +121,9 @@ int main(int argc, char* argv[]) {
 
 	app = Gtk::Application::create("funky.sys64.sysbar");
 	app->hold();
-	win = new sysbar();
+
+	load_libsysbar();
+	win = sysbar_create_ptr(config_main);
 
 	return app->run();
 }

@@ -17,7 +17,9 @@
 #include <filesystem>
 #include <iostream>
 
-sysbar::sysbar() {
+sysbar::sysbar(const config &cfg) {
+	config_main = cfg;
+
 	// Initialize layer shell
 	gtk_layer_init_for_window(gobj());
 	gtk_layer_set_namespace(gobj(), "sysbar");
@@ -92,42 +94,42 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 
 		#ifdef MODULE_CLOCK
 		else if (module_name == "clock")
-			my_module = Gtk::make_managed<module_clock>(true, false);
+			my_module = Gtk::make_managed<module_clock>(config_main, true, false);
 		#endif
 
 		#ifdef MODULE_WEATHER
 		else if (module_name == "weather")
-			my_module = Gtk::make_managed<module_weather>(true, false);
+			my_module = Gtk::make_managed<module_weather>(config_main, true, false);
 		#endif
 
 		#ifdef MODULE_TRAY
 		else if (module_name == "tray")
-			my_module = Gtk::make_managed<module_tray>(true, false);
+			my_module = Gtk::make_managed<module_tray>(config_main, true, false);
 		#endif
 
 		#ifdef MODULE_HYPRLAND
 		else if (module_name == "hyprland")
-			my_module = Gtk::make_managed<module_hyprland>(false, false);
+			my_module = Gtk::make_managed<module_hyprland>(config_main, false, false);
 		#endif
 
 		#ifdef MODULE_VOLUME
 		else if (module_name == "volume")
-			my_module = Gtk::make_managed<module_volume>(false, false);
+			my_module = Gtk::make_managed<module_volume>(config_main, false, false);
 		#endif
 
 		#ifdef MODULE_NETWORK
 		else if (module_name == "network")
-			my_module = Gtk::make_managed<module_network>(false, false);
+			my_module = Gtk::make_managed<module_network>(config_main, false, false);
 		#endif
 
 		#ifdef MODULE_BATTERY
 		else if (module_name == "battery")
-			my_module = Gtk::make_managed<module_battery>(false, false);
+			my_module = Gtk::make_managed<module_battery>(config_main, false, false);
 		#endif
 
 		#ifdef MODULE_NOTIFICATION
 		else if (module_name == "notification")
-			my_module = Gtk::make_managed<module_notifications>(false, false);
+			my_module = Gtk::make_managed<module_notifications>(config_main, false, false);
 		#endif
 
 		else {
@@ -136,5 +138,11 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 		}
 
 		box.append(*my_module);
+	}
+}
+
+extern "C" {
+	sysbar *sysbar_create(const config &cfg) {
+		return new sysbar(cfg);
 	}
 }
