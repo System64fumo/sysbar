@@ -1,6 +1,7 @@
 EXEC = sysbar
+LIB = libsysbar.so
 PKGS = gtkmm-4.0 gtk4-layer-shell-0
-SRCS +=	$(wildcard src/*.cpp)
+SRCS =	$(filter-out src/main.cpp, $(wildcard src/*.cpp))
 
 DESTDIR = $(HOME)/.local
 BUILDDIR = build
@@ -38,18 +39,36 @@ endif
 
 OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(patsubst src/modules/%,$(BUILDDIR)/%,$(SRCS:.cpp=.o)))
 
-CXXFLAGS += -march=native -mtune=native -Os -s -Wall -flto=auto
+CXXFLAGS = -march=native -mtune=native -Os -s -Wall -flto=auto -fPIC
 CXXFLAGS += $(shell pkg-config --cflags $(PKGS))
-LDFLAGS += $(shell pkg-config --libs $(PKGS))
+LDFLAGS = $(shell pkg-config --libs $(PKGS))
 
 $(shell mkdir -p $(BUILDDIR))
 
-$(EXEC): src/git_info.hpp $(OBJS)
+all: $(EXEC) $(LIB)
+
+install: $(EXEC)
+	mkdir -p $(DESTDIR)/bin $(DESTDIR)/lib
+	install $(BUILDDIR)/$(EXEC) $(DESTDIR)/bin/$(EXEC)
+	install $(BUILDDIR)/$(LIB) $(DESTDIR)/lib/$(LIB)
+
+clean:
+	rm -r $(BUILDDIR) src/git_info.hpp
+
+$(EXEC): src/main.cpp src/git_info.hpp $(BUILDDIR)/config_parser.o
 	$(CXX) -o \
 	$(BUILDDIR)/$(EXEC) \
+	src/main.cpp \
+	$(BUILDDIR)/config_parser.o \
+	$(CXXFLAGS) \
+	$(LDFLAGS)
+
+$(LIB): $(OBJS)
+	$(CXX) -o \
+	$(BUILDDIR)/$(LIB) \
 	$(OBJS) \
-	$(LDFLAGS) \
-	$(CXXFLAGS)
+	$(CXXFLAGS) \
+	-shared
 
 $(BUILDDIR)/%.o: src/%.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
@@ -63,10 +82,3 @@ src/git_info.hpp:
 	commit_message=$$(git show -s --format=%s $$commit_hash); \
 	echo "#define GIT_COMMIT_MESSAGE \"$$commit_message\"" > src/git_info.hpp; \
 	echo "#define GIT_COMMIT_DATE \"$$commit_date\"" >> src/git_info.hpp
-
-install: $(EXEC)
-	mkdir -p $(DESTDIR)/bin
-	install $(BUILDDIR)/$(EXEC) $(DESTDIR)/bin/$(EXEC)
-
-clean:
-	rm -r $(BUILDDIR) src/git_info.hpp

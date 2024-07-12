@@ -5,7 +5,7 @@
 #include <giomm/dbusconnection.h>
 #include <iostream>
 
-module_battery::module_battery(const bool &icon_on_start, const bool &clickable) : module(icon_on_start, clickable) {
+module_battery::module_battery(const config &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
 	get_style_context()->add_class("module_battery");
 	image_icon.set_from_icon_name("battery-level-100-symbolic");
 	label_info.hide();

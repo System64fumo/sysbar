@@ -13,16 +13,12 @@
 #define MODULE_BATTERY			// Include the battery module
 #define MODULE_NOTIFICATION		// Include the notifications module
 
-/*
-	Default config.
-	Can be configured instead of using launch arguments.
-*/
-
-inline struct config {
+// Default config
+struct config {
 	int position = 0;
 	int size = 40;
 	bool verbose = false;
 	std::string m_start = "clock,weather,tray";
 	std::string m_center = "hyprland";
 	std::string m_end = "volume,network,notification";
-} config_main;
+};

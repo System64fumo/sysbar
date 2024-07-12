@@ -10,7 +10,7 @@
 #include <ctime>
 #include <thread>
 
-module_weather::module_weather(const bool &icon_on_start, const bool &clickable) : module(icon_on_start, clickable) {
+module_weather::module_weather(const config &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
 	get_style_context()->add_class("module_weather");
 	image_icon.set_from_icon_name("content-loading-symbolic");
 	label_info.hide();

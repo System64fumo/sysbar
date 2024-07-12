@@ -3,7 +3,7 @@
 #include "volume.hpp"
 #include <thread>
 
-module_volume::module_volume(const bool &icon_on_start, const bool &clickable) : module(icon_on_start, clickable) {
+module_volume::module_volume(const config &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
 	get_style_context()->add_class("module_volume");
 	volume_icons[0] = "audio-volume-low-symbolic";
 	volume_icons[1] = "audio-volume-medium-symbolic";

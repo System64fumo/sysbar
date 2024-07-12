@@ -1,4 +1,6 @@
 #pragma once
+#include "config.hpp"
+
 #include <gtkmm/label.h>
 #include <gtkmm/image.h>
 #include <gtkmm/box.h>
@@ -8,7 +10,8 @@
 
 class module : public Gtk::Box {
 	public:
-		module(const bool &icon_on_start = true, const bool &clickable = false);
+		module(const config &cfg, const bool &icon_on_start = true, const bool &clickable = false);
+		config config_main;
 		Gtk::Label label_info;
 		Gtk::Image image_icon;
 		Gtk::Box box_popout;
