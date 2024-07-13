@@ -9,11 +9,17 @@ class module_weather : public module {
 		module_weather(const config &cfg, const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
+		struct weather_info {
+			std::string feels_like_C;
+			std::string feels_like_F;
+			std::string temp_C;
+			std::string temp_F;
+			std::string humidity;
+			std::string weatherDesc;
+		} weather_info_current;
+
 		nlohmann::json json_data;
 		char unit = 'c';
-		std::string tempC;
-		std::string tempF;
-		std::string weatherDesc;
 		std::string weather_file;
 		std::string weather_file_url = "https://wttr.in/?format=j1";
 
