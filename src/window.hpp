@@ -21,5 +21,5 @@ class sysbar : public Gtk::Window {
 };
 
 extern "C" {
-	sysbar *syspower_create(const config &cfg);
+	sysbar *sysbar_create(const config &cfg);
 }

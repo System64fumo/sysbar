@@ -74,9 +74,9 @@ bool module_weather::update_info() {
 	get_weather_data(date, time);
 
 	if (unit == 'c')
-		label_info.set_text(tempC);\
+		label_info.set_text(weather_info_current.temp_C);\
 	else if (unit == 'f')
-		label_info.set_text(tempF);
+		label_info.set_text(weather_info_current.temp_F);
 	else
 		std::cerr << "Unknown unit: " << unit << std::endl;
 
@@ -94,13 +94,13 @@ bool module_weather::update_info() {
 	};
 
 	// Set icon according to weather description
-	if (icon_from_desc.find(weatherDesc) != icon_from_desc.end())
-		image_icon.set_from_icon_name(icon_from_desc[weatherDesc]);
+	if (icon_from_desc.find(weather_info_current.weatherDesc) != icon_from_desc.end())
+		image_icon.set_from_icon_name(icon_from_desc[weather_info_current.weatherDesc]);
 	else
 		image_icon.set_from_icon_name("weather-none-available-symbolic");
 
 	// TODO: For some reason this flickers?
-	set_tooltip_text(weatherDesc);
+	set_tooltip_text(weather_info_current.weatherDesc);
 
 	return true;
 }
@@ -144,12 +144,15 @@ void module_weather::get_weather_data(const std::string &date, const std::string
 			// Iterate over each hourly section
 			for (const auto& hourly : hourlyArray) {
 				if (hourly["time"] == time) {
-					tempC = hourly["tempC"];
-					tempF = hourly["tempF"];
-					weatherDesc = hourly["weatherDesc"][0]["value"];
+					weather_info_current.feels_like_C = hourly["FeelsLikeC"];
+					weather_info_current.feels_like_F = hourly["FeelsLikeF"];
+					weather_info_current.temp_C = hourly["tempC"];
+					weather_info_current.temp_F = hourly["tempF"];
+					weather_info_current.humidity = hourly["humidity"];
+					weather_info_current.weatherDesc = hourly["weatherDesc"][0]["value"];
 					 // For whatever reason, sometimes the last character is a space
-					if (weatherDesc.back() == ' ')
-						weatherDesc.pop_back();
+					if (weather_info_current.weatherDesc.back() == ' ')
+						weather_info_current.weatherDesc.pop_back();
 					label_info.show();
 					return;
 				}
