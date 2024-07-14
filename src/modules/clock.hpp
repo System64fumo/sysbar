@@ -5,7 +5,7 @@
 
 class module_clock : public module {
 	public:
-		module_clock(const config &cfg, const bool &icon_on_start = false, const bool &clickable = false);
+		module_clock(const config_bar &cfg, const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
 		int interval = 1000;

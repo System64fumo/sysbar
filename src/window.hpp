@@ -8,10 +8,10 @@
 class sysbar : public Gtk::Window {
 
 	public:
-		sysbar(const config &cfg);
+		sysbar(const config_bar &cfg);
 
 	private:
-		config config_main;
+		config_bar config_main;
 		Gtk::CenterBox centerbox_main;
 		Gtk::Box box_start;
 		Gtk::Box box_center;
@@ -21,5 +21,5 @@ class sysbar : public Gtk::Window {
 };
 
 extern "C" {
-	sysbar *sysbar_create(const config &cfg);
+	sysbar *sysbar_create(const config_bar &cfg);
 }

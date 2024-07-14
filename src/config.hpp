@@ -14,7 +14,7 @@
 #define MODULE_NOTIFICATION		// Include the notifications module
 
 // Default config
-struct config {
+struct config_bar {
 	int position = 0;
 	int size = 40;
 	bool verbose = false;
