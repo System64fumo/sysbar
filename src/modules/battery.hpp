@@ -7,7 +7,7 @@
 
 class module_battery : public module {
 	public:
-		module_battery(const config &cfg, const bool &icon_on_start = false, const bool &clickable = false);
+		module_battery(const config_bar &cfg, const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
 		Glib::RefPtr<Gio::DBus::Proxy> proxy;

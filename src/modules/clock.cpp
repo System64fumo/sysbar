@@ -4,7 +4,7 @@
 
 #include <ctime>
 
-module_clock::module_clock(const config &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
+module_clock::module_clock(const config_bar &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
 	get_style_context()->add_class("module_clock");
 	image_icon.set_from_icon_name("preferences-system-time-symbolic");
 

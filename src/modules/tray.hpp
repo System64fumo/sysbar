@@ -82,7 +82,7 @@ class tray_watcher {
 
 class module_tray : public module {
 	public:
-		module_tray(const config &cfg, const bool &icon_on_start = false, const bool &clickable = false);
+		module_tray(const config_bar &cfg, const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
 		Gtk::Revealer revealer_box;

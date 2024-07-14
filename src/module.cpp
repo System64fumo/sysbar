@@ -1,7 +1,7 @@
 #include "module.hpp"
 #include "config.hpp"
 
-module::module(const config &cfg, const bool &icon_on_start, const bool &clickable) {
+module::module(const config_bar &cfg, const bool &icon_on_start, const bool &clickable) {
 	config_main = cfg;
 	// TODO: Read config to see if the icon should appear before or after
 	// the label.

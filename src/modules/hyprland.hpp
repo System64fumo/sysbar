@@ -8,7 +8,7 @@
 
 class module_hyprland : public module {
 	public:
-		module_hyprland(const config &cfg, const bool &icon_on_start = false, const bool &clickable = false);
+		module_hyprland(const config_bar &cfg, const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
 		int character_limit = 128;

@@ -17,7 +17,7 @@
 #include <filesystem>
 #include <iostream>
 
-sysbar::sysbar(const config &cfg) {
+sysbar::sysbar(const config_bar &cfg) {
 	config_main = cfg;
 
 	// Initialize layer shell
@@ -142,7 +142,7 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 }
 
 extern "C" {
-	sysbar *sysbar_create(const config &cfg) {
+	sysbar *sysbar_create(const config_bar &cfg) {
 		return new sysbar(cfg);
 	}
 }

@@ -8,7 +8,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
-module_hyprland::module_hyprland(const config &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
+module_hyprland::module_hyprland(const config_bar &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
 	get_style_context()->add_class("module_hyprland");
 	image_icon.hide();
 	label_info.set_margin_end(config_main.size / 3);

@@ -19,7 +19,7 @@ class notification {
 
 class module_notifications : public module {
 	public:
-		module_notifications(const config &cfg, const bool &icon_on_start = false, const bool &clickable = false);
+		module_notifications(const config_bar &cfg, const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
 		guint object_id;

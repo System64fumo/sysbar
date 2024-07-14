@@ -6,7 +6,7 @@
 #include <iostream>
 
 // Tray module
-module_tray::module_tray(const config &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
+module_tray::module_tray(const config_bar &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
 	get_style_context()->add_class("module_tray");
 	label_info.hide();
 
