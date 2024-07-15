@@ -51,6 +51,7 @@ sysbar::sysbar(const config_bar &cfg) {
 	}
 
 	// Initialize
+	set_name("sysbar");
 	set_hide_on_close(true);
 	set_child(centerbox_main);
 	centerbox_main.get_style_context()->add_class("centerbox_main");
