@@ -1,35 +1,35 @@
-window {
+#sysbar {
 	background: @theme_bg_color;
 	border-bottom: 1px solid @borders;
 }
 
-.module {
+#sysbar .module {
 	border-radius: 4px;
 }
 
-.module:hover {
+#sysbar .module:hover {
 	background: alpha(CurrentColor, 0.1);
 }
 
-.tray_container {
+#sysbar .tray_container {
 }
 
-.tray_item {
+#sysbar .tray_item {
 	padding: 10px;
 }
-.tray_item:hover {
+#sysbar .tray_item:hover {
 	background: alpha(currentcolor, 0.1);
 	border-radius: 4px;
 }
 
-.context_menu contents {
+#sysbar .context_menu contents {
 	background: @insensitive_bg_color;
 	min-width: 100px;
 	padding: 5px;
 }
-.context_menu flowboxchild {
+#sysbar .context_menu flowboxchild {
 	padding: 10px;
 }
-.context_menu flowboxchild:hover {
+#sysbar .context_menu flowboxchild:hover {
 	background: alpha(currentcolor, 0.1);
 }
