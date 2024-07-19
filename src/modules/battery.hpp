@@ -10,6 +10,7 @@ class module_battery : public module {
 		module_battery(const config_bar &cfg, const bool &icon_on_start = false, const bool &clickable = false);
 
 	private:
+		bool show_percentage = false;
 		Glib::RefPtr<Gio::DBus::Proxy> proxy;
 
 		void setup();
