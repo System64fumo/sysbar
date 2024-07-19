@@ -22,41 +22,36 @@ void module_battery::setup() {
 
 	proxy->signal_properties_changed().connect(
 		sigc::mem_fun(*this, &module_battery::on_properties_changed));
-	update_info();
+
+	// Trigger a manual update
+	update_info("IconName");
+	update_info("UpdateTime");
 }
 
 void module_battery::on_properties_changed(
 	const Gio::DBus::Proxy::MapChangedProperties &properties,
 	const std::vector<Glib::ustring> &invalidated) {
 
-	// TODO: Check for more stuff
-	/*for (const auto& prop : properties) {
+	for (const auto& prop : properties) {
 		if (config_main.verbose)
 			std::cout << "Value: " << prop.first << std::endl;
 
-		if (prop.first ==  "IconName") {
-			Glib::Variant<Glib::ustring> icon_name;
-			proxy->get_cached_property(icon_name, "IconName");
-			image_icon.set_from_icon_name(icon_name.get());
-		}
-
-		else if (prop.first ==  "UpdateTime") {
-			Glib::Variant<double> charge;
-			proxy->get_cached_property(charge, "Percentage");
-			label_info.set_text(std::to_string(charge.get()));
-		}
-	}*/
-	update_info();
+		update_info(prop.first);
+	}
 }
 
-void module_battery::update_info() {
-	// TODO: only get the appropiate property on change
+void module_battery::update_info(const std::string &property) {
+	// TODO: Check for more stuff
 
-	Glib::Variant<double> charge;
-	proxy->get_cached_property(charge, "Percentage");
-	label_info.set_text(std::to_string(charge.get()));
+	if (property ==  "IconName") {
+		Glib::Variant<Glib::ustring> icon_name;
+		proxy->get_cached_property(icon_name, "IconName");
+		image_icon.set_from_icon_name(icon_name.get());
+	}
 
-	Glib::Variant<Glib::ustring> icon_name;
-	proxy->get_cached_property(icon_name, "IconName");
-	image_icon.set_from_icon_name(icon_name.get());
+	else if (property ==  "UpdateTime") {
+		Glib::Variant<double> charge;
+		proxy->get_cached_property(charge, "Percentage");
+		label_info.set_text(std::to_string(charge.get()));
+	}
 }
