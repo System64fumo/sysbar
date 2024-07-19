@@ -16,6 +16,7 @@ class module_battery : public module {
 		void on_properties_changed(
 			const Gio::DBus::Proxy::MapChangedProperties &properties,
 			const std::vector<Glib::ustring> &invalidated);
+		void update_info();
 };
 
 #endif
