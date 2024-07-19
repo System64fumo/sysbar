@@ -12,6 +12,7 @@
 #define MODULE_NETWORK			// Include the network module
 #define MODULE_BATTERY			// Include the battery module
 #define MODULE_NOTIFICATION		// Include the notifications module
+#define MODULE_PERFORMANCE		// Include the performance module
 
 // Default config
 struct config_bar {
