@@ -12,6 +12,7 @@
 #include "modules/network.hpp"
 #include "modules/battery.hpp"
 #include "modules/notifications.hpp"
+#include "modules/performance.hpp"
 
 #include <gtk4-layer-shell.h>
 #include <filesystem>
@@ -131,6 +132,11 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 		#ifdef MODULE_NOTIFICATION
 		else if (module_name == "notification")
 			my_module = Gtk::make_managed<module_notifications>(config_main, false, false);
+		#endif
+
+		#ifdef MODULE_PERFORMANCE
+		else if (module_name == "performance")
+			my_module = Gtk::make_managed<module_performance>(config_main, false, false);
 		#endif
 
 		else {
