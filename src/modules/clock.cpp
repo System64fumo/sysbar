@@ -11,17 +11,19 @@ module_clock::module_clock(const config_bar &cfg, const bool &icon_on_start, con
 	#ifdef CONFIG_FILE
 	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
 
-	std::string cfg_label_format = config.get_value("clock", "label-format");
-	if (cfg_label_format != "empty")
-		tooltip_format = cfg_label_format;
+	if (config.available) {
+		std::string cfg_label_format = config.get_value("clock", "label-format");
+		if (cfg_label_format != "empty")
+			tooltip_format = cfg_label_format;
 
-	std::string cfg_tooltip_format = config.get_value("clock", "tooltip-format");
-	if (cfg_tooltip_format != "empty")
-		tooltip_format = cfg_tooltip_format;
+		std::string cfg_tooltip_format = config.get_value("clock", "tooltip-format");
+		if (cfg_tooltip_format != "empty")
+			tooltip_format = cfg_tooltip_format;
 
-	std::string cfg_interval = config.get_value("clock", "interval");
-	if (cfg_interval != "empty")
-		interval = std::stoi(cfg_interval);
+		std::string cfg_interval = config.get_value("clock", "interval");
+		if (cfg_interval != "empty")
+			interval = std::stoi(cfg_interval);
+	}
 	#endif
 
 	update_info();

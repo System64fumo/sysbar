@@ -16,9 +16,11 @@ module_hyprland::module_hyprland(const config_bar &cfg, const bool &icon_on_star
 	#ifdef CONFIG_FILE
 	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
 
-	std::string cfg_char_limit = config.get_value("hyprland", "character-limit");
-	if (cfg_char_limit != "empty")
-		character_limit = std::stoi(cfg_char_limit);
+	if (config.available) {
+		std::string cfg_char_limit = config.get_value("hyprland", "character-limit");
+		if (cfg_char_limit != "empty")
+			character_limit = std::stoi(cfg_char_limit);
+	}
 	#endif
 
 	if (config_main.position %2 == 0) {

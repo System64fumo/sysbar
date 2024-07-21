@@ -18,14 +18,15 @@ module_weather::module_weather(const config_bar &cfg, const bool &icon_on_start,
 	#ifdef CONFIG_FILE
 	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
 
-	std::string cfg_url = config.get_value("weather", "url");
-	if (!cfg_url.empty())
-		weather_file_url = cfg_url;
+	if (config.available) {
+		std::string cfg_url = config.get_value("weather", "url");
+		if (cfg_url != "empty")
+			weather_file_url = cfg_url;
 
-	std::string cfg_unit = config.get_value("weather", "unit");
-	if (!cfg_unit.empty())
-		unit = cfg_unit[0];
-
+		std::string cfg_unit = config.get_value("weather", "unit");
+		if (cfg_unit != "empty")
+			unit = cfg_unit[0];
+		}
 	#endif
 
 	std::thread update_thread(&module_weather::update_info, this);
