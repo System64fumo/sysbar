@@ -12,8 +12,12 @@ module_battery::module_battery(const config_bar &cfg, const bool &icon_on_start,
 
 	#ifdef CONFIG_FILE
 	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
-	std::string cfg_percentage = config.get_value("battery", "show-percentage");
-	show_percentage = (cfg_percentage == "true");
+
+	if (config.available) {
+		std::string cfg_percentage = config.get_value("battery", "show-percentage");
+		if (cfg_percentage != "empty")
+			show_percentage = (cfg_percentage == "true");
+	}
 	#endif
 
 	if (!show_percentage)

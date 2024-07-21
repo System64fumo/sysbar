@@ -36,29 +36,31 @@ int main(int argc, char* argv[]) {
 	#ifdef CONFIG_FILE
 	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
 
-	std::string position = config.get_value("main", "position");
-	if (position != "empty")
-		config_main.position = std::stoi(position);
+	if (config.available) {
+		std::string cfg_position = config.get_value("main", "position");
+		if (cfg_position != "empty")
+			config_main.position = std::stoi(cfg_position);
 
-	std::string size = config.get_value("main", "size");
-	if (size != "empty")
-		config_main.size = std::stoi(size);
+		std::string cfg_size = config.get_value("main", "size");
+		if (cfg_size != "empty")
+			config_main.size = std::stoi(cfg_size);
 
-	std::string verbose = config.get_value("main", "verbose");
-	if (verbose == "true")
-		config_main.verbose = true;
+		std::string cfg_verbose = config.get_value("main", "verbose");
+		if (cfg_verbose != "empty")
+			config_main.verbose = (cfg_verbose == "true");
 
-	std::string m_start = config.get_value("main", "m_start");
-	if (m_start != "empty")
-		config_main.m_start = m_start;
+		std::string cfg_m_start = config.get_value("main", "m_start");
+		if (cfg_m_start != "empty")
+			config_main.m_start = cfg_m_start;
 
-	std::string m_center = config.get_value("main", "m_center");
-	if (m_center != "empty")
-		config_main.m_center = m_center;
+		std::string cfg_m_center = config.get_value("main", "m_center");
+		if (cfg_m_center != "empty")
+			config_main.m_center = cfg_m_center;
 
-	std::string m_end = config.get_value("main", "m_end");
-	if (m_end != "empty")
-		config_main.m_end = m_end;
+		std::string cfg_m_end = config.get_value("main", "m_end");
+		if (cfg_m_end != "empty")
+			config_main.m_end = cfg_m_end;
+	}
 	#endif
 
 	 // Read launch arguments

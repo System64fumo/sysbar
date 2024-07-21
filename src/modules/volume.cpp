@@ -12,9 +12,12 @@ module_volume::module_volume(const config_bar &cfg, const bool &icon_on_start, c
 
 	#ifdef CONFIG_FILE
 	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
-	std::string cfg_label = config.get_value("volume", "label");
-	if (cfg_label == "true")
-		label_info.show(); 
+
+	if (config.available) {
+		std::string cfg_label = config.get_value("volume", "label");
+		if (cfg_label == "true")
+			label_info.show(); 
+	}
 	#endif
 
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_volume::update_info));
