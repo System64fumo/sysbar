@@ -3,6 +3,9 @@
 	border-bottom: 1px solid @borders;
 }
 
+#sysbar .centerbox_main {
+}
+
 #sysbar .module {
 	border-radius: 4px;
 }

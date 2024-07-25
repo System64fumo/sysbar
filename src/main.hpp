@@ -10,4 +10,6 @@ inline int timeout = 1;
 sysbar* win;
 
 typedef sysbar* (*sysbar_create_func)(const config_bar &cfg);
+typedef void (*sysbar_handle_signal_func)(sysbar*, int);
 sysbar_create_func sysbar_create_ptr;
+sysbar_handle_signal_func sysbar_handle_signal_ptr;

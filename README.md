@@ -37,6 +37,11 @@ sysbar offers some features you can enable/disable via config.hpp<br>
 By default all features are enabled, However if you wish to disable something,<br>
 You can do so by deleting the line that contains `#define FEATURE_NAME`<br>
 
+# Signals
+``pkill -10 sysbar`` to show.<br>
+``pkill -12 sysbar`` to hide.<br>
+``pkill -34 sysbar`` to toggle.<br>
+
 # Theming
 sysbar uses your gtk4 theme by default, However it can be also load custom css,<br>
 Just copy the included style.css file to ~/.config/sys64/bar/style.css<br>
