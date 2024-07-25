@@ -15,6 +15,7 @@ void load_libsysbar() {
 	}
 
 	sysbar_create_ptr = (sysbar_create_func)dlsym(handle, "sysbar_create");
+	sysbar_handle_signal_ptr = (sysbar_handle_signal_func)dlsym(handle, "sysbar_signal");
 
 	if (!sysbar_create_ptr) {
 		std::cerr << "Cannot load symbols: " << dlerror() << '\n';
@@ -23,12 +24,8 @@ void load_libsysbar() {
 	}
 }
 
-void quit(int signum) {
-	// Remove window
-	app->release();
-	app->remove_window(*win);
-	delete win;
-	app->quit();
+void handle_signal(int signum) {
+	sysbar_handle_signal_ptr(win, signum);
 }
 
 int main(int argc, char* argv[]) {
@@ -126,7 +123,10 @@ int main(int argc, char* argv[]) {
 	load_libsysbar();
 	win = sysbar_create_ptr(config_main);
 
-	signal(SIGINT, quit);
+	// Catch signals
+	signal(SIGUSR1, handle_signal);
+	signal(SIGUSR2, handle_signal);
+	signal(SIGRTMIN, handle_signal);
 
 	return app->run();
 }
