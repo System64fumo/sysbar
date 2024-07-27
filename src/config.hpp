@@ -19,6 +19,7 @@ struct config_bar {
 	int position = 0;
 	int size = 40;
 	bool verbose = false;
+	int main_monitor = 0;
 	std::string m_start = "clock,weather,tray";
 	std::string m_center = "hyprland";
 	std::string m_end = "volume,network,notification";

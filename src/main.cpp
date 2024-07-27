@@ -46,6 +46,10 @@ int main(int argc, char* argv[]) {
 		if (cfg_verbose != "empty")
 			config_main.verbose = (cfg_verbose == "true");
 
+		std::string cfg_main_monitor = config.get_value("main", "main-monitor");
+		if (cfg_main_monitor != "empty")
+			config_main.main_monitor = std::stoi(cfg_main_monitor);
+
 		std::string cfg_m_start = config.get_value("main", "m_start");
 		if (cfg_m_start != "empty")
 			config_main.m_start = cfg_m_start;
@@ -63,7 +67,7 @@ int main(int argc, char* argv[]) {
 	 // Read launch arguments
 	#ifdef CONFIG_RUNTIME
 	while (true) {
-		switch(getopt(argc, argv, "p:ds:c:e:S:dVvh")) {
+		switch(getopt(argc, argv, "p:ds:c:e:S:dVm:dvh")) {
 			case 'p':
 				config_main.position = std::stoi(optarg);
 				continue;
@@ -86,6 +90,10 @@ int main(int argc, char* argv[]) {
 
 			case 'V':
 				config_main.verbose = true;
+				continue;
+
+			case 'm':
+				config_main.main_monitor = std::stoi(optarg);
 				continue;
 
 			case 'v':

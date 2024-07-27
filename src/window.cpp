@@ -21,11 +21,25 @@
 sysbar::sysbar(const config_bar &cfg) {
 	config_main = cfg;
 
+	// Get main monitor
+	GdkDisplay *display = gdk_display_get_default();
+	GListModel *monitors = gdk_display_get_monitors(display);
+
+	int monitorCount = g_list_model_get_n_items(monitors);
+
+	if (config_main.main_monitor < 0)
+		config_main.main_monitor = 0;
+	else if (config_main.main_monitor >= monitorCount)
+		config_main.main_monitor = monitorCount - 1;
+
+	GdkMonitor *monitor = GDK_MONITOR(g_list_model_get_item(monitors, config_main.main_monitor));
+
 	// Initialize layer shell
 	gtk_layer_init_for_window(gobj());
 	gtk_layer_set_namespace(gobj(), "sysbar");
 	gtk_layer_set_layer(gobj(), GTK_LAYER_SHELL_LAYER_TOP);
 	gtk_layer_set_exclusive_zone(gobj(), config_main.size);
+	gtk_layer_set_monitor(gobj(), monitor);
 
 	gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_TOP, true);
 	gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_RIGHT, true);
