@@ -58,7 +58,7 @@ install: $(EXEC)
 clean:
 	rm -r $(BUILDDIR) src/git_info.hpp
 
-$(EXEC): src/main.cpp src/git_info.hpp $(BUILDDIR)/config_parser.o
+$(EXEC): src/git_info.hpp src/main.cpp $(BUILDDIR)/config_parser.o
 	$(CXX) -o \
 	$(BUILDDIR)/$(EXEC) \
 	src/main.cpp \
