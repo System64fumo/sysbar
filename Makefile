@@ -1,7 +1,7 @@
 EXEC = sysbar
 LIB = libsysbar.so
 PKGS = gtkmm-4.0 gtk4-layer-shell-0
-SRCS =	$(filter-out src/main.cpp, $(wildcard src/*.cpp))
+SRCS = $(wildcard src/*.cpp)
 
 DESTDIR = $(HOME)/.local
 BUILDDIR = build
@@ -42,9 +42,11 @@ endif
 
 OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(patsubst src/modules/%,$(BUILDDIR)/%,$(SRCS:.cpp=.o)))
 
-CXXFLAGS = -march=native -mtune=native -Os -s -Wall -flto=auto -fPIC
+CXXFLAGS += -Os -s -Wall -flto=auto -fPIC
+LDFLAGS += -Wl,-O1,--as-needed,-z,now,-z,pack-relative-relocs
+
 CXXFLAGS += $(shell pkg-config --cflags $(PKGS))
-LDFLAGS = $(shell pkg-config --libs $(PKGS))
+LDFLAGS += $(shell pkg-config --libs $(PKGS))
 
 $(shell mkdir -p $(BUILDDIR))
 
@@ -58,19 +60,20 @@ install: $(EXEC)
 clean:
 	rm -r $(BUILDDIR) src/git_info.hpp
 
-$(EXEC): src/git_info.hpp src/main.cpp $(BUILDDIR)/config_parser.o
+$(EXEC): src/git_info.hpp $(BUILDDIR)/main.o $(BUILDDIR)/config_parser.o
 	$(CXX) -o \
 	$(BUILDDIR)/$(EXEC) \
-	src/main.cpp \
+	$(BUILDDIR)/main.o \
 	$(BUILDDIR)/config_parser.o \
 	$(CXXFLAGS) \
-	$(LDFLAGS)
+	$(shell pkg-config --libs gtkmm-4.0 gtk4-layer-shell-0)
 
 $(LIB): $(OBJS)
 	$(CXX) -o \
 	$(BUILDDIR)/$(LIB) \
-	$(OBJS) \
+	$(filter-out $(BUILDDIR)/main.o, $(OBJS)) \
 	$(CXXFLAGS) \
+	$(LDFLAGS) \
 	-shared
 
 $(BUILDDIR)/%.o: src/%.cpp
