@@ -13,6 +13,7 @@
 #include "modules/battery.hpp"
 #include "modules/notifications.hpp"
 #include "modules/performance.hpp"
+#include "modules/taskbar.hpp"
 
 #include <gtk4-layer-shell.h>
 #include <filesystem>
@@ -166,6 +167,11 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 		#ifdef MODULE_PERFORMANCE
 		else if (module_name == "performance")
 			my_module = Gtk::make_managed<module_performance>(config_main, false, false);
+		#endif
+
+		#ifdef MODULE_TASKBAR
+		else if (module_name == "taskbar")
+			my_module = Gtk::make_managed<module_taskbar>(config_main, false, false);
 		#endif
 
 		else {

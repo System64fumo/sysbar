@@ -39,6 +39,9 @@ endif
 ifneq (, $(shell grep -E '^#define MODULE_PERFORMANCE' src/config.hpp))
 	SRCS += src/modules/performance.cpp
 endif
+ifneq (, $(shell grep -E '^#define MODULE_TASKBAR' src/config.hpp))
+	SRCS += src/modules/taskbar.cpp
+endif
 
 OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(patsubst src/modules/%,$(BUILDDIR)/%,$(SRCS:.cpp=.o)))
 
@@ -47,6 +50,11 @@ LDFLAGS += -Wl,-O1,--as-needed,-z,now,-z,pack-relative-relocs
 
 CXXFLAGS += $(shell pkg-config --cflags $(PKGS))
 LDFLAGS += $(shell pkg-config --libs $(PKGS))
+
+PROTOS = $(wildcard proto/*.xml)
+PROTO_HDRS = $(patsubst proto/%.xml, src/%.h, $(PROTOS))
+PROTO_SRCS = $(patsubst proto/%.xml, src/%.c, $(PROTOS))
+PROTO_OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(PROTO_SRCS:.c=.o))
 
 $(shell mkdir -p $(BUILDDIR))
 
@@ -58,7 +66,7 @@ install: $(EXEC)
 	install $(BUILDDIR)/$(LIB) $(DESTDIR)/lib/$(LIB)
 
 clean:
-	rm -r $(BUILDDIR) src/git_info.hpp
+	rm -r $(BUILDDIR) src/git_info.hpp $(PROTO_HDRS) $(PROTO_SRCS)
 
 $(EXEC): src/git_info.hpp $(BUILDDIR)/main.o $(BUILDDIR)/config_parser.o
 	$(CXX) -o \
@@ -68,10 +76,11 @@ $(EXEC): src/git_info.hpp $(BUILDDIR)/main.o $(BUILDDIR)/config_parser.o
 	$(CXXFLAGS) \
 	$(shell pkg-config --libs gtkmm-4.0 gtk4-layer-shell-0)
 
-$(LIB): $(OBJS)
+$(LIB): $(PROTO_HDRS) $(PROTO_SRCS) $(PROTO_OBJS) $(OBJS)
 	$(CXX) -o \
 	$(BUILDDIR)/$(LIB) \
 	$(filter-out $(BUILDDIR)/main.o, $(OBJS)) \
+	$(PROTO_OBJS) \
 	$(CXXFLAGS) \
 	$(LDFLAGS) \
 	-shared
@@ -79,8 +88,17 @@ $(LIB): $(OBJS)
 $(BUILDDIR)/%.o: src/%.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
+$(BUILDDIR)/%.o: src/%.c
+	$(CC) -c $< -o $@ $(CFLAGS)
+
 $(BUILDDIR)/%.o: src/modules/%.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
+
+$(PROTO_HDRS): src/%.h : proto/%.xml
+	wayland-scanner client-header $< $@
+
+$(PROTO_SRCS): src/%.c : proto/%.xml
+	wayland-scanner public-code $< $@
 
 src/git_info.hpp:
 	@commit_hash=$$(git rev-parse HEAD); \

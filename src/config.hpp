@@ -13,6 +13,7 @@
 #define MODULE_BATTERY			// Include the battery module
 #define MODULE_NOTIFICATION		// Include the notifications module
 #define MODULE_PERFORMANCE		// Include the performance module
+#define MODULE_TASKBAR			// Include the taskbar module
 
 // Default config
 struct config_bar {
