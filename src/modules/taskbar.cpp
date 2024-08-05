@@ -5,16 +5,20 @@
 #include <gdk/wayland/gdkwayland.h>
 #include <iostream>
 
+uint text_length = 14;
+
 // Placeholder functions
 void handle_toplevel_title(void *data, zwlr_foreign_toplevel_handle_v1*, const char *title) {
 	auto toplevel_entry = static_cast<Gtk::Box*>(data);
+	auto toplevel_children = toplevel_entry->get_children();
+	auto toplevel_label = dynamic_cast<Gtk::Label*>(toplevel_children[0]);
+
 	std::string text = title;
 
-	if (text.length() > 10)
-		text = text.substr(0, 10 - 2) + "..";
+	if (text.length() > text_length)
+		text = text.substr(0, text_length - 2) + "..";
 
-	Gtk::Label *toplevel_label = Gtk::make_managed<Gtk::Label>(text);
-	toplevel_entry->append(*toplevel_label);
+	toplevel_label->set_text(text);
 }
 
 void handle_toplevel_app_id(void *data, zwlr_foreign_toplevel_handle_v1*, const char *app_id) {}
@@ -56,6 +60,13 @@ void handle_manager_toplevel(void *data, zwlr_foreign_toplevel_manager_v1 *manag
 
 	// Temporary placeholder
 	Gtk::Box *toplevel_entry = Gtk::make_managed<Gtk::Box>();
+	Gtk::Label *toplevel_label = Gtk::make_managed<Gtk::Label>();
+	toplevel_entry->append(*toplevel_label);
+
+	if (self->flowbox_main.get_orientation() == Gtk::Orientation::VERTICAL)
+		toplevel_entry->set_size_request(100, -1);
+	else
+		toplevel_entry->set_size_request(-1, 100);
 
 	zwlr_foreign_toplevel_handle_v1_add_listener(toplevel,
 		&toplevel_handle_v1_impl, toplevel_entry);
