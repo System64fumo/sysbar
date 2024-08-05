@@ -15,7 +15,6 @@ void handle_toplevel_title(void *data, zwlr_foreign_toplevel_handle_v1*, const c
 
 	Gtk::Label *toplevel_label = Gtk::make_managed<Gtk::Label>(text);
 	toplevel_entry->append(*toplevel_label);
-	std::cout << title << std::endl;
 }
 
 void handle_toplevel_app_id(void *data, zwlr_foreign_toplevel_handle_v1*, const char *app_id) {}
@@ -28,7 +27,15 @@ void handle_toplevel_state(void *data, zwlr_foreign_toplevel_handle_v1*, wl_arra
 
 void handle_toplevel_done(void *data, zwlr_foreign_toplevel_handle_v1*) {}
 
-void handle_toplevel_closed(void *data, zwlr_foreign_toplevel_handle_v1* handle) {}
+void handle_toplevel_closed(void *data, zwlr_foreign_toplevel_handle_v1* handle) {
+	auto toplevel_entry = static_cast<Gtk::Box*>(data);
+	auto flowbox_child = static_cast<Gtk::FlowBoxChild*>(toplevel_entry->get_parent());
+	auto flowbox = static_cast<Gtk::FlowBox*>(flowbox_child->get_parent());
+	flowbox->remove(*toplevel_entry);
+
+	// Does this cause a memory leak?
+	// Future me will find out!
+}
 
 void handle_toplevel_parent(void *data, zwlr_foreign_toplevel_handle_v1* handle, zwlr_foreign_toplevel_handle_v1* parent) {}
 
