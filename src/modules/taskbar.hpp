@@ -2,6 +2,7 @@
 #ifdef MODULE_TASKBAR
 
 #include "../module.hpp"
+#include "../wlr-foreign-toplevel-management-unstable-v1.h"
 
 class module_taskbar : public module {
 	public:
