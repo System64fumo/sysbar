@@ -15,6 +15,9 @@ void handle_toplevel_title(void *data, zwlr_foreign_toplevel_handle_v1*, const c
 
 	std::string text = title;
 
+	if (text == "")
+		text = "Untitled Window";
+
 	if (text.length() > text_length)
 		text = text.substr(0, text_length - 2) + "..";
 
@@ -84,7 +87,7 @@ void handle_manager_toplevel(void *data, zwlr_foreign_toplevel_manager_v1 *manag
 	Gtk::Label *toplevel_label = Gtk::make_managed<Gtk::Label>();
 	toplevel_entry->append(*toplevel_label);
 
-	if (self->flowbox_main.get_orientation() == Gtk::Orientation::VERTICAL)
+	if (self->flowbox_main.get_min_children_per_line() == 25)
 		toplevel_entry->set_size_request(100, -1);
 	else
 		toplevel_entry->set_size_request(-1, 100);
@@ -118,12 +121,27 @@ wl_registry_listener registry_listener = {
 };
 
 module_taskbar::module_taskbar(const config_bar &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
+	// Undo normal widget stuff
+	get_style_context()->remove_class("module");
+	set_cursor(Gdk::Cursor::create("default"));
 	image_icon.hide();
 	label_info.hide();
+
 	if (config_main.position %2 == 0) {
-		flowbox_main.set_orientation(Gtk::Orientation::VERTICAL);
+		box_container.set_halign(Gtk::Align::CENTER);
+		flowbox_main.set_min_children_per_line(25);
+		flowbox_main.set_max_children_per_line(25);
 	}
-	append(flowbox_main);
+	else
+		box_container.set_valign(Gtk::Align::CENTER);
+
+	box_container.get_style_context()->add_class("module_taskbar");
+	box_container.append(flowbox_main);
+
+	scrolledwindow.set_child(box_container);
+	scrolledwindow.set_vexpand(true);
+	scrolledwindow.set_hexpand(true);
+	append(scrolledwindow);
 	setup_proto();
 }
 
