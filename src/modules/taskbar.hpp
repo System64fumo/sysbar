@@ -5,6 +5,7 @@
 #include "../wlr-foreign-toplevel-management-unstable-v1.h"
 
 #include <gtkmm/flowbox.h>
+#include <gtkmm/scrolledwindow.h>
 
 class module_taskbar : public module {
 	public:
@@ -13,6 +14,8 @@ class module_taskbar : public module {
 		Gtk::FlowBox flowbox_main;
 
 	private:
+		Gtk::Box box_container;
+		Gtk::ScrolledWindow scrolledwindow;
 		void setup_proto();
 };
 
