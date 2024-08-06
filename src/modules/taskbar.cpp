@@ -27,7 +27,28 @@ void handle_toplevel_output_enter(void *data, zwlr_foreign_toplevel_handle_v1*, 
 
 void handle_toplevel_output_leave(void *data, zwlr_foreign_toplevel_handle_v1*, wl_output *output) {}
 
-void handle_toplevel_state(void *data, zwlr_foreign_toplevel_handle_v1*, wl_array *state) {}
+void handle_toplevel_state(void *data, zwlr_foreign_toplevel_handle_v1*, wl_array *state) {
+	auto toplevel_entry = static_cast<Gtk::Box*>(data);
+	auto flowbox_child = static_cast<Gtk::FlowBoxChild*>(toplevel_entry->get_parent());
+	auto flowbox = static_cast<Gtk::FlowBox*>(flowbox_child->get_parent());
+
+	uint32_t *state_array = (uint32_t *)state->data;
+	size_t count = state->size / sizeof(uint32_t);
+
+	for (size_t i = 0; i < count; ++i) {
+		switch (state_array[i]) {
+			case ZWLR_FOREIGN_TOPLEVEL_HANDLE_V1_STATE_MAXIMIZED:
+				break;
+			case ZWLR_FOREIGN_TOPLEVEL_HANDLE_V1_STATE_MINIMIZED:
+			break;
+			case ZWLR_FOREIGN_TOPLEVEL_HANDLE_V1_STATE_ACTIVATED:
+				flowbox->select_child(*flowbox_child);
+				break;
+			case ZWLR_FOREIGN_TOPLEVEL_HANDLE_V1_STATE_FULLSCREEN:
+				break;
+		}
+	}
+}
 
 void handle_toplevel_done(void *data, zwlr_foreign_toplevel_handle_v1*) {}
 
