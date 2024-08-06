@@ -36,3 +36,14 @@
 #sysbar .context_menu flowboxchild:hover {
 	background: alpha(currentcolor, 0.1);
 }
+
+#sysbar .module_taskbar flowboxchild {
+	color: alpha(@theme_fg_color, 0.75);
+}
+#sysbar .module_taskbar flowboxchild:selected {
+	background: alpha(@theme_fg_color, 0.1);
+	color: unset;
+}
+#sysbar .module_taskbar flowboxchild:hover {
+	background: alpha(@theme_fg_color, 0.05);
+}
