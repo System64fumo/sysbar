@@ -1,7 +1,6 @@
 #pragma once
-#ifdef MODULE_BATTERY
-
 #include "../module.hpp"
+#ifdef MODULE_BATTERY
 
 #include <giomm/dbusproxy.h>
 

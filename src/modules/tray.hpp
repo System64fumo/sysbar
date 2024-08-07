@@ -1,7 +1,6 @@
 #pragma once
-#ifdef MODULE_TRAY
-
 #include "../module.hpp"
+#ifdef MODULE_TRAY
 
 #include <giomm/dbusconnection.h>
 #include <giomm/dbusproxy.h>

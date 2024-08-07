@@ -1,7 +1,7 @@
 #pragma once
 #include "config.hpp"
+#include "css.hpp"
 
-#include <gtkmm/window.h>
 #include <gtkmm/revealer.h>
 #include <gtkmm/centerbox.h>
 #include <gtkmm/box.h>

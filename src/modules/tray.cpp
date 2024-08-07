@@ -1,4 +1,3 @@
-#include "../config.hpp"
 #include "tray.hpp"
 
 #include <gtkmm/separator.h>

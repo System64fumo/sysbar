@@ -1,5 +1,4 @@
 #include "../config_parser.hpp"
-#include "../config.hpp"
 #include "taskbar.hpp"
 
 #include <gdk/wayland/gdkwayland.h>

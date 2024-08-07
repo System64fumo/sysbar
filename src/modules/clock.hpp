@@ -1,7 +1,6 @@
 #pragma once
-#ifdef MODULE_CLOCK
-
 #include "../module.hpp"
+#ifdef MODULE_CLOCK
 
 class module_clock : public module {
 	public:

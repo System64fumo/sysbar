@@ -1,4 +1,3 @@
-#include "../config.hpp"
 #include "network.hpp"
 
 #include <iostream>

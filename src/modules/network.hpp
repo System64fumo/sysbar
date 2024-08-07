@@ -1,7 +1,6 @@
 #pragma once
-#ifdef MODULE_NETWORK
-
 #include "../module.hpp"
+#ifdef MODULE_NETWORK
 
 struct network_adapter {
 	std::string interface;

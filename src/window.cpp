@@ -1,8 +1,4 @@
-#include "main.hpp"
 #include "window.hpp"
-#include "css.hpp"
-#include "config.hpp"
-#include "module.hpp"
 
 #include "modules/clock.hpp"
 #include "modules/weather.hpp"

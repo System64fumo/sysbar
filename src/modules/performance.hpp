@@ -1,7 +1,6 @@
 #pragma once
-#ifdef MODULE_PERFORMANCE
-
 #include "../module.hpp"
+#ifdef MODULE_PERFORMANCE
 
 struct cpu_stats {
 	unsigned long long user, nice, system, idle, iowait, irq, softirq, steal;

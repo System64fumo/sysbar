@@ -1,7 +1,7 @@
 #pragma once
+#include "../module.hpp"
 #ifdef MODULE_VOLUME
 
-#include "../module.hpp"
 #include "../wireplumber.hpp"
 
 class module_volume : public module {

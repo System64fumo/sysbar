@@ -1,8 +1,8 @@
 #include "main.hpp"
-#include "config.hpp"
 #include "config_parser.hpp"
 #include "git_info.hpp"
 
+#include <gtkmm/application.h>
 #include <iostream>
 #include <signal.h>
 #include <dlfcn.h>
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
 	#endif
 
 	// Load the application
-	app = Gtk::Application::create("funky.sys64.sysbar");
+	Glib::RefPtr<Gtk::Application> app = Gtk::Application::create("funky.sys64.sysbar");
 	app->hold();
 
 	load_libsysbar();
