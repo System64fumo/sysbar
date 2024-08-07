@@ -1,7 +1,7 @@
 #pragma once
+#include "../module.hpp"
 #ifdef MODULE_WEATHER
 
-#include "../module.hpp"
 #include <nlohmann/json.hpp>
 
 class module_weather : public module {

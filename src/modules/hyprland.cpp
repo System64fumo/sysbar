@@ -1,5 +1,4 @@
 #include "../config_parser.hpp"
-#include "../config.hpp"
 #include "hyprland.hpp"
 
 #include <iostream>

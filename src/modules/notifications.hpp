@@ -1,9 +1,8 @@
 #pragma once
+#include "../module.hpp"
 #ifdef MODULE_NOTIFICATION
 
 #include <giomm/dbusconnection.h>
-
-#include "../module.hpp"
 
 class notification {
 	public:

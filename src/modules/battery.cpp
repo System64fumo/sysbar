@@ -1,5 +1,4 @@
 #include "../config_parser.hpp"
-#include "../config.hpp"
 #include "battery.hpp"
 
 #include <giomm/dbusconnection.h>

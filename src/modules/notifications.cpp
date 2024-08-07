@@ -1,4 +1,3 @@
-#include "../config.hpp"
 #include "notifications.hpp"
 
 #include <giomm/dbusownname.h>

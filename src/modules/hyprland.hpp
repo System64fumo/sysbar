@@ -1,7 +1,6 @@
 #pragma once
-#ifdef MODULE_HYPRLAND
-
 #include "../module.hpp"
+#ifdef MODULE_HYPRLAND
 
 #include <queue>
 #include <mutex>
