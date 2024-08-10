@@ -8,7 +8,7 @@ struct cpu_stats {
 
 class module_performance : public module {
 	public:
-		module_performance(const config_bar &cfg, const bool &icon_on_start = false, const bool &clickable = false);
+		module_performance(sysbar *window, const bool &icon_on_start = true);
 
 	private:
 		int precision = 0;

@@ -9,7 +9,7 @@
 
 class module_taskbar : public module {
 	public:
-		module_taskbar(const config_bar &cfg, const bool &icon_on_start = false, const bool &clickable = false);
+		module_taskbar(sysbar *window, const bool &icon_on_start = true);
 
 		Gtk::FlowBox flowbox_main;
 

@@ -11,7 +11,7 @@ struct network_adapter {
 
 class module_network : public module {
 	public:
-		module_network(const config_bar &cfg, const bool &icon_on_start = false, const bool &clickable = false);
+		module_network(sysbar *window, const bool &icon_on_start = true);
 		~module_network();
 
 	private:
