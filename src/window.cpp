@@ -210,69 +210,44 @@ void sysbar::handle_signal(const int &signum) {
 }
 
 void sysbar::setup_popovers() {
-	// TODO: Replace this with a loop, I'm lazy so i brute forced this. Do not judge!
-	Glib::RefPtr<Gtk::GestureClick> click_gesture_start = Gtk::GestureClick::create();
-	Glib::RefPtr<Gtk::GestureClick> click_gesture_center = Gtk::GestureClick::create();
-	Glib::RefPtr<Gtk::GestureClick> click_gesture_end = Gtk::GestureClick::create();
+	for (int i = 0; i < 3; i++) {
+		Gtk::Box *box_container;
+		Gtk::Box box_popout;
+		box_popout.set_size_request(300,400);
 
-	Gtk::Box box_popout_start;
-	Gtk::Box box_popout_center;
-	Gtk::Box box_popout_end;
+		Gtk::Popover *popover = Gtk::make_managed<Gtk::Popover>();
+		switch (i) {
+			case 0:
+				popover_start = popover;
+				box_container = &box_start;
+				break;
+			case 1:
+				popover_center = popover;
+				box_container = &box_center;
+				break;
+			case 2:
+				popover_end = popover;
+				box_container = &box_end;
+				break;
+		}
 
-	box_popout_start.set_size_request(300,400);
-	box_popout_center.set_size_request(300,400);
-	box_popout_end.set_size_request(300,400);
+		popover->set_parent(*box_container);
+		popover->set_child(box_popout);
+		popover->set_autohide(false);
+		popover->set_has_arrow(false);
+		popover->set_offset(0,10);
+		popover->set_autohide(false);
 
-	popover_start.set_child(box_popout_start);
-	popover_center.set_child(box_popout_center);
-	popover_end.set_child(box_popout_end);
-
-	popover_start.set_parent(box_start);
-	popover_center.set_parent(box_center);
-	popover_end.set_parent(box_end);
-
-	popover_start.set_has_arrow(false);
-	popover_center.set_has_arrow(false);
-	popover_end.set_has_arrow(false);
-
-	popover_start.set_offset(0,10);
-	popover_center.set_offset(0,10);
-	popover_end.set_offset(0,10);
-
-	// This is to prevent a "gtk_widget_is_ancestor" error
-	// No clue why it happens, No clue how to fix, Workaround works good nuff so this can stay
-	popover_start.set_autohide(false);
-	popover_center.set_autohide(false);
-	popover_end.set_autohide(false);
-
-	click_gesture_start->set_button(GDK_BUTTON_PRIMARY);
-	click_gesture_center->set_button(GDK_BUTTON_PRIMARY);
-	click_gesture_end->set_button(GDK_BUTTON_PRIMARY);
-
-	click_gesture_start->signal_pressed().connect([&](const int &n_press, const double &x, const double &y) {
-		if (popover_start.get_visible())
-			popover_start.popdown();
-		else
-			popover_start.popup();
-	});
-
-	click_gesture_center->signal_pressed().connect([&](const int &n_press, const double &x, const double &y) {
-		if (popover_center.get_visible())
-			popover_center.popdown();
-		else
-			popover_center.popup();
-	});
-
-	click_gesture_end->signal_pressed().connect([&](const int &n_press, const double &x, const double &y) {
-		if (popover_end.get_visible())
-			popover_end.popdown();
-		else
-			popover_end.popup();
-	});
-
-	box_start.add_controller(click_gesture_start);
-	box_center.add_controller(click_gesture_center);
-	box_end.add_controller(click_gesture_end);
+		Glib::RefPtr<Gtk::GestureClick> click_gesture = Gtk::GestureClick::create();
+		click_gesture->set_button(GDK_BUTTON_PRIMARY);
+		click_gesture->signal_pressed().connect([&, popover](const int &n_press, const double &x, const double &y) {
+			if (popover->get_visible())
+				popover->popdown();
+			else
+				popover->popup();
+		});
+		box_container->add_controller(click_gesture);
+	}
 }
 
 extern "C" {
