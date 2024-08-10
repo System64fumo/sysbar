@@ -13,6 +13,10 @@ class sysbar : public Gtk::Window {
 		sysbar(const config_bar &cfg);
 		void handle_signal(const int &signum);
 
+		Gtk::Popover *popover_start;
+		Gtk::Popover *popover_center;
+		Gtk::Popover *popover_end;
+
 	private:
 		config_bar config_main;
 		Gtk::Revealer revealer_box;
@@ -21,10 +25,6 @@ class sysbar : public Gtk::Window {
 		Gtk::Box box_center;
 		Gtk::Box box_end;
 		int width, height;
-
-		Gtk::Popover popover_start;
-		Gtk::Popover popover_center;
-		Gtk::Popover popover_end;
 
 		void load_modules(const std::string &modules, Gtk::Box &box);
 		void setup_popovers();
