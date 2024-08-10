@@ -45,8 +45,8 @@ endif
 
 OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(patsubst src/modules/%,$(BUILDDIR)/%,$(SRCS:.cpp=.o)))
 
-CXXFLAGS += -Os -s -Wall -flto=auto -fPIC
-LDFLAGS += -Wl,-O1,--as-needed,-z,now,-z,pack-relative-relocs
+CXXFLAGS += -Oz -s -Wall -flto -fPIC
+LDFLAGS += -Wl,--as-needed,-z,now,-z,pack-relative-relocs
 
 CXXFLAGS += $(shell pkg-config --cflags $(PKGS))
 LDFLAGS += $(shell pkg-config --libs $(PKGS))
@@ -57,6 +57,13 @@ PROTO_SRCS = $(patsubst proto/%.xml, src/%.c, $(PROTOS))
 PROTO_OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(PROTO_SRCS:.c=.o))
 
 $(shell mkdir -p $(BUILDDIR))
+JOB_COUNT := $(EXEC) $(LIB) $(PROTO_HDRS) $(PROTO_SRCS) $(PROTO_OBJS) $(OBJS) src/git_info.hpp
+JOBS_DONE := $(shell ls -l $(JOB_COUNT) 2> /dev/null | wc -l)
+
+define progress
+	$(eval JOBS_DONE := $(shell echo $$(($(JOBS_DONE) + 1))))
+	@printf "[$(JOBS_DONE)/$(shell echo $(JOB_COUNT) | wc -w)] %s %s\n" $(1) $(2)
+endef
 
 all: $(EXEC) $(LIB)
 
@@ -66,10 +73,12 @@ install: $(EXEC)
 	install $(BUILDDIR)/$(LIB) $(DESTDIR)/lib/$(LIB)
 
 clean:
-	rm -r $(BUILDDIR) src/git_info.hpp $(PROTO_HDRS) $(PROTO_SRCS)
+	@echo "Cleaning up"
+	@rm -r $(BUILDDIR) src/git_info.hpp $(PROTO_HDRS) $(PROTO_SRCS)
 
 $(EXEC): src/git_info.hpp $(BUILDDIR)/main.o $(BUILDDIR)/config_parser.o
-	$(CXX) -o \
+	$(call progress, Linking $@)
+	@$(CXX) -o \
 	$(BUILDDIR)/$(EXEC) \
 	$(BUILDDIR)/main.o \
 	$(BUILDDIR)/config_parser.o \
@@ -77,7 +86,8 @@ $(EXEC): src/git_info.hpp $(BUILDDIR)/main.o $(BUILDDIR)/config_parser.o
 	$(shell pkg-config --libs gtkmm-4.0 gtk4-layer-shell-0)
 
 $(LIB): $(PROTO_HDRS) $(PROTO_SRCS) $(PROTO_OBJS) $(OBJS)
-	$(CXX) -o \
+	$(call progress, Linking $@)
+	@$(CXX) -o \
 	$(BUILDDIR)/$(LIB) \
 	$(filter-out $(BUILDDIR)/main.o, $(OBJS)) \
 	$(PROTO_OBJS) \
@@ -86,21 +96,27 @@ $(LIB): $(PROTO_HDRS) $(PROTO_SRCS) $(PROTO_OBJS) $(OBJS)
 	-shared
 
 $(BUILDDIR)/%.o: src/%.cpp
-	$(CXX) -c $< -o $@ $(CXXFLAGS)
+	$(call progress, Compiling $@)
+	@$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 $(BUILDDIR)/%.o: src/%.c
-	$(CC) -c $< -o $@ $(CFLAGS)
+	$(call progress, Compiling $@)
+	@$(CC) -c $< -o $@ $(CFLAGS)
 
 $(BUILDDIR)/%.o: src/modules/%.cpp
-	$(CXX) -c $< -o $@ $(CXXFLAGS)
+	$(call progress, Compiling $@)
+	@$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 $(PROTO_HDRS): src/%.h : proto/%.xml
-	wayland-scanner client-header $< $@
+	$(call progress, Creating $@)
+	@wayland-scanner client-header $< $@
 
 $(PROTO_SRCS): src/%.c : proto/%.xml
-	wayland-scanner public-code $< $@
+	$(call progress, Creating $@)
+	@wayland-scanner public-code $< $@
 
 src/git_info.hpp:
+	$(call progress, Creating $@)
 	@commit_hash=$$(git rev-parse HEAD); \
 	commit_date=$$(git show -s --format=%cd --date=short $$commit_hash); \
 	commit_message=$$(git show -s --format=%s $$commit_hash); \
