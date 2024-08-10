@@ -101,14 +101,13 @@ sysbar::sysbar(const config_bar &cfg) {
 	std::string css_path = home_dir + "/.config/sys64/bar/style.css";
 	css_loader css(css_path, this);
 
+	// Popups
+	setup_popovers();
+
 	// Load modules
 	load_modules(config_main.m_start, box_start);
 	load_modules(config_main.m_center, box_center);
 	load_modules(config_main.m_end, box_end);
-
-	// Popups
-	// Disabled BC W.I.P
-	//setup_popovers();
 }
 
 void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
@@ -213,7 +212,8 @@ void sysbar::setup_popovers() {
 	for (int i = 0; i < 3; i++) {
 		Gtk::Box *box_container;
 		Gtk::Box box_popout;
-		box_popout.set_size_request(300,400);
+		box_popout.set_size_request(300,-1);
+		box_popout.set_orientation(Gtk::Orientation::VERTICAL);
 
 		Gtk::Popover *popover = Gtk::make_managed<Gtk::Popover>();
 		switch (i) {

@@ -6,6 +6,17 @@
 #sysbar .centerbox_main {
 }
 
+#sysbar popover contents {
+	background: @theme_base_color;
+	margin: 0px;
+	padding: 0px;
+	border: unset;
+}
+
+#sysbar popover .view  {
+	background: transparent;
+}
+
 #sysbar .module {
 	border-radius: 4px;
 }
