@@ -1,6 +1,7 @@
 #include "../config_parser.hpp"
 #include "clock.hpp"
 
+#include <gtkmm/calendar.h>
 #include <ctime>
 
 module_clock::module_clock(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
@@ -27,6 +28,7 @@ module_clock::module_clock(sysbar *window, const bool &icon_on_start) : module(w
 
 	update_info();
 	Glib::signal_timeout().connect(sigc::mem_fun(*this, &module_clock::update_info), interval);
+	setup_widget();
 }
 
 bool module_clock::update_info() {
@@ -42,4 +44,10 @@ bool module_clock::update_info() {
 	set_tooltip_text(tooltip_buffer);
 
 	return true;
+}
+
+void module_clock::setup_widget() {
+	Gtk::Calendar calendar;
+	auto container = static_cast<Gtk::Box*>(win->popover_start->get_child());
+	container->append(calendar);
 }
