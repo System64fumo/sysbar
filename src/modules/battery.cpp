@@ -4,7 +4,7 @@
 #include <giomm/dbusconnection.h>
 #include <iostream>
 
-module_battery::module_battery(const config_bar &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
+module_battery::module_battery(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_battery");
 	image_icon.set_from_icon_name("battery-missing-symbolic"); // Fallback
 	label_info.set_text("0"); // Fallback

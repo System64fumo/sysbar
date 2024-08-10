@@ -1,5 +1,6 @@
 #pragma once
 #include "config.hpp"
+#include "window.hpp"
 
 #include <gtkmm/label.h>
 #include <gtkmm/image.h>
@@ -9,10 +10,11 @@
 
 class module : public Gtk::Box {
 	public:
-		module(const config_bar &cfg, const bool &icon_on_start = true, const bool &clickable = false);
+		module(sysbar *window, const bool &icon_on_start = true);
 		config_bar config_main;
 		Gtk::Label label_info;
 		Gtk::Image image_icon;
+		sysbar* win;
 
 	private:
 		void on_dispatcher();

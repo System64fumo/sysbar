@@ -41,7 +41,7 @@ const auto introspection_data = Gio::DBus::NodeInfo::create_for_xml(
 	"	</interface>"
 	"</node>")->lookup_interface();
 
-module_notifications::module_notifications(const config_bar &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
+module_notifications::module_notifications(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_notifications");
 	image_icon.set_from_icon_name("notification-symbolic");
 	label_info.hide();

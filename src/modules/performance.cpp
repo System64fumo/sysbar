@@ -5,7 +5,7 @@
 #include <iostream>
 #include <iomanip>
 
-module_performance::module_performance(const config_bar &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
+module_performance::module_performance(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_performance");
 	image_icon.set_from_icon_name("cpu-symbolic");
 

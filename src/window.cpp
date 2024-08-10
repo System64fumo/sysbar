@@ -126,52 +126,52 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 
 		#ifdef MODULE_CLOCK
 		else if (module_name == "clock")
-			my_module = Gtk::make_managed<module_clock>(config_main, true, false);
+			my_module = Gtk::make_managed<module_clock>(this, true);
 		#endif
 
 		#ifdef MODULE_WEATHER
 		else if (module_name == "weather")
-			my_module = Gtk::make_managed<module_weather>(config_main, true, false);
+			my_module = Gtk::make_managed<module_weather>(this, true);
 		#endif
 
 		#ifdef MODULE_TRAY
 		else if (module_name == "tray")
-			my_module = Gtk::make_managed<module_tray>(config_main, true, false);
+			my_module = Gtk::make_managed<module_tray>(this, true);
 		#endif
 
 		#ifdef MODULE_HYPRLAND
 		else if (module_name == "hyprland")
-			my_module = Gtk::make_managed<module_hyprland>(config_main, false, false);
+			my_module = Gtk::make_managed<module_hyprland>(this, false);
 		#endif
 
 		#ifdef MODULE_VOLUME
 		else if (module_name == "volume")
-			my_module = Gtk::make_managed<module_volume>(config_main, false, false);
+			my_module = Gtk::make_managed<module_volume>(this, false);
 		#endif
 
 		#ifdef MODULE_NETWORK
 		else if (module_name == "network")
-			my_module = Gtk::make_managed<module_network>(config_main, false, false);
+			my_module = Gtk::make_managed<module_network>(this, false);
 		#endif
 
 		#ifdef MODULE_BATTERY
 		else if (module_name == "battery")
-			my_module = Gtk::make_managed<module_battery>(config_main, false, false);
+			my_module = Gtk::make_managed<module_battery>(this, false);
 		#endif
 
 		#ifdef MODULE_NOTIFICATION
 		else if (module_name == "notification")
-			my_module = Gtk::make_managed<module_notifications>(config_main, false, false);
+			my_module = Gtk::make_managed<module_notifications>(this, false);
 		#endif
 
 		#ifdef MODULE_PERFORMANCE
 		else if (module_name == "performance")
-			my_module = Gtk::make_managed<module_performance>(config_main, false, false);
+			my_module = Gtk::make_managed<module_performance>(this, false);
 		#endif
 
 		#ifdef MODULE_TASKBAR
 		else if (module_name == "taskbar")
-			my_module = Gtk::make_managed<module_taskbar>(config_main, false, false);
+			my_module = Gtk::make_managed<module_taskbar>(this, false);
 		#endif
 
 		else {

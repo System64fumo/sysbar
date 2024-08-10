@@ -119,7 +119,7 @@ wl_registry_listener registry_listener = {
 	&registry_handler
 };
 
-module_taskbar::module_taskbar(const config_bar &cfg, const bool &icon_on_start, const bool &clickable) : module(cfg, icon_on_start, clickable) {
+module_taskbar::module_taskbar(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	// Undo normal widget stuff
 	get_style_context()->remove_class("module");
 	set_cursor(Gdk::Cursor::create("default"));
