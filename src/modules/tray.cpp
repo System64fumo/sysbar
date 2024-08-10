@@ -61,6 +61,9 @@ void module_tray::on_clicked(const int &n_press, const double &x, const double &
 		image_icon.set_from_icon_name("arrow-left");
 		revealer_box.set_reveal_child(true);
 	}
+
+	// Prevent gestures bellow from triggering
+	gesture_click->reset();
 }
 
 // Tray watcher
