@@ -4,7 +4,7 @@
 
 #include <giomm/dbusconnection.h>
 
-class notification {
+class notification : public Gtk::Box {
 	public:
 		notification(Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters);
 		guint32 id;
