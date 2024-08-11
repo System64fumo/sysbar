@@ -140,6 +140,13 @@ notification::notification(Gtk::Box *box_notifications, const Glib::ustring &sen
 
 	Gtk::Box box_notification;
 	Gtk::Label label_headerbar, label_body;
+	Gtk::Image image_icon;
+
+	if (app_icon != "") {
+		image_icon.set(app_icon);
+		image_icon.set_size_request(64, 64);
+		append(image_icon);
+	}
 
 	label_headerbar.set_text(summary);
 	label_headerbar.set_halign(Gtk::Align::START);
@@ -148,11 +155,14 @@ notification::notification(Gtk::Box *box_notifications, const Glib::ustring &sen
 	box_notification.append(label_headerbar);
 
 	label_body.set_text(body);
-	label_body.set_halign(Gtk::Align::START);
 	label_body.set_max_width_chars(0);
+	label_headerbar.set_halign(Gtk::Align::START);
 	label_body.set_wrap(true);
+	label_body.set_natural_wrap_mode(Gtk::NaturalWrapMode::NONE);
 	box_notification.append(label_body);
 
+	append(box_notification);
+
 	box_notification.set_orientation(Gtk::Orientation::VERTICAL);
-	box_notifications->append(box_notification);
+	box_notifications->append(*this);
 }
