@@ -240,7 +240,10 @@ void sysbar::setup_popovers() {
 
 		Glib::RefPtr<Gtk::GestureClick> click_gesture = Gtk::GestureClick::create();
 		click_gesture->set_button(GDK_BUTTON_PRIMARY);
-		click_gesture->signal_pressed().connect([&, popover](const int &n_press, const double &x, const double &y) {
+		click_gesture->signal_pressed().connect([popover](const int &n_press, const double &x, const double &y) {
+			if (popover->get_child()->get_children().size() == 0)
+				return;
+
 			if (popover->get_visible())
 				popover->popdown();
 			else

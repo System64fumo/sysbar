@@ -112,6 +112,7 @@ int main(int argc, char* argv[]) {
 				std::cout << "  -e	Set end modules" << std::endl;
 				std::cout << "  -S	Set bar size" << std::endl;
 				std::cout << "  -V	Be more verbose" << std::endl;
+				std::cout << "  -m	Set primary monitor" << std::endl;
 				std::cout << "  -v	Prints version info" << std::endl;
 				std::cout << "  -h	Show this help message" << std::endl;
 				return 0;
