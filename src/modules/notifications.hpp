@@ -6,7 +6,7 @@
 
 class notification {
 	public:
-		notification(const Glib::ustring &sender, const Glib::VariantContainerBase &parameters);
+		notification(Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters);
 		guint32 id;
 
 	private:
@@ -21,11 +21,13 @@ class module_notifications : public module {
 		module_notifications(sysbar *window, const bool &icon_on_start = true);
 
 	private:
+		Gtk::Box *box_notifications;
 		guint object_id;
 		Glib::RefPtr<Gio::DBus::Connection> daemon_connection;
 		const Gio::DBus::InterfaceVTable interface_vtable{sigc::mem_fun(*this, &module_notifications::on_interface_method_call)};
 
 		bool update_info();
+		void setup_widget();
 		void setup_daemon();
 		void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connection, const Glib::ustring &name);
 		void on_interface_method_call(

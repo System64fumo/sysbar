@@ -45,11 +45,19 @@ module_notifications::module_notifications(sysbar *window, const bool &icon_on_s
 	get_style_context()->add_class("module_notifications");
 	image_icon.set_from_icon_name("notification-symbolic");
 	label_info.hide();
+	setup_widget();
 	setup_daemon();
 }
 
 bool module_notifications::update_info() {
 	return true;
+}
+
+void module_notifications::setup_widget() {
+	auto container = static_cast<Gtk::Box*>(win->popover_end->get_child());
+	box_notifications = Gtk::make_managed<Gtk::Box>();
+	box_notifications->set_orientation(Gtk::Orientation::VERTICAL);
+	container->append(*box_notifications);
 }
 
 void module_notifications::setup_daemon() {
@@ -91,7 +99,7 @@ void module_notifications::on_interface_method_call(
 			invocation->return_value(info);
 	}
 	else if (method_name == "Notify") {
-		notification notif(sender, parameters);
+		notification notif(box_notifications, sender, parameters);
 		auto id_var = Glib::VariantContainerBase::create_tuple(
 			Glib::Variant<guint32>::create(notif.id));
 
@@ -99,7 +107,7 @@ void module_notifications::on_interface_method_call(
 	}
 }
 
-notification::notification(const Glib::ustring &sender, const Glib::VariantContainerBase &parameters) {
+notification::notification(Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters) {
 	std::cout << "New Notification!" << std::endl;
 
 	if (!parameters.is_of_type(Glib::VariantType("(susssasa{sv}i)")))
@@ -129,4 +137,22 @@ notification::notification(const Glib::ustring &sender, const Glib::VariantConta
 	std::cout << "app_icon: " << app_icon << std::endl;
 	std::cout << "summary: " << summary << std::endl;
 	std::cout << "body: " << body << std::endl;
+
+	Gtk::Box box_notification;
+	Gtk::Label label_headerbar, label_body;
+
+	label_headerbar.set_text(summary);
+	label_headerbar.set_halign(Gtk::Align::START);
+	label_headerbar.set_max_width_chars(0);
+	label_headerbar.set_wrap(true);
+	box_notification.append(label_headerbar);
+
+	label_body.set_text(body);
+	label_body.set_halign(Gtk::Align::START);
+	label_body.set_max_width_chars(0);
+	label_body.set_wrap(true);
+	box_notification.append(label_body);
+
+	box_notification.set_orientation(Gtk::Orientation::VERTICAL);
+	box_notifications->append(box_notification);
 }
