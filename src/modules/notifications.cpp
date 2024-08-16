@@ -101,9 +101,9 @@ void module_notifications::on_interface_method_call(
 	else if (method_name == "Notify") {
 		notification notif(box_notifications, sender, parameters);
 		auto id_var = Glib::VariantContainerBase::create_tuple(
-			Glib::Variant<guint32>::create(notif.id));
-
+			Glib::Variant<guint32>::create(notif_count));
 		invocation->return_value(id_var);
+		notif_count++;
 	}
 }
 
@@ -119,6 +119,8 @@ notification::notification(Gtk::Box *box_notifications, const Glib::ustring &sen
 	iter.next_value(child);
 	app_name = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(child).get();
 
+	// TODO: This is used to replace existing notifications
+	// Currently unsupported
 	iter.next_value(child);
 	id = Glib::VariantBase::cast_dynamic<Glib::Variant<guint32>>(child).get();
 
@@ -131,12 +133,31 @@ notification::notification(Gtk::Box *box_notifications, const Glib::ustring &sen
 	iter.next_value(child);
 	body = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(child).get();
 
+	// TODO: Fix this? doesn't seem to work?
+	iter.next_value(child);
+	auto variant_array = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<Glib::ustring>>>(child);
+	std::vector<Glib::ustring> actions = variant_array.get();
+
+	iter.next_value(child);
+	auto variant_dict = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::ustring, Glib::VariantBase>>>(child);
+	std::map<Glib::ustring, Glib::VariantBase> map_hints = variant_dict.get();
+
+	iter.next_value(child);
+	int32_t expires = Glib::VariantBase::cast_dynamic<Glib::Variant<int32_t>>(child).get();
+
 	// TODO: Actually do stuff with this
 	std::cout << "app_name: " << app_name << std::endl;
-	std::cout << "id: " << id << std::endl;
+	std::cout << "replaces id: " << id << std::endl;
 	std::cout << "app_icon: " << app_icon << std::endl;
 	std::cout << "summary: " << summary << std::endl;
 	std::cout << "body: " << body << std::endl;
+	for (const auto& action : actions) {
+		std::cout << action << std::endl;
+	}
+	for (const auto& [key, value] : map_hints) {
+		std::cout << "Key: " << key << ", Value Type: " << value.get_type_string() << std::endl;
+	}
+	std::cout << "expires: " << expires << std::endl;
 
 	Gtk::Box box_notification;
 	Gtk::Label label_headerbar, label_body;
