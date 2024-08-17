@@ -156,6 +156,7 @@ notification::notification(Gtk::Box *box_notifications, const Glib::ustring &sen
 	}
 	for (const auto& [key, value] : map_hints) {
 		std::cout << "Key: " << key << ", Value Type: " << value.get_type_string() << std::endl;
+		handle_hint(key, value);
 	}
 	std::cout << "expires: " << expires << std::endl;
 
@@ -163,8 +164,14 @@ notification::notification(Gtk::Box *box_notifications, const Glib::ustring &sen
 	Gtk::Label label_headerbar, label_body;
 	Gtk::Image image_icon;
 
-	if (app_icon != "") {
-		image_icon.set(app_icon);
+	// Load image data from path
+	if (app_icon != "")
+		image_data = Gdk::Pixbuf::create_from_file(app_icon);
+
+	// Load image from pixbuf if applicable
+	if (image_data->get_width() != 0) {
+		image_icon.set(image_data);
+		image_data = image_data->scale_simple(64, 64, Gdk::InterpType::BILINEAR);
 		image_icon.set_size_request(64, 64);
 		append(image_icon);
 	}
@@ -186,4 +193,27 @@ notification::notification(Gtk::Box *box_notifications, const Glib::ustring &sen
 
 	box_notification.set_orientation(Gtk::Orientation::VERTICAL);
 	box_notifications->append(*this);
+}
+
+void notification::handle_hint(Glib::ustring key, const Glib::VariantBase &value) {
+	if (key == "icon_data") {
+		auto container = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(value);
+		int width = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(0)).get();
+		int height = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(1)).get();
+		int rowstride = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(2)).get();
+		bool has_alpha = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(container.get_child(3)).get();
+		int bits_per_sample = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(4)).get();
+		//int channels = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(5)).get(); // Unused
+		auto pixel_data = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<uint8_t>>>(container.get_child(6)).get();
+
+		image_data = Gdk::Pixbuf::create_from_data(
+			pixel_data.data(),
+			Gdk::Colorspace::RGB,
+			has_alpha,
+			bits_per_sample,
+			width,
+			height,
+			rowstride
+		)->copy();
+	}
 }

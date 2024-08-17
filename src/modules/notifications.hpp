@@ -14,6 +14,9 @@ class notification : public Gtk::Box {
 		Glib::ustring app_icon;
 		Glib::ustring summary;
 		Glib::ustring body;
+		Glib::RefPtr<Gdk::Pixbuf> image_data;
+
+		void handle_hint(Glib::ustring, const Glib::VariantBase&);
 };
 
 class module_notifications : public module {
