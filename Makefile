@@ -1,9 +1,12 @@
-EXEC = sysbar
-LIB = libsysbar.so
+BINS = sysbar
+LIBS = libsysbar.so
 PKGS = gtkmm-4.0 gtk4-layer-shell-0
 SRCS = $(wildcard src/*.cpp)
 
-DESTDIR = $(HOME)/.local
+PREFIX ?= /usr/local
+BINDIR ?= $(PREFIX)/bin
+LIBDIR ?= $(PREFIX)/lib
+DATADIR ?= $(PREFIX)/share
 BUILDDIR = build
 
 # Include enabled modules from config.hpp
@@ -65,30 +68,30 @@ define progress
 	@printf "[$(JOBS_DONE)/$(shell echo $(JOB_COUNT) | wc -w)] %s %s\n" $(1) $(2)
 endef
 
-all: $(EXEC) $(LIB)
+all: $(BINS) $(LIBS)
 
-install: $(EXEC)
-	mkdir -p $(DESTDIR)/bin $(DESTDIR)/lib
-	install $(BUILDDIR)/$(EXEC) $(DESTDIR)/bin/$(EXEC)
-	install $(BUILDDIR)/$(LIB) $(DESTDIR)/lib/$(LIB)
+install: $(BINS)
+	@echo "Installing..."
+	@install -D -t $(DESTDIR)$(BINDIR) $(BUILDDIR)/$(BINS)
+	@install -D -t $(DESTDIR)$(LIBDIR) $(BUILDDIR)/$(LIBS)
 
 clean:
 	@echo "Cleaning up"
 	@rm -r $(BUILDDIR) src/git_info.hpp $(PROTO_HDRS) $(PROTO_SRCS)
 
-$(EXEC): src/git_info.hpp $(BUILDDIR)/main.o $(BUILDDIR)/config_parser.o
+$(BINS): src/git_info.hpp $(BUILDDIR)/main.o $(BUILDDIR)/config_parser.o
 	$(call progress, Linking $@)
 	@$(CXX) -o \
-	$(BUILDDIR)/$(EXEC) \
+	$(BUILDDIR)/$(BINS) \
 	$(BUILDDIR)/main.o \
 	$(BUILDDIR)/config_parser.o \
 	$(CXXFLAGS) \
 	$(shell pkg-config --libs gtkmm-4.0 gtk4-layer-shell-0)
 
-$(LIB): $(PROTO_HDRS) $(PROTO_SRCS) $(PROTO_OBJS) $(OBJS)
+$(LIBS): $(PROTO_HDRS) $(PROTO_SRCS) $(PROTO_OBJS) $(OBJS)
 	$(call progress, Linking $@)
 	@$(CXX) -o \
-	$(BUILDDIR)/$(LIB) \
+	$(BUILDDIR)/$(LIBS) \
 	$(filter-out $(BUILDDIR)/main.o, $(OBJS)) \
 	$(PROTO_OBJS) \
 	$(CXXFLAGS) \
