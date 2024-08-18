@@ -6,7 +6,7 @@
 
 class notification : public Gtk::Box {
 	public:
-		notification(Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters);
+		notification(std::vector<notification*> notifications, Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters);
 
 	private:
 		Glib::ustring app_name;
@@ -23,6 +23,7 @@ class module_notifications : public module {
 	public:
 		module_notifications(sysbar *window, const bool &icon_on_start = true);
 		int notif_count = 0;
+		std::vector<notification*> notifications;
 
 	private:
 		Gtk::Box *box_notifications;

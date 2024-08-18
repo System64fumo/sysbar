@@ -99,17 +99,15 @@ void module_notifications::on_interface_method_call(
 			invocation->return_value(info);
 	}
 	else if (method_name == "Notify") {
-		notification notif(box_notifications, sender, parameters);
+		notification *notif = Gtk::make_managed<notification>(notifications, box_notifications, sender, parameters);
 		auto id_var = Glib::VariantContainerBase::create_tuple(
-			Glib::Variant<guint32>::create(notif_count));
+			Glib::Variant<guint32>::create(notifications.size()));
 		invocation->return_value(id_var);
-		notif_count++;
+		notifications.push_back(notif);
 	}
 }
 
-notification::notification(Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters) {
-	std::cout << "New Notification!" << std::endl;
-
+notification::notification(std::vector<notification*> notifications, Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters) {
 	if (!parameters.is_of_type(Glib::VariantType("(susssasa{sv}i)")))
 		return;
 
@@ -145,20 +143,13 @@ notification::notification(Gtk::Box *box_notifications, const Glib::ustring &sen
 	iter.next_value(child);
 	int32_t expires = Glib::VariantBase::cast_dynamic<Glib::Variant<int32_t>>(child).get();
 
-	// TODO: Actually do stuff with this
-	std::cout << "app_name: " << app_name << std::endl;
-	std::cout << "replaces id: " << id << std::endl;
-	std::cout << "app_icon: " << app_icon << std::endl;
-	std::cout << "summary: " << summary << std::endl;
-	std::cout << "body: " << body << std::endl;
 	for (const auto& action : actions) {
-		std::cout << action << std::endl;
+		//std::cout << action << std::endl;
 	}
 	for (const auto& [key, value] : map_hints) {
-		std::cout << "Key: " << key << ", Value Type: " << value.get_type_string() << std::endl;
+		//std::cout << "Key: " << key << ", Value Type: " << value.get_type_string() << std::endl;
 		handle_hint(key, value);
 	}
-	std::cout << "expires: " << expires << std::endl;
 
 	Gtk::Box box_notification;
 	Gtk::Label label_headerbar, label_body;
@@ -169,7 +160,7 @@ notification::notification(Gtk::Box *box_notifications, const Glib::ustring &sen
 		image_data = Gdk::Pixbuf::create_from_file(app_icon);
 
 	// Load image from pixbuf if applicable
-	if (image_data->get_width() != 0) {
+	if (image_data != nullptr) {
 		image_icon.set(image_data);
 		image_data = image_data->scale_simple(64, 64, Gdk::InterpType::BILINEAR);
 		image_icon.set_size_request(64, 64);
@@ -192,7 +183,7 @@ notification::notification(Gtk::Box *box_notifications, const Glib::ustring &sen
 	append(box_notification);
 
 	box_notification.set_orientation(Gtk::Orientation::VERTICAL);
-	box_notifications->append(*this);
+	box_notifications->prepend(*this);
 }
 
 void notification::handle_hint(Glib::ustring key, const Glib::VariantBase &value) {
