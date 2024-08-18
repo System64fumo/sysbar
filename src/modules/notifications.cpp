@@ -101,7 +101,7 @@ void module_notifications::on_interface_method_call(
 	else if (method_name == "Notify") {
 		notification *notif = Gtk::make_managed<notification>(notifications, box_notifications, sender, parameters);
 		auto id_var = Glib::VariantContainerBase::create_tuple(
-			Glib::Variant<guint32>::create(notifications.size()));
+			Glib::Variant<guint32>::create(notif->notif_id));
 		invocation->return_value(id_var);
 		notifications.push_back(notif);
 	}
@@ -117,10 +117,21 @@ notification::notification(std::vector<notification*> notifications, Gtk::Box *b
 	iter.next_value(child);
 	app_name = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(child).get();
 
-	// TODO: This is used to replace existing notifications
-	// Currently unsupported
 	iter.next_value(child);
-	id = Glib::VariantBase::cast_dynamic<Glib::Variant<guint32>>(child).get();
+	replaces_id = Glib::VariantBase::cast_dynamic<Glib::Variant<guint32>>(child).get();
+	notif_id = notifications.size() + 1;
+
+	// Pretty sure a memory leak happens here
+	// TODO: Fix said memory leak
+	if (replaces_id != 0) {
+		for (auto notif : notifications) {
+			if (notif->notif_id == replaces_id) {
+				// GTK My dear friend.. Why do you complain?
+				box_notifications->remove(*notif);
+				notif_id = replaces_id;
+			}
+		}
+	}
 
 	iter.next_value(child);
 	app_icon = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(child).get();
@@ -140,12 +151,15 @@ notification::notification(std::vector<notification*> notifications, Gtk::Box *b
 	auto variant_dict = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::ustring, Glib::VariantBase>>>(child);
 	std::map<Glib::ustring, Glib::VariantBase> map_hints = variant_dict.get();
 
+	// Expiration is not currently supported
 	iter.next_value(child);
 	int32_t expires = Glib::VariantBase::cast_dynamic<Glib::Variant<int32_t>>(child).get();
+	(void)expires; // Make the compiler shut up
 
-	for (const auto& action : actions) {
-		//std::cout << action << std::endl;
-	}
+	// Actions are currently unsupported
+	/*for (const auto& action : actions) {
+		std::cout << action << std::endl;
+	}*/
 	for (const auto& [key, value] : map_hints) {
 		//std::cout << "Key: " << key << ", Value Type: " << value.get_type_string() << std::endl;
 		handle_hint(key, value);

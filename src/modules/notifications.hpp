@@ -7,10 +7,11 @@
 class notification : public Gtk::Box {
 	public:
 		notification(std::vector<notification*> notifications, Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters);
+		guint32 notif_id;
 
 	private:
 		Glib::ustring app_name;
-		guint32 id;
+		guint32 replaces_id;
 		Glib::ustring app_icon;
 		Glib::ustring summary;
 		Glib::ustring body;
