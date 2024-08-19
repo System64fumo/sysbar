@@ -108,6 +108,7 @@ void module_notifications::on_interface_method_call(
 }
 
 notification::notification(std::vector<notification*> notifications, Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters) {
+	get_style_context()->add_class("notification");
 	if (!parameters.is_of_type(Glib::VariantType("(susssasa{sv}i)")))
 		return;
 
@@ -175,23 +176,29 @@ notification::notification(std::vector<notification*> notifications, Gtk::Box *b
 
 	// Load image from pixbuf if applicable
 	if (image_data != nullptr) {
+		image_icon.get_style_context()->add_class("image");
 		image_icon.set(image_data);
 		image_data = image_data->scale_simple(64, 64, Gdk::InterpType::BILINEAR);
 		image_icon.set_size_request(64, 64);
 		append(image_icon);
 	}
 
+	label_headerbar.get_style_context()->add_class("summary");
 	label_headerbar.set_text(summary);
 	label_headerbar.set_halign(Gtk::Align::START);
 	label_headerbar.set_max_width_chars(0);
 	label_headerbar.set_wrap(true);
+	label_headerbar.set_ellipsize(Pango::EllipsizeMode::END);
+	label_headerbar.set_margin_start(5);
 	box_notification.append(label_headerbar);
 
+	label_body.get_style_context()->add_class("body");
 	label_body.set_text(body);
 	label_body.set_max_width_chars(0);
-	label_headerbar.set_halign(Gtk::Align::START);
+	label_body.set_halign(Gtk::Align::START);
 	label_body.set_wrap(true);
 	label_body.set_natural_wrap_mode(Gtk::NaturalWrapMode::NONE);
+	label_body.set_margin_start(5);
 	box_notification.append(label_body);
 
 	append(box_notification);
