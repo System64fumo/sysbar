@@ -19,4 +19,10 @@ class module_taskbar : public module {
 		void setup_proto();
 };
 
+class taskbar_item : public Gtk::Box {
+	public:
+		taskbar_item(const Gtk::FlowBox&);
+		Gtk::Label toplevel_label;
+};
+
 #endif
