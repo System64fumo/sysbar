@@ -58,3 +58,18 @@
 #sysbar .module_taskbar flowboxchild:hover {
 	background: alpha(@theme_fg_color, 0.05);
 }
+
+#sysbar .notification {
+	background: alpha(currentcolor, 0.1);
+	border-radius: 4px;
+	box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.25);
+	margin: 5px;
+	padding: 5px;
+}
+#sysbar .notification .summary {
+	font-size: 14px;
+	font-weight: 500;
+}
+#sysbar .notification .body {
+	font-size: 13px;
+}
