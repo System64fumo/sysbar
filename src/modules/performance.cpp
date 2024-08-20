@@ -2,7 +2,6 @@
 #include "performance.hpp"
 
 #include <fstream>
-#include <iostream>
 #include <iomanip>
 
 module_performance::module_performance(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {

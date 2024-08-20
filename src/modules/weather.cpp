@@ -1,7 +1,6 @@
 #include "../config_parser.hpp"
 #include "weather.hpp"
 
-#include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <curl/curl.h>
@@ -56,7 +55,7 @@ bool module_weather::update_info() {
 	}
 	catch (...) {
 		image_icon.set_from_icon_name("weather-none-available-symbolic");
-		std::cout << "Failed to parse weather data" << std::endl;
+		std::fprintf(stderr, "Failed to parse weather data\n");
 		std::filesystem::remove(weather_file);
 		return true;
 	}
@@ -78,7 +77,7 @@ bool module_weather::update_info() {
 	else if (unit == 'f')
 		label_info.set_text(weather_info_current.temp_F);
 	else
-		std::cerr << "Unknown unit: " << unit << std::endl;
+		std::fprintf(stderr, "Unknown unit: %c\n", unit);
 
 	// Add more cases, Snow, Storms, ect ect
 	std::map<std::string, std::string> icon_from_desc = {
@@ -112,7 +111,7 @@ void module_weather::download_file() {
 	curl = curl_easy_init();
 	if (!curl) {
 		image_icon.set_from_icon_name("weather-none-available-symbolic");
-		std::cerr << "Error: unable to initialize curl." << std::endl;
+		std::fprintf(stderr, "Error: unable to initialize curl.\n");
 		return;
 	}
 
@@ -128,7 +127,7 @@ void module_weather::download_file() {
 
 	if (res != CURLE_OK) {
 		image_icon.set_from_icon_name("weather-none-available-symbolic");
-		std::cerr << "Error: curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+		std::fprintf(stderr, "Error: curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 		return;
 	}
 }

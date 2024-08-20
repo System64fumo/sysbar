@@ -2,7 +2,6 @@
 #include "taskbar.hpp"
 
 #include <gdk/wayland/gdkwayland.h>
-#include <iostream>
 
 uint text_length = 14;
 

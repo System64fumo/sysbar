@@ -13,7 +13,6 @@
 
 #include <gtk4-layer-shell.h>
 #include <filesystem>
-#include <iostream>
 
 sysbar::sysbar(const config_bar &cfg) {
 	config_main = cfg;
@@ -118,10 +117,10 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 		module *my_module;
 
 		if (config_main.verbose)
-			std::cout << "Loading module: " << module_name << std::endl;
+			std::printf("Loading module: %s\n", module_name.c_str());
 
 		if (false)
-			std::cout << "You're not supposed to see this" << std::endl;
+			std::printf("You're not supposed to see this\n");
 
 		#ifdef MODULE_CLOCK
 		else if (module_name == "clock")
@@ -174,7 +173,7 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 		#endif
 
 		else {
-			std::cout << "Unknown module: " << module_name << std::endl;
+			std::fprintf(stderr, "Unknown module: %s\n", module_name.c_str());
 			return;
 		}
 

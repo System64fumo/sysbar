@@ -1,7 +1,6 @@
 #include "notifications.hpp"
 
 #include <giomm/dbusownname.h>
-#include <iostream>
 
 const auto introspection_data = Gio::DBus::NodeInfo::create_for_xml(
 	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -61,8 +60,6 @@ void module_notifications::setup_widget() {
 }
 
 void module_notifications::setup_daemon() {
-	if (config_main.verbose)
-		std::cout << "setup" << std::endl;
 	Gio::DBus::own_name(Gio::DBus::BusType::SESSION,
 		"org.freedesktop.Notifications",
 		sigc::mem_fun(*this, &module_notifications::on_bus_acquired),
@@ -72,9 +69,6 @@ void module_notifications::setup_daemon() {
 }
 
 void module_notifications::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connection, const Glib::ustring &name) {
-	if (config_main.verbose)
-		std::cout << "on_bus_acquired" << std::endl;
-
 	object_id = connection->register_object(
 		"/org/freedesktop/Notifications",
 		introspection_data,
@@ -89,8 +83,6 @@ void module_notifications::on_interface_method_call(
 	const Glib::ustring &interface_name, const Glib::ustring &method_name,
 	const Glib::VariantContainerBase &parameters,
 	const Glib::RefPtr<Gio::DBus::MethodInvocation> &invocation) {
-	if (config_main.verbose)
-		std::cout << "on_interface_method_call: " << method_name << std::endl;
 
 	if (method_name == "GetServerInformation") {
 		static const auto info =
@@ -159,10 +151,8 @@ notification::notification(std::vector<notification*> notifications, Gtk::Box *b
 
 	// Actions are currently unsupported
 	/*for (const auto& action : actions) {
-		std::cout << action << std::endl;
 	}*/
 	for (const auto& [key, value] : map_hints) {
-		//std::cout << "Key: " << key << ", Value Type: " << value.get_type_string() << std::endl;
 		handle_hint(key, value);
 	}
 
