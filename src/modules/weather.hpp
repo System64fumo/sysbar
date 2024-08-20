@@ -2,7 +2,7 @@
 #include "../module.hpp"
 #ifdef MODULE_WEATHER
 
-#include <nlohmann/json.hpp>
+#include <json/json.h>
 
 class module_weather : public module {
 	public:
@@ -18,7 +18,7 @@ class module_weather : public module {
 			std::string weatherDesc;
 		} weather_info_current;
 
-		nlohmann::json json_data;
+		Json::Value json_data;
 		char unit = 'c';
 		std::string weather_file;
 		std::string weather_file_url = "https://wttr.in/?format=j1";

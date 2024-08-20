@@ -2,7 +2,6 @@
 #include "weather.hpp"
 
 #include <fstream>
-#include <filesystem>
 #include <curl/curl.h>
 #include <iomanip>
 #include <ctime>
@@ -40,25 +39,25 @@ bool module_weather::update_info() {
 	std::string home_dir = getenv("HOME");
 	weather_file = home_dir + "/.cache/sysbar-weather.json";
 
-	if (!std::filesystem::exists(weather_file)) {
-		// TODO: Check for internet before trying to download
+	std::ifstream file(weather_file, std::ios::ate);
+
+	// Check if the file is Ok
+	if (file.tellg() < 10) {
 		download_file();
-	}
-	if (std::filesystem::file_size(weather_file) == 0) {
-		download_file();
+		file.open(weather_file);
 	}
 
-	try {
-		std::ifstream file(weather_file);
-		file >> json_data;
-		file.close();
-	}
-	catch (...) {
+	// The file is not okay
+	if (!file.is_open()) {
 		image_icon.set_from_icon_name("weather-none-available-symbolic");
 		std::fprintf(stderr, "Failed to parse weather data\n");
-		std::filesystem::remove(weather_file);
-		return true;
+		return false;
 	}
+
+	// Reset the file pointer and load the data
+	file.seekg(0, std::ios::beg);
+	file >> json_data;
+	file.close();
 
 	// Get time and date
 	std::time_t t = std::time(nullptr);
@@ -133,22 +132,22 @@ void module_weather::download_file() {
 }
 
 void module_weather::get_weather_data(const std::string &date, const std::string &time) {
-	auto weatherArray = json_data["weather"];
+	Json::Value weatherArray = json_data["weather"];
 
 	// Iterate over each date in the weather array
 	for (const auto& dailyWeather : weatherArray) {
-		if (dailyWeather["date"] == date) {
-			auto hourlyArray = dailyWeather["hourly"];
+		if (dailyWeather["date"].asString() == date) {
+			Json::Value hourlyArray = dailyWeather["hourly"];
 
 			// Iterate over each hourly section
 			for (const auto& hourly : hourlyArray) {
-				if (hourly["time"] == time) {
-					weather_info_current.feels_like_C = hourly["FeelsLikeC"];
-					weather_info_current.feels_like_F = hourly["FeelsLikeF"];
-					weather_info_current.temp_C = hourly["tempC"];
-					weather_info_current.temp_F = hourly["tempF"];
-					weather_info_current.humidity = hourly["humidity"];
-					weather_info_current.weatherDesc = hourly["weatherDesc"][0]["value"];
+				if (hourly["time"].asString() == time) {
+					weather_info_current.feels_like_C = hourly["FeelsLikeC"].asString();
+					weather_info_current.feels_like_F = hourly["FeelsLikeF"].asString();
+					weather_info_current.temp_C = hourly["tempC"].asString();
+					weather_info_current.temp_F = hourly["tempF"].asString();
+					weather_info_current.humidity = hourly["humidity"].asString();
+					weather_info_current.weatherDesc = hourly["weatherDesc"][0]["value"].asString();
 					 // For whatever reason, sometimes the last character is a space
 					if (weather_info_current.weatherDesc.back() == ' ')
 						weather_info_current.weatherDesc.pop_back();

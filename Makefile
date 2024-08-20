@@ -15,7 +15,7 @@ ifneq (, $(shell grep -E '^#define MODULE_CLOCK' src/config.hpp))
 endif
 ifneq (, $(shell grep -E '^#define MODULE_WEATHER' src/config.hpp))
 	SRCS += src/modules/weather.cpp
-	PKGS += libcurl
+	PKGS += libcurl jsoncpp
 endif
 ifneq (, $(shell grep -E '^#define MODULE_TRAY' src/config.hpp))
 	SRCS += src/modules/tray.cpp
