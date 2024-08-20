@@ -2,7 +2,6 @@
 #include "battery.hpp"
 
 #include <giomm/dbusconnection.h>
-#include <iostream>
 
 module_battery::module_battery(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_battery");
@@ -45,9 +44,6 @@ void module_battery::on_properties_changed(
 	const std::vector<Glib::ustring> &invalidated) {
 
 	for (const auto& prop : properties) {
-		if (config_main.verbose)
-			std::cout << "Value: " << prop.first << std::endl;
-
 		update_info(prop.first);
 	}
 }

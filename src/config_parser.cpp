@@ -1,5 +1,4 @@
 #include "config_parser.hpp"
-#include <iostream>
 #include <fstream>
 #include <sstream>
 
@@ -32,7 +31,7 @@ config_parser::config_parser(const std::string &filename) {
 		file.close();
 	}
 	else {
-		std::cerr << "Unable to open file: " << filename << std::endl;
+		std::fprintf(stderr, "Unable to open file: %s\n", filename.c_str());
 	}
 }
 
@@ -44,11 +43,11 @@ std::string config_parser::get_value(const std::string &section, const std::stri
 			return key_iter->second;
 		}
 		else {
-			std::cerr << "Key '" << key << "' not found in section '" << section << "'" << std::endl;
+			std::fprintf(stderr, "Key '%s' not found in section '%s'\n", key.c_str(), section.c_str());
 		}
 	}
 	else {
-		std::cerr << "Section '" << section << "' not found" << std::endl;
+		std::fprintf(stderr, "Section '%s' not found\n", section.c_str());
 	}
 	return "empty";
 }

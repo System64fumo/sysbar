@@ -2,8 +2,6 @@
 
 #include <gtkmm/separator.h>
 #include <filesystem>
-#include <iostream>
-
 // Tray module
 module_tray::module_tray(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_tray");
@@ -144,7 +142,7 @@ void tray_watcher::on_interface_get_property(Glib::VariantBase & property,
 		property = Glib::Variant<int>::create(0);
 	}
 	else {
-		std::cerr << "Unknown property: " << property_name << std::endl;
+		std::fprintf(stderr, "Unknown property: %s\n", property_name.c_str());
 	}
 }
 
@@ -225,7 +223,6 @@ tray_item::tray_item(const Glib::ustring &service) {
 													   const Glib::VariantContainerBase &params) {
 				if (signal.size() >= 3) {
 					std::string_view property(signal.c_str() + 3, signal.size() - 3);
-					std::cout << "Property updated: " << property << std::endl;
 					update_properties();
 				}
 			});

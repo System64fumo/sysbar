@@ -1,5 +1,4 @@
 #include "wireplumber.hpp"
-#include <iostream>
 #include <cmath>
 
 bool sysvol_wireplumber::isValidNodeId(uint32_t id) {
@@ -9,8 +8,8 @@ bool sysvol_wireplumber::isValidNodeId(uint32_t id) {
 void sysvol_wireplumber::onMixerChanged(sysvol_wireplumber* self, uint32_t id) {
 	GVariant* variant = nullptr;
 	if (!isValidNodeId(id)) {
-		std::cerr << "Invalid node ID: " << id << std::endl;
-		std::cerr << "Ignoring volume update." << std::endl;
+		std::fprintf(stderr, "Invalid node ID: %d\n", id);
+		std::fprintf(stderr, "Ignoring volume update.\n");
 		return;
 	}
 
@@ -29,7 +28,7 @@ void sysvol_wireplumber::onMixerChanged(sysvol_wireplumber* self, uint32_t id) {
 	// Too bad it segfaults!
 
 	if (variant == nullptr) {
-		std::cerr << "Node does not support volume\n" << std::endl;
+		std::fprintf(stderr, "Node does not support volume\n");
 		return;
 	}
 
@@ -48,11 +47,11 @@ void sysvol_wireplumber::onDefaultNodesApiChanged(sysvol_wireplumber* self) {
 	g_signal_emit_by_name(self->def_nodes_api, "get-default-node", "Audio/Sink", &self->node_id);
 	g_signal_emit_by_name(self->def_nodes_api, "get-default-node", "Audio/Source", &self->input_node_id);
 	if (!isValidNodeId(self->node_id)) {
-		std::cerr << "Invalid output node ID Ignoring volume update." << std::endl;
+		std::fprintf(stderr, "Invalid output node ID Ignoring volume update.");
 		return;
 	}
 	if (!isValidNodeId(self->input_node_id)) {
-		std::cerr << "Invalid input node ID Ignoring volume update." << std::endl;
+		std::fprintf(stderr, "Invalid input node ID Ignoring volume update.");
 		return;
 	}
 
@@ -67,19 +66,19 @@ void sysvol_wireplumber::onDefaultNodesApiChanged(sysvol_wireplumber* self) {
 	const gchar* output_node_name = wp_pipewire_object_get_property(WP_PIPEWIRE_OBJECT(output_node), "node.name");
 	const gchar* input_node_name = wp_pipewire_object_get_property(WP_PIPEWIRE_OBJECT(output_node), "node.name");
 
-	std::cout << "Audio device changed"<< std::endl;
-	std::cout << "Output: " << output_node_name << std::endl;
-	std::cout << "Output ID: " << self->node_id << std::endl;
-	std::cout << "Output: " << input_node_name << std::endl;
-	std::cout << "Output ID: " << self->input_node_id << std::endl;
+	std::printf("Audio device changed");
+	std::printf("Output: %s\n", output_node_name);
+	std::printf("Output ID: %d\n", self->node_id);
+	std::printf("Output: %s\n", input_node_name);
+	std::printf("Output ID: %d\n", self->input_node_id);
 }
 
 void sysvol_wireplumber::onPluginActivated(WpObject* p, GAsyncResult* res, sysvol_wireplumber* self) {
 	const auto* pluginName = wp_plugin_get_name(WP_PLUGIN(p));
 	g_autoptr(GError) error = nullptr;
 	if (wp_object_activate_finish(p, res, &error) == 0) {
-		std::cerr << "error activating plugin: " << pluginName << std::endl;
-		std::cerr << error->message << std::endl;
+		std::fprintf(stderr, "error activating plugin: %s\n", pluginName);
+		std::fprintf(stderr, error->message);
 		return;
 	}
 
@@ -104,7 +103,7 @@ void sysvol_wireplumber::onMixerApiLoaded(WpObject* p, GAsyncResult* res, sysvol
 	success = wp_core_load_component_finish(self->core, res, nullptr);
 
 	if (!success) {
-		std::cout << "Mixer API failed to load" << std::endl;
+		std::printf("Mixer API failed to load");
 		return;
 	}
 
@@ -124,7 +123,7 @@ void sysvol_wireplumber::onDefaultNodesApiLoaded(WpObject* p, GAsyncResult* res,
 	success = wp_core_load_component_finish(self->core, res, &error);
 
 	if (!success) {
-		std::cout << "Node API failed to load" << std::endl;
+		std::printf("Node API failed to load");
 		return;
 	}
 
@@ -138,14 +137,14 @@ void sysvol_wireplumber::onObjectManagerInstalled(sysvol_wireplumber* self) {
 	self->def_nodes_api = wp_plugin_find(self->core, "default-nodes-api");
 
 	if (self->def_nodes_api == nullptr) {
-		std::cerr << "Default nodes API is not loaded\n" << std::endl;
+		std::fprintf(stderr, "Default nodes API is not loaded\n");
 		return;
 	}
 
 	self->mixer_api = wp_plugin_find(self->core, "mixer-api");
 
 	if (self->mixer_api == nullptr) {
-		std::cerr << "Mixer api is not loaded\n" << std::endl;
+		std::fprintf(stderr, "Mixer api is not loaded\n");
 		return;
 	}
 
@@ -172,7 +171,7 @@ sysvol_wireplumber::sysvol_wireplumber(Glib::Dispatcher* callback) {
 								   "media.class", "=s", "Audio/Source", nullptr);
 
 	if (wp_core_connect(core) == 0) {
-		std::cout << "Could not connect" << std::endl;
+		std::printf("Could not connect");
 	}
 
 	g_signal_connect_swapped(om, "installed", (GCallback)onObjectManagerInstalled, this);

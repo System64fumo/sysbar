@@ -1,7 +1,6 @@
 #include "../config_parser.hpp"
 #include "hyprland.hpp"
 
-#include <iostream>
 #include <filesystem>
 #include <thread>
 #include <sys/socket.h>
@@ -34,9 +33,6 @@ void module_hyprland::update_info() {
 	std::string data = data_queue.front();
 	data_queue.pop();
 
-	if (config_main.verbose)
-		std::cout << data << std::endl;
-
 	if (data.find("activewindow>>") != std::string::npos) {
 		std::string active_window_data = data.substr(14);
 		int pos = active_window_data.find(',');
@@ -56,14 +52,14 @@ void module_hyprland::socket_listener() {
 	std::filesystem::path hyprland_socket = xdg_runtime_dir / "hypr";
 
 	if (!std::filesystem::exists(hyprland_socket)) {
-		std::cout << "Socket not found at: " << hyprland_socket << std::endl;
+		std::fprintf(stderr, "Socket not found at: %s\n", hyprland_socket.c_str());
 		return;
 	}
 
 	std::string instance_signature = getenv("HYPRLAND_INSTANCE_SIGNATURE");
 
 	if (instance_signature.empty()) {
-		std::cout << "Hyprland instance signature not found, Is hyprland running?" << hyprland_socket << std::endl;
+		std::fprintf(stderr, "Hyprland instance signature not found, Is hyprland running?\n");
 		return;
 	}
 
@@ -77,7 +73,7 @@ void module_hyprland::socket_listener() {
 	strncpy(addr.sun_path, socket_path.c_str(), sizeof(addr.sun_path) - 1);
 
 	if (connect(sockfd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
-		std::cout << "socket connection failed" << std::endl;
+		std::fprintf(stderr, "socket connection failed\n");
 		close(sockfd);
 		return;
 	}
@@ -87,11 +83,11 @@ void module_hyprland::socket_listener() {
 	while (true) {
 		ssize_t numBytes = read(sockfd, buffer.data(), buffer.size());
 		if (numBytes < 0) {
-			std::cerr << "Read error" << std::endl;
+			std::fprintf(stderr, "Read error\n");
 			close(sockfd);
 			return;
 		} else if (numBytes == 0) {
-			std::cout << "Connection closed by peer" << std::endl;
+			std::fprintf(stderr, "Connection closed by peer\n");
 			break;
 		}
 

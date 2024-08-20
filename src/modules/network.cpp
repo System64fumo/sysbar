@@ -1,6 +1,5 @@
 #include "network.hpp"
 
-#include <iostream>
 #include <net/if.h>
 #include <linux/rtnetlink.h>
 #include <sys/socket.h>
@@ -29,7 +28,7 @@ void module_network::interface_thread() {
 	while (true) {
 		int len = recv(nl_socket, buffer, sizeof(buffer), 0);
 		if (len < 0) {
-			std::cerr << "Error receiving netlink message" << std::endl;
+			std::fprintf(stderr, "Error receiving netlink message");
 			return;
 		}
 	
@@ -50,13 +49,13 @@ void module_network::update_info() {
 	uint if_index = default_if_index;
 	auto default_if = std::find_if(adapters.begin(), adapters.end(), [if_index](const network_adapter& a) { return a.index == if_index; });
 	if (default_if == adapters.end()) {
-		std::cerr << "No interface found" << std::endl;
+		std::fprintf(stderr, "No interface found\n");
 		image_icon.set_from_icon_name("network-error-symbolic");
 		return;
 	}
 
 	if (config_main.verbose)
-		std::cout << "Default interface is " << default_if->interface << std::endl;
+		std::printf("Default interface is %s\n", default_if->interface.c_str());
 
 	if (default_if->type == "Ethernet")
 		image_icon.set_from_icon_name("network-wired-symbolic");
@@ -67,7 +66,7 @@ void module_network::update_info() {
 bool module_network::setup_netlink() {
 	nl_socket = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
 	if (nl_socket < 0) {
-		std::cerr << "Failed to open netlink socket" << std::endl;
+		std::fprintf(stderr, "Failed to open netlink socket\n");
 		return false;
 	}
 
@@ -77,7 +76,7 @@ bool module_network::setup_netlink() {
 	sa.nl_groups = RTMGRP_LINK | RTMGRP_IPV4_IFADDR | RTMGRP_IPV4_ROUTE;
 
 	if (bind(nl_socket, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
-		std::cerr << "Failed to bind netlink socket" << std::endl;
+		std::fprintf(stderr, "Failed to bind netlink socket\n");
 		close(nl_socket);
 		return false;
 	}
@@ -159,25 +158,16 @@ void module_network::process_message(struct nlmsghdr *nlh) {
 		// Add the interface to the list
 		if (rth->rta_type == IFA_LOCAL) {
 
-			// Print the values of the interface
-			if (config_main.verbose) {
-				std::cout << "Interface: " << if_name << std::endl;
-				std::cout << "Type: " << if_type << std::endl;
-				std::cout << "Address: " << if_addr << std::endl;
-				std::cout << "Index: " << if_index << "\n" << std::endl;
-			}
-
 			/// Find the interface if it already exists
 			auto it = std::find_if(adapters.begin(), adapters.end(), [if_index](const network_adapter& s) { return s.index == if_index; });
 			if (it != adapters.end()) {
 				it->ipv4 = if_addr;
-				std::cout << "Changed " << if_name << "'s address" << std::endl;
 				continue;
 			}
 
 			// Create a new interface if needed
 			if (config_main.verbose)
-				std::cout << if_name << " has been added to the list\n" << std::endl;
+				std::printf("%s has been added to the list\n", if_name);
 
 			network_adapter adapter;
 			adapter.interface = if_name;

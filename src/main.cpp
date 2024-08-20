@@ -3,14 +3,13 @@
 #include "git_info.hpp"
 
 #include <gtkmm/application.h>
-#include <iostream>
 #include <signal.h>
 #include <dlfcn.h>
 
 void load_libsysbar() {
 	void* handle = dlopen("libsysbar.so", RTLD_LAZY);
 	if (!handle) {
-		std::cerr << "Cannot open library: " << dlerror() << '\n';
+		std::fprintf(stderr, "Cannot open library: %s\n", dlerror());
 		exit(1);
 	}
 
@@ -18,7 +17,7 @@ void load_libsysbar() {
 	sysbar_handle_signal_ptr = (sysbar_handle_signal_func)dlsym(handle, "sysbar_signal");
 
 	if (!sysbar_create_ptr) {
-		std::cerr << "Cannot load symbols: " << dlerror() << '\n';
+		std::fprintf(stderr, "Cannot load symbols: %s\n", dlerror());
 		dlclose(handle);
 		exit(1);
 	}
@@ -97,24 +96,24 @@ int main(int argc, char* argv[]) {
 				continue;
 
 			case 'v':
-				std::cout << "Commit: " << GIT_COMMIT_MESSAGE << std::endl;
-				std::cout << "Date: " << GIT_COMMIT_DATE << std::endl;
+				std::printf("Commit: %s\n", GIT_COMMIT_MESSAGE);
+				std::printf("Date: %s\n", GIT_COMMIT_DATE);
 				return 0;
 
 			case 'h':
 			default :
-				std::cout << "usage:" << std::endl;
-				std::cout << "  sysbar [argument...]:\n" << std::endl;
-				std::cout << "arguments:" << std::endl;
-				std::cout << "  -p	Set position" << std::endl;
-				std::cout << "  -s	Set start modules" << std::endl;
-				std::cout << "  -c	Set center modules" << std::endl;
-				std::cout << "  -e	Set end modules" << std::endl;
-				std::cout << "  -S	Set bar size" << std::endl;
-				std::cout << "  -V	Be more verbose" << std::endl;
-				std::cout << "  -m	Set primary monitor" << std::endl;
-				std::cout << "  -v	Prints version info" << std::endl;
-				std::cout << "  -h	Show this help message" << std::endl;
+				std::printf("usage:");
+				std::printf("  sysbar [argument...]:\n");
+				std::printf("arguments:");
+				std::printf("  -p	Set position");
+				std::printf("  -s	Set start modules");
+				std::printf("  -c	Set center modules");
+				std::printf("  -e	Set end modules");
+				std::printf("  -S	Set bar size");
+				std::printf("  -V	Be more verbose");
+				std::printf("  -m	Set primary monitor");
+				std::printf("  -v	Prints version info");
+				std::printf("  -h	Show this help message");
 				return 0;
 
 			case -1:
