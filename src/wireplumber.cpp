@@ -78,7 +78,7 @@ void sysvol_wireplumber::onPluginActivated(WpObject* p, GAsyncResult* res, sysvo
 	g_autoptr(GError) error = nullptr;
 	if (wp_object_activate_finish(p, res, &error) == 0) {
 		std::fprintf(stderr, "error activating plugin: %s\n", pluginName);
-		std::fprintf(stderr, error->message);
+		std::fprintf(stderr, "error %s\n", error->message);
 		return;
 	}
 
