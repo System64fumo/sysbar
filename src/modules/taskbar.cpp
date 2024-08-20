@@ -2,12 +2,14 @@
 #include "taskbar.hpp"
 
 #include <gdk/wayland/gdkwayland.h>
+#include <gdkmm/seat.h>
 
 uint text_length = 14;
 
 // Placeholder functions
-void handle_toplevel_title(void *data, zwlr_foreign_toplevel_handle_v1*, const char *title) {
+void handle_toplevel_title(void *data, zwlr_foreign_toplevel_handle_v1* handle, const char *title) {
 	auto toplevel_entry = static_cast<taskbar_item*>(data);
+	toplevel_entry->handle = handle;
 
 	std::string text = title;
 
@@ -122,6 +124,13 @@ module_taskbar::module_taskbar(sysbar *window, const bool &icon_on_start) : modu
 	}
 	else
 		box_container.set_valign(Gtk::Align::CENTER);
+
+	flowbox_main.signal_child_activated().connect([this](Gtk::FlowBoxChild* child) {
+		auto toplevel_entry = static_cast<taskbar_item*>(child->get_child());
+		auto gseat = Gdk::Display::get_default()->get_default_seat();
+		auto seat = gdk_wayland_seat_get_wl_seat(gseat->gobj());
+		zwlr_foreign_toplevel_handle_v1_activate(toplevel_entry->handle, seat);
+	});
 
 	box_container.get_style_context()->add_class("module_taskbar");
 	box_container.append(flowbox_main);

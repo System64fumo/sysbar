@@ -23,6 +23,7 @@ class taskbar_item : public Gtk::Box {
 	public:
 		taskbar_item(const Gtk::FlowBox&);
 		Gtk::Label toplevel_label;
+		zwlr_foreign_toplevel_handle_v1* handle;
 };
 
 #endif
