@@ -60,6 +60,6 @@ void module_battery::update_info(const std::string &property) {
 	else if (property ==  "UpdateTime") {
 		Glib::Variant<double> charge;
 		proxy->get_cached_property(charge, "Percentage");
-		label_info.set_text(std::to_string(charge.get()));
+		label_info.set_text(std::to_string((int)charge.get()));
 	}
 }
