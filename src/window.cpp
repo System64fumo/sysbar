@@ -96,9 +96,15 @@ sysbar::sysbar(const config_bar &cfg) {
 	}
 
 	// Load custom css
-	std::string home_dir = getenv("HOME");
-	std::string css_path = home_dir + "/.config/sys64/bar/style.css";
-	css_loader css(css_path, this);
+	std::string style_path;
+	if (std::filesystem::exists(std::string(getenv("HOME")) + "/.config/sys64/bar/style.css"))
+		style_path = std::string(getenv("HOME")) + "/.config/sys64/bar/style.css";
+	else if (std::filesystem::exists("/usr/share/sys64/bar/style.css"))
+		style_path = "/usr/share/sys64/bar/style.css";
+	else
+		style_path = "/usr/local/share/sys64/bar/style.css";
+
+	css_loader css(style_path, this);
 
 	// Popups
 	setup_popovers();

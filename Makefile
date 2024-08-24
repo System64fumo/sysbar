@@ -74,6 +74,7 @@ install: $(BINS)
 	@echo "Installing..."
 	@install -D -t $(DESTDIR)$(BINDIR) $(BUILDDIR)/$(BINS)
 	@install -D -t $(DESTDIR)$(LIBDIR) $(BUILDDIR)/$(LIBS)
+	@install -D -t $(DESTDIR)$(DATADIR)/sys64/bar config.conf style.css
 
 clean:
 	@echo "Cleaning up"
