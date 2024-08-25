@@ -32,13 +32,17 @@ module_backlight::module_backlight(sysbar *window, const bool &icon_on_start) : 
 	}
 	#endif
 
+	// Setup
 	get_backlight_path(backlight_path);
+	setup_widget();
+	brightness = get_brightness();
+	update_info();
+	scale_backlight.set_value(brightness_literal); // Temporary
 
-	// Read initial value
-	label_info.set_text(std::to_string(get_brightness()));
-
-	// Begin listening for changes
+	// Listen for changes
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_backlight::update_info));
+	scale_backlight.signal_value_changed().connect(sigc::mem_fun(*this, &module_backlight::on_scale_brightness_change));
+
 	std::thread monitor_thread([&]() {
 		int inotify_fd = inotify_init();
 		inotify_add_watch(inotify_fd, backlight_path.c_str(), IN_MODIFY);
@@ -62,6 +66,21 @@ module_backlight::module_backlight(sysbar *window, const bool &icon_on_start) : 
 
 void module_backlight::update_info() {
 	label_info.set_text(std::to_string(brightness));
+	// TODO: Prevent this from changing if currently being dragged
+	//scale_backlight.set_value(brightness);
+}
+
+void module_backlight::on_scale_brightness_change() {
+	int scale_val = (int)scale_backlight.get_value();
+	if (scale_val != brightness) {
+		std::ofstream backlight_file(backlight_path + "/brightness", std::ios::trunc);
+		backlight_file << scale_val;
+	}
+}
+
+void module_backlight::setup_widget() {
+	auto container = static_cast<Gtk::Box*>(win->popover_end->get_child());
+	container->append(scale_backlight);
 }
 
 void module_backlight::get_backlight_path(std::string custom_backlight_path) {
@@ -85,10 +104,10 @@ int module_backlight::get_brightness() {
 	std::lock_guard<std::mutex> lock(brightness_mutex);
 	std::ifstream brightness_file(backlight_path + "/brightness");
 	std::ifstream max_brightness_file(backlight_path + "/max_brightness");
-	double brightness;
 	double max_brightness;
-	brightness_file >> brightness;
+	brightness_file >> brightness_literal;
 	max_brightness_file >> max_brightness;
 
-	return (brightness / max_brightness) * 100;
+	scale_backlight.set_range(0, max_brightness);
+	return (brightness_literal / max_brightness) * 100;
 }
