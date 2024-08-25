@@ -14,6 +14,7 @@
 #define MODULE_NOTIFICATION		// Include the notifications module
 #define MODULE_PERFORMANCE		// Include the performance module
 #define MODULE_TASKBAR			// Include the taskbar module
+#define MODULE_BACKLIGHT		// Include the backlight module
 
 // Default config
 struct config_bar {
