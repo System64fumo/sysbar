@@ -10,9 +10,34 @@
 module_backlight::module_backlight(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_backlight");
 	image_icon.set_from_icon_name("brightness-display-symbolic");
-	label_info.set_text("0");
 
-	get_backlight_path("/tmp/backlight");
+	#ifdef CONFIG_FILE
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
+
+	if (config.available) {
+		std::string cfg_bl_path = config.get_value("backlight", "path");
+		if (cfg_bl_path != "empty")
+			backlight_path = cfg_bl_path;
+
+		std::string cfg_icon = config.get_value("backlight", "show-icon");
+		if (cfg_icon != "true") {
+			image_icon.hide();
+			label_info.set_margin_end(config_main.size / 3);
+		}
+
+		std::string cfg_label = config.get_value("backlight", "show-label");
+		if (cfg_label != "true") {
+			label_info.hide();
+		}
+	}
+	#endif
+
+	get_backlight_path(backlight_path);
+
+	// Read initial value
+	label_info.set_text(std::to_string(get_brightness()));
+
+	// Begin listening for changes
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_backlight::update_info));
 	std::thread monitor_thread([&]() {
 		int inotify_fd = inotify_init();
