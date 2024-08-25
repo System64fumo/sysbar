@@ -45,6 +45,9 @@ endif
 ifneq (, $(shell grep -E '^#define MODULE_TASKBAR' src/config.hpp))
 	SRCS += src/modules/taskbar.cpp
 endif
+ifneq (, $(shell grep -E '^#define MODULE_BACKLIGHT' src/config.hpp))
+	SRCS += src/modules/backlight.cpp
+endif
 
 OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(patsubst src/modules/%,$(BUILDDIR)/%,$(SRCS:.cpp=.o)))
 
