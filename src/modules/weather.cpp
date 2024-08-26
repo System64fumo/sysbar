@@ -43,15 +43,16 @@ bool module_weather::update_info() {
 
 	// Check if the file is Ok
 	if (file.tellg() < 10) {
+		file.close();
 		download_file();
-		file.open(weather_file);
+		file.open(weather_file, std::ios::ate);
 	}
 
 	// The file is not okay
-	if (!file.is_open()) {
+	if (!file.is_open() || file.tellg() < 10) {
 		image_icon.set_from_icon_name("weather-none-available-symbolic");
 		std::fprintf(stderr, "Failed to parse weather data\n");
-		return false;
+		return true;
 	}
 
 	// Reset the file pointer and load the data
