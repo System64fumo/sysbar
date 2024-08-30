@@ -1,6 +1,5 @@
 #include "backlight.hpp"
 
-#include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <sys/inotify.h>
@@ -33,7 +32,7 @@ module_backlight::module_backlight(sysbar *window, const bool &icon_on_start) : 
 	setup_widget();
 	brightness = get_brightness();
 	update_info();
-	scale_backlight.set_value(brightness_literal); // Temporary
+	scale_backlight.set_value(brightness_literal);
 
 	// Listen for changes
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_backlight::update_info));
@@ -51,10 +50,11 @@ module_backlight::module_backlight(sysbar *window, const bool &icon_on_start) : 
 			(void)ret; // Return value does not matter
 
 			brightness = get_brightness();
-			if (brightness != last_brightness) {
-				last_brightness = brightness;
-				dispatcher_callback.emit();
-			}
+			if (brightness == last_brightness)
+				break;
+
+			last_brightness = brightness;
+			dispatcher_callback.emit();
 		}
 	});
 	monitor_thread.detach();
@@ -68,10 +68,12 @@ void module_backlight::update_info() {
 
 void module_backlight::on_scale_brightness_change() {
 	int scale_val = (int)scale_backlight.get_value();
-	if (scale_val != brightness) {
-		std::ofstream backlight_file(backlight_path + "/brightness", std::ios::trunc);
-		backlight_file << scale_val;
-	}
+	if (scale_val == brightness)
+		return;
+
+	std::ofstream backlight_file(backlight_path + "/brightness", std::ios::trunc);
+	backlight_file << scale_val;
+
 }
 
 void module_backlight::setup_widget() {
@@ -84,15 +86,12 @@ void module_backlight::get_backlight_path(std::string custom_backlight_path) {
 		backlight_path = custom_backlight_path;
 		return;
 	}
-	else {
-		std::string path = "/sys/class/backlight/";
-		for (const auto& entry : std::filesystem::directory_iterator(path)) {
-			if (std::filesystem::is_directory(entry.path())) {
-				backlight_path = entry.path();
-				return;
-			}
+	std::string path = "/sys/class/backlight/";
+	for (const auto& entry : std::filesystem::directory_iterator(path)) {
+		if (std::filesystem::is_directory(entry.path())) {
+			backlight_path = entry.path();
+			return;
 		}
-		std::cout << "Unable to automatically detect your backlight" << std::endl;
 	}
 }
 
