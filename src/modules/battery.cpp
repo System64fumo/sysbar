@@ -1,4 +1,3 @@
-#include "../config_parser.hpp"
 #include "battery.hpp"
 
 #include <giomm/dbusconnection.h>
@@ -9,10 +8,8 @@ module_battery::module_battery(sysbar *window, const bool &icon_on_start) : modu
 	label_info.set_text("0"); // Fallback
 
 	#ifdef CONFIG_FILE
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
-
-	if (config.available) {
-		std::string cfg_percentage = config.get_value("battery", "show-percentage");
+	if (config->available) {
+		std::string cfg_percentage = config->get_value("battery", "show-percentage");
 		if (cfg_percentage != "empty")
 			show_percentage = (cfg_percentage == "true");
 	}

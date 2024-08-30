@@ -2,6 +2,7 @@
 
 #include <gtkmm/separator.h>
 #include <filesystem>
+
 // Tray module
 module_tray::module_tray(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_tray");
