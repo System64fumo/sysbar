@@ -1,14 +1,16 @@
 #include "mpris.hpp"
 
 static void playback_status(PlayerctlPlayer *player, PlayerctlPlaybackStatus status, gpointer user_data) {
-	std::string status_msg = status ? "paused" : "playing";
-	std::printf("Player status: %s\n", status_msg.c_str());
+	module_mpris *self = static_cast<module_mpris*>(user_data);
+	self->status = status;
+	self->dispatcher_callback.emit();
 }
 
 module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_mpris");
 	image_icon.set_from_icon_name("player_play");
 	label_info.hide();
+	dispatcher_callback.connect(sigc::mem_fun(*this, &module_mpris::update_info));
 
 	// Setup
 	PlayerctlPlayer *player = nullptr;
@@ -21,5 +23,11 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 		break;
 	}
 
-	g_signal_connect(player, "playback-status", G_CALLBACK(playback_status), nullptr);
+	// TODO: Get status on startup
+	g_signal_connect(player, "playback-status", G_CALLBACK(playback_status), this);
+}
+
+void module_mpris::update_info() {
+	std::string status_icon = status ? "player_play" : "player_pause";
+	image_icon.set_from_icon_name(status_icon);
 }
