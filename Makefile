@@ -67,7 +67,7 @@ PROTO_SRCS = $(patsubst proto/%.xml, src/%.c, $(PROTOS))
 PROTO_OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(PROTO_SRCS:.c=.o))
 
 $(shell mkdir -p $(BUILDDIR))
-JOB_COUNT := $(EXEC) $(LIB) $(PROTO_HDRS) $(PROTO_SRCS) $(PROTO_OBJS) $(OBJS) src/git_info.hpp
+JOB_COUNT := $(BINS) $(LIBS) $(PROTO_HDRS) $(PROTO_SRCS) $(PROTO_OBJS) $(OBJS) src/git_info.hpp
 JOBS_DONE := $(shell ls -l $(JOB_COUNT) 2> /dev/null | wc -l)
 
 define progress
