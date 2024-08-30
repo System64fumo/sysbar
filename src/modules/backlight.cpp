@@ -1,4 +1,3 @@
-#include "../config_parser.hpp"
 #include "backlight.hpp"
 
 #include <iostream>
@@ -12,23 +11,20 @@ module_backlight::module_backlight(sysbar *window, const bool &icon_on_start) : 
 	image_icon.set_from_icon_name("brightness-display-symbolic");
 
 	#ifdef CONFIG_FILE
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
-
-	if (config.available) {
-		std::string cfg_bl_path = config.get_value("backlight", "path");
+	if (config->available) {
+		std::string cfg_bl_path = config->get_value("backlight", "path");
 		if (cfg_bl_path != "empty")
 			backlight_path = cfg_bl_path;
 
-		std::string cfg_icon = config.get_value("backlight", "show-icon");
+		std::string cfg_icon = config->get_value("backlight", "show-icon");
 		if (cfg_icon != "true") {
 			image_icon.hide();
 			label_info.set_margin_end(config_main.size / 3);
 		}
 
-		std::string cfg_label = config.get_value("backlight", "show-label");
-		if (cfg_label != "true") {
+		std::string cfg_label = config->get_value("backlight", "show-label");
+		if (cfg_label != "true")
 			label_info.hide();
-		}
 	}
 	#endif
 

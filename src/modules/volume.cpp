@@ -1,4 +1,3 @@
-#include "../config_parser.hpp"
 #include "volume.hpp"
 
 #include <thread>
@@ -11,10 +10,8 @@ module_volume::module_volume(sysbar *window, const bool &icon_on_start) : module
 	label_info.hide();
 
 	#ifdef CONFIG_FILE
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
-
-	if (config.available) {
-		std::string cfg_label = config.get_value("volume", "label");
+	if (config->available) {
+		std::string cfg_label = config->get_value("volume", "label");
 		if (cfg_label == "true")
 			label_info.show(); 
 	}

@@ -2,6 +2,10 @@
 #include "config.hpp"
 #include "window.hpp"
 
+#ifdef CONFIG_FILE
+#include "config_parser.hpp"
+#endif
+
 #include <gtkmm/label.h>
 #include <gtkmm/image.h>
 #include <gtkmm/box.h>
@@ -15,6 +19,10 @@ class module : public Gtk::Box {
 		Gtk::Label label_info;
 		Gtk::Image image_icon;
 		sysbar* win;
+
+		#ifdef CONFIG_FILE
+		config_parser *config;
+		#endif
 
 	private:
 		void on_dispatcher();

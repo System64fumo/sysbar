@@ -1,4 +1,3 @@
-#include "../config_parser.hpp"
 #include "clock.hpp"
 
 #include <gtkmm/calendar.h>
@@ -9,18 +8,16 @@ module_clock::module_clock(sysbar *window, const bool &icon_on_start) : module(w
 	image_icon.set_from_icon_name("preferences-system-time-symbolic");
 
 	#ifdef CONFIG_FILE
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
-
-	if (config.available) {
-		std::string cfg_label_format = config.get_value("clock", "label-format");
+	if (config->available) {
+		std::string cfg_label_format = config->get_value("clock", "label-format");
 		if (cfg_label_format != "empty")
 			tooltip_format = cfg_label_format;
 
-		std::string cfg_tooltip_format = config.get_value("clock", "tooltip-format");
+		std::string cfg_tooltip_format = config->get_value("clock", "tooltip-format");
 		if (cfg_tooltip_format != "empty")
 			tooltip_format = cfg_tooltip_format;
 
-		std::string cfg_interval = config.get_value("clock", "interval");
+		std::string cfg_interval = config->get_value("clock", "interval");
 		if (cfg_interval != "empty")
 			interval = std::stoi(cfg_interval);
 	}

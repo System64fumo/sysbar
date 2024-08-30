@@ -1,4 +1,3 @@
-#include "../config_parser.hpp"
 #include "performance.hpp"
 
 #include <fstream>

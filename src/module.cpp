@@ -37,4 +37,9 @@ module::module(sysbar *window, const bool &icon_on_start) {
 
 	// TODO: add user customizable margins
 	image_icon.set_size_request(config_main.size, config_main.size);
+
+	// Read config
+	#ifdef CONFIG_FILE
+	config = new config_parser(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
+	#endif
 }

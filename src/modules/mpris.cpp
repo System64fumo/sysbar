@@ -1,4 +1,3 @@
-#include "../config_parser.hpp"
 #include "mpris.hpp"
 
 static void playback_status(PlayerctlPlayer *player, PlayerctlPlaybackStatus status, gpointer user_data) {
