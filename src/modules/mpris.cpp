@@ -13,7 +13,6 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 
 	// Setup
 	PlayerctlPlayer *player = nullptr;
-	PlayerctlPlayerManager *player_manager = playerctl_player_manager_new(nullptr);
 	GList *players = playerctl_list_players(nullptr);
 
 	// Itterate over all players
