@@ -15,6 +15,7 @@
 #define MODULE_PERFORMANCE		// Include the performance module
 #define MODULE_TASKBAR			// Include the taskbar module
 #define MODULE_BACKLIGHT		// Include the backlight module
+#define MODULE_MPRIS			// Include the mpris module
 
 // Default config
 struct config_bar {
