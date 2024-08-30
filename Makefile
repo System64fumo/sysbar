@@ -48,6 +48,10 @@ endif
 ifneq (, $(shell grep -E '^#define MODULE_BACKLIGHT' src/config.hpp))
 	SRCS += src/modules/backlight.cpp
 endif
+ifneq (, $(shell grep -E '^#define MODULE_MPRIS' src/config.hpp))
+	SRCS += src/modules/mpris.cpp
+	PKGS += playerctl
+endif
 
 OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(patsubst src/modules/%,$(BUILDDIR)/%,$(SRCS:.cpp=.o)))
 

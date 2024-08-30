@@ -11,6 +11,7 @@
 #include "modules/performance.hpp"
 #include "modules/taskbar.hpp"
 #include "modules/backlight.hpp"
+#include "modules/mpris.hpp"
 
 #include <gtk4-layer-shell.h>
 #include <filesystem>
@@ -182,6 +183,11 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 		#ifdef MODULE_BACKLIGHT
 		else if (module_name == "backlight")
 			my_module = Gtk::make_managed<module_backlight>(this, false);
+		#endif
+
+		#ifdef MODULE_BACKLIGHT
+		else if (module_name == "mpris")
+			my_module = Gtk::make_managed<module_mpris>(this, false);
 		#endif
 
 		else {
