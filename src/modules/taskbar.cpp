@@ -6,6 +6,21 @@
 uint text_length = 14;
 std::vector<std::shared_ptr<Gio::AppInfo>> app_list;
 
+std::string cleanup_string(const std::string &str) {
+	std::string result = str;
+
+	// Remove spaces or separators
+	result.erase(std::remove_if(result.begin(), result.end(), [](char c) {
+		return c == ' ' || c == '-';
+	}), result.end());
+
+	// Convert to lowercase
+	for (char& c : result)
+		c = std::tolower(c);
+
+	return result;
+}
+
 // Placeholder functions
 void handle_toplevel_title(void *data, zwlr_foreign_toplevel_handle_v1* handle, const char *title) {
 	auto toplevel_entry = static_cast<taskbar_item*>(data);
@@ -26,8 +41,16 @@ void handle_toplevel_app_id(void *data, zwlr_foreign_toplevel_handle_v1*, const 
 	Glib::RefPtr<Gio::AppInfo> app_info;
 
 	// TODO: This doesn't always find the right icon, Either improve it or add a placeholder
+	std::string appid = cleanup_string(app_id);
 	for (auto app : app_list) {
-		if (app_id == app->get_name() || app_id == app->get_executable()) {
+		// TODO: Pre process this
+		if (!app->should_show())
+			continue;
+
+		std::string app_name = cleanup_string(app->get_name());
+		std::string app_executable = cleanup_string(app->get_executable());
+		
+		if (appid == app_name || appid == app_executable ) {
 			app_info = app;
 			break;
 		}
