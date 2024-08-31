@@ -36,9 +36,9 @@ void handle_toplevel_title(void *data, zwlr_foreign_toplevel_handle_v1* handle, 
 }
 
 void handle_toplevel_app_id(void *data, zwlr_foreign_toplevel_handle_v1*, const char *app_id) {
+	auto toplevel_entry = static_cast<taskbar_item*>(data);
 	Glib::RefPtr<Gio::AppInfo> app_info;
 
-	// TODO: This doesn't always find the right icon, Either improve it or add a placeholder
 	std::string appid = cleanup_string(app_id);
 	for (auto app : app_list) {
 		std::string app_name = cleanup_string(app->get_name());
@@ -52,10 +52,9 @@ void handle_toplevel_app_id(void *data, zwlr_foreign_toplevel_handle_v1*, const 
 
 	// Did not find the app in the list
 	if (app_info == nullptr)
-		return;
-
-	auto toplevel_entry = static_cast<taskbar_item*>(data);
-	toplevel_entry->image_icon.set(app_info->get_icon());
+		toplevel_entry->image_icon.set_from_icon_name("binary");
+	else
+		toplevel_entry->image_icon.set(app_info->get_icon());
 }
 
 void handle_toplevel_output_enter(void *data, zwlr_foreign_toplevel_handle_v1*, wl_output *output) {}
