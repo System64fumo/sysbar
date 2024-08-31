@@ -16,6 +16,7 @@ class module_taskbar : public module {
 	private:
 		Gtk::Box box_container;
 		Gtk::ScrolledWindow scrolledwindow;
+
 		void setup_proto();
 };
 
@@ -23,6 +24,7 @@ class taskbar_item : public Gtk::Box {
 	public:
 		taskbar_item(const Gtk::FlowBox&);
 		Gtk::Label toplevel_label;
+		Gtk::Image image_icon;
 		zwlr_foreign_toplevel_handle_v1* handle;
 };
 
