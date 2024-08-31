@@ -9,14 +9,12 @@ std::vector<std::shared_ptr<Gio::AppInfo>> app_list;
 std::string cleanup_string(const std::string &str) {
 	std::string result = str;
 
-	// Remove spaces or separators
-	result.erase(std::remove_if(result.begin(), result.end(), [](char c) {
-		return c == ' ' || c == '-';
-	}), result.end());
-
-	// Convert to lowercase
-	for (char& c : result)
+	// Convert to lowercase and remove separators
+	for (char& c : result) {
+		if (c == ' ' || c == '-')
+			continue;
 		c = std::tolower(c);
+	}
 
 	return result;
 }
@@ -43,10 +41,6 @@ void handle_toplevel_app_id(void *data, zwlr_foreign_toplevel_handle_v1*, const 
 	// TODO: This doesn't always find the right icon, Either improve it or add a placeholder
 	std::string appid = cleanup_string(app_id);
 	for (auto app : app_list) {
-		// TODO: Pre process this
-		if (!app->should_show())
-			continue;
-
 		std::string app_name = cleanup_string(app->get_name());
 		std::string app_executable = cleanup_string(app->get_executable());
 		
@@ -179,7 +173,17 @@ module_taskbar::module_taskbar(sysbar *window, const bool &icon_on_start) : modu
 	scrolledwindow.set_vexpand(true);
 	scrolledwindow.set_hexpand(true);
 	append(scrolledwindow);
+
+	// Cleanup applist
 	app_list = Gio::AppInfo::get_all();
+	app_list.erase(
+		std::remove_if(app_list.begin(), app_list.end(),
+			[](const Glib::RefPtr<Gio::AppInfo>& app_info) {
+				return !app_info->should_show();
+			}),
+		app_list.end()
+	);
+
 	setup_proto();
 }
 
