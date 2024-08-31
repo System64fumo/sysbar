@@ -4,6 +4,7 @@
 #include <gdkmm/seat.h>
 
 uint text_length = 14;
+std::vector<std::shared_ptr<Gio::AppInfo>> app_list;
 
 // Placeholder functions
 void handle_toplevel_title(void *data, zwlr_foreign_toplevel_handle_v1* handle, const char *title) {
@@ -21,7 +22,24 @@ void handle_toplevel_title(void *data, zwlr_foreign_toplevel_handle_v1* handle, 
 	toplevel_entry->toplevel_label.set_text(text);
 }
 
-void handle_toplevel_app_id(void *data, zwlr_foreign_toplevel_handle_v1*, const char *app_id) {}
+void handle_toplevel_app_id(void *data, zwlr_foreign_toplevel_handle_v1*, const char *app_id) {
+	Glib::RefPtr<Gio::AppInfo> app_info;
+
+	// TODO: This doesn't always find the right icon, Either improve it or add a placeholder
+	for (auto app : app_list) {
+		if (app_id == app->get_name() || app_id == app->get_executable()) {
+			app_info = app;
+			break;
+		}
+	}
+
+	// Did not find the app in the list
+	if (app_info == nullptr)
+		return;
+
+	auto toplevel_entry = static_cast<taskbar_item*>(data);
+	toplevel_entry->image_icon.set(app_info->get_icon());
+}
 
 void handle_toplevel_output_enter(void *data, zwlr_foreign_toplevel_handle_v1*, wl_output *output) {}
 
@@ -138,6 +156,7 @@ module_taskbar::module_taskbar(sysbar *window, const bool &icon_on_start) : modu
 	scrolledwindow.set_vexpand(true);
 	scrolledwindow.set_hexpand(true);
 	append(scrolledwindow);
+	app_list = Gio::AppInfo::get_all();
 	setup_proto();
 }
 
@@ -150,6 +169,7 @@ void module_taskbar::setup_proto() {
 }
 
 taskbar_item::taskbar_item(const Gtk::FlowBox& container) {
+	append(image_icon);
 	append(toplevel_label);
 
 	if (container.get_min_children_per_line() == 25)
