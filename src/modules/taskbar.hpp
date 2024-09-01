@@ -11,8 +11,13 @@ class module_taskbar : public module {
 	public:
 		module_taskbar(sysbar *window, const bool &icon_on_start = true);
 
-		int text_length = 14;
-		int icon_size = 34;
+		struct config_tb {
+			int text_length = 14;
+			int icon_size = 34;
+			bool show_icon = true;
+			bool show_label = true;
+		} cfg;
+
 		Gtk::FlowBox flowbox_main;
 
 	private:
@@ -24,7 +29,7 @@ class module_taskbar : public module {
 
 class taskbar_item : public Gtk::Box {
 	public:
-		taskbar_item(const Gtk::FlowBox&, const int &length, const uint &size);
+		taskbar_item(const Gtk::FlowBox&, const module_taskbar::config_tb &cfg);
 		uint text_length;
 
 		Gtk::Label toplevel_label;
