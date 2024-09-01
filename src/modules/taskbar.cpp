@@ -112,7 +112,7 @@ void handle_manager_toplevel(void *data, zwlr_foreign_toplevel_manager_v1 *manag
 	zwlr_foreign_toplevel_handle_v1 *toplevel) {
 	auto self = static_cast<module_taskbar*>(data);
 
-	taskbar_item *toplevel_entry = Gtk::make_managed<taskbar_item>(self->flowbox_main, self->text_length, self->icon_size);
+	taskbar_item *toplevel_entry = Gtk::make_managed<taskbar_item>(self->flowbox_main, self->cfg);
 	
 	zwlr_foreign_toplevel_handle_v1_add_listener(toplevel,
 		&toplevel_handle_v1_impl, toplevel_entry);
@@ -153,11 +153,17 @@ module_taskbar::module_taskbar(sysbar *window, const bool &icon_on_start) : modu
 	if (config->available) {
 		std::string cfg_text_length = config->get_value("taskbar", "text-length");
 		if (cfg_text_length != "empty")
-			text_length = std::stoi(cfg_text_length);
+			cfg.text_length = std::stoi(cfg_text_length);
 
 		std::string cfg_icon_size = config->get_value("taskbar", "icon-size");
 		if (cfg_icon_size != "empty")
-			icon_size = std::stoi(cfg_icon_size);
+			cfg.icon_size = std::stoi(cfg_icon_size);
+
+		std::string cfg_icon = config->get_value("taskbar", "show-icon");
+		cfg.show_icon = (cfg_icon == "true");
+
+		std::string cfg_label = config->get_value("taskbar", "show-label");
+		cfg.show_label = (cfg_label == "true");
 	}
 	#endif
 
@@ -205,11 +211,18 @@ void module_taskbar::setup_proto() {
 	wl_display_roundtrip(display);
 }
 
-taskbar_item::taskbar_item(const Gtk::FlowBox& container, const int &length, const uint &size) {
-	text_length = length;
-	image_icon.set_pixel_size(size);
+taskbar_item::taskbar_item(const Gtk::FlowBox& container, const module_taskbar::config_tb &cfg) {
+	text_length = cfg.text_length;
+	image_icon.set_pixel_size(cfg.icon_size);
+
 	append(image_icon);
 	append(toplevel_label);
+
+	image_icon.set_visible(cfg.show_icon);
+	toplevel_label.set_visible(cfg.show_label);
+
+	if (!cfg.show_label)
+		return;
 
 	if (container.get_min_children_per_line() == 25)
 		set_size_request(100, -1);
