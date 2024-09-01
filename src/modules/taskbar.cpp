@@ -146,8 +146,8 @@ module_taskbar::module_taskbar(sysbar *window, const bool &icon_on_start) : modu
 	// Undo normal widget stuff
 	get_style_context()->remove_class("module");
 	set_cursor(Gdk::Cursor::create("default"));
-	image_icon.hide();
-	label_info.hide();
+	image_icon.unparent();
+	label_info.unparent();
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
@@ -205,7 +205,7 @@ void module_taskbar::setup_proto() {
 	wl_display_roundtrip(display);
 }
 
-taskbar_item::taskbar_item(const Gtk::FlowBox& container, const int &length, const int &size) {
+taskbar_item::taskbar_item(const Gtk::FlowBox& container, const int &length, const uint &size) {
 	text_length = length;
 	image_icon.set_pixel_size(size);
 	append(image_icon);
@@ -215,4 +215,6 @@ taskbar_item::taskbar_item(const Gtk::FlowBox& container, const int &length, con
 		set_size_request(100, -1);
 	else
 		set_size_request(-1, 100);
+
+	toplevel_label.set_margin_start(3);
 }
