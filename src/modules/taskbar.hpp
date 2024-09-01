@@ -11,8 +11,8 @@ class module_taskbar : public module {
 	public:
 		module_taskbar(sysbar *window, const bool &icon_on_start = true);
 
-		int text_length;
-		int icon_size;
+		int text_length = 14;
+		int icon_size = 34;
 		Gtk::FlowBox flowbox_main;
 
 	private:
@@ -24,8 +24,8 @@ class module_taskbar : public module {
 
 class taskbar_item : public Gtk::Box {
 	public:
-		taskbar_item(const Gtk::FlowBox&, const int &length, const int &size);
-		int text_length;
+		taskbar_item(const Gtk::FlowBox&, const int &length, const uint &size);
+		uint text_length;
 
 		Gtk::Label toplevel_label;
 		Gtk::Image image_icon;
