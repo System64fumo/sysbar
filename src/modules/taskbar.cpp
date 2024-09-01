@@ -3,7 +3,6 @@
 #include <gdk/wayland/gdkwayland.h>
 #include <gdkmm/seat.h>
 
-uint text_length = 14;
 std::vector<std::shared_ptr<Gio::AppInfo>> app_list;
 
 std::string cleanup_string(const std::string &str) {
@@ -29,8 +28,8 @@ void handle_toplevel_title(void *data, zwlr_foreign_toplevel_handle_v1* handle, 
 	if (text == "")
 		text = "Untitled Window";
 
-	if (text.length() > text_length)
-		text = text.substr(0, text_length - 2) + "..";
+	if (text.length() > toplevel_entry->text_length)
+		text = text.substr(0, toplevel_entry->text_length - 2) + "..";
 
 	toplevel_entry->toplevel_label.set_text(text);
 }
@@ -113,7 +112,7 @@ void handle_manager_toplevel(void *data, zwlr_foreign_toplevel_manager_v1 *manag
 	zwlr_foreign_toplevel_handle_v1 *toplevel) {
 	auto self = static_cast<module_taskbar*>(data);
 
-	taskbar_item *toplevel_entry = Gtk::make_managed<taskbar_item>(self->flowbox_main);
+	taskbar_item *toplevel_entry = Gtk::make_managed<taskbar_item>(self->flowbox_main, self->text_length, self->icon_size);
 	
 	zwlr_foreign_toplevel_handle_v1_add_listener(toplevel,
 		&toplevel_handle_v1_impl, toplevel_entry);
@@ -149,6 +148,18 @@ module_taskbar::module_taskbar(sysbar *window, const bool &icon_on_start) : modu
 	set_cursor(Gdk::Cursor::create("default"));
 	image_icon.hide();
 	label_info.hide();
+
+	#ifdef CONFIG_FILE
+	if (config->available) {
+		std::string cfg_text_length = config->get_value("taskbar", "text-length");
+		if (cfg_text_length != "empty")
+			text_length = std::stoi(cfg_text_length);
+
+		std::string cfg_icon_size = config->get_value("taskbar", "icon-size");
+		if (cfg_icon_size != "empty")
+			icon_size = std::stoi(cfg_icon_size);
+	}
+	#endif
 
 	if (config_main.position %2 == 0) {
 		box_container.set_halign(Gtk::Align::CENTER);
@@ -194,7 +205,9 @@ void module_taskbar::setup_proto() {
 	wl_display_roundtrip(display);
 }
 
-taskbar_item::taskbar_item(const Gtk::FlowBox& container) {
+taskbar_item::taskbar_item(const Gtk::FlowBox& container, const int &length, const int &size) {
+	text_length = length;
+	image_icon.set_pixel_size(size);
 	append(image_icon);
 	append(toplevel_label);
 
