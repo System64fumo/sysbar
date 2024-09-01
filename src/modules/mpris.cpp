@@ -8,7 +8,6 @@ static void playback_status(PlayerctlPlayer *player, PlayerctlPlaybackStatus sta
 
 module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_mpris");
-	image_icon.set_from_icon_name("player_play");
 	label_info.hide();
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_mpris::update_info));
 
@@ -23,8 +22,9 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 		break;
 	}
 
-	// TODO: Get status on startup
+	g_object_get(player, "playback-status", &status, nullptr);
 	g_signal_connect(player, "playback-status", G_CALLBACK(playback_status), this);
+	update_info();
 }
 
 void module_mpris::update_info() {
