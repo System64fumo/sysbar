@@ -15,7 +15,7 @@ Sysbar is a modular status bar for wayland written in gtkmm4<br>
 * network
 * battery (WIP)
 * notification (WIP)
-* taskbar (WIP)
+* taskbar
 * backlight (WIP)
 * mpris (WIP)
 
