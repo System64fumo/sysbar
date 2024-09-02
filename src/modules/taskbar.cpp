@@ -6,13 +6,13 @@
 std::vector<std::shared_ptr<Gio::AppInfo>> app_list;
 
 std::string cleanup_string(const std::string &str) {
-	std::string result = str;
+	std::string result;
 
 	// Convert to lowercase and remove separators
-	for (char& c : result) {
-		if (c == ' ' || c == '-')
-			continue;
-		c = std::tolower(c);
+	for (char c : str) {
+		if (c != ' ' && c != '-') {
+			result += std::tolower(c);
+		}
 	}
 
 	return result;
