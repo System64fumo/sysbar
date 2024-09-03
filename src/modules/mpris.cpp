@@ -38,10 +38,31 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 	g_signal_connect(player, "playback-status", G_CALLBACK(playback_status), this);
 	g_signal_connect(player, "metadata", G_CALLBACK(metadata), this);
 	update_info();
+	setup_widget();
 }
 
 void module_mpris::update_info() {
 	std::string status_icon = status ? "player_play" : "player_pause";
 	image_icon.set_from_icon_name(status_icon);
 	label_info.set_text(title);
+
+	label_title.set_text(title);
+	label_artist.set_text(artist);
+
+	// TODO: Playback status can be tracked using a timer by getting..
+	// the "length" property every second if the player is playing
+	//progressbar_playback.set_fraction(0.5);
+}
+
+void module_mpris::setup_widget() {
+	auto container = static_cast<Gtk::Box*>(win->popover_end->get_child());
+	container->append(box_player);
+	box_player.append(box_right);
+	box_right.set_orientation(Gtk::Orientation::VERTICAL);
+
+	// TODO: Limit title length
+	// TODO: Better align this stuff
+	box_right.append(label_title);
+	box_right.append(label_artist);
+	//box_right.append(progressbar_playback);
 }
