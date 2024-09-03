@@ -13,10 +13,10 @@ Sysbar is a modular status bar for wayland written in gtkmm4<br>
 * hyprland
 * volume
 * network
-* battery (WIP)
+* battery
 * notification (WIP)
 * taskbar
-* backlight (WIP)
+* backlight
 * mpris (WIP)
 
 # Configuration
