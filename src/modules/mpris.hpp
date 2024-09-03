@@ -18,6 +18,7 @@ class module_mpris : public module {
 
 		Gtk::Box box_player;
 		Gtk::Box box_right;
+		Gtk::Image image_album_art;
 		Gtk::Label label_title;
 		Gtk::Label label_album;
 		Gtk::Label label_artist;

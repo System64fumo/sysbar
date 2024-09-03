@@ -57,12 +57,27 @@ void module_mpris::update_info() {
 void module_mpris::setup_widget() {
 	auto container = static_cast<Gtk::Box*>(win->popover_end->get_child());
 	container->append(box_player);
+
+	// For some reason this makes things omega unstable..
+	// Disabling for now..
+	//image_album_art.set_from_icon_name("music-app-symbolic");
+	//image_album_art.set_pixel_size(96 ,96);
+	//box_player.append(image_album_art);
+
 	box_player.append(box_right);
 	box_right.set_orientation(Gtk::Orientation::VERTICAL);
 
-	// TODO: Limit title length
-	// TODO: Better align this stuff
+	// I REALLY hate how popovers work..
+	label_title.set_halign(Gtk::Align::START);
+	label_title.set_wrap(true);
+	label_title.set_ellipsize(Pango::EllipsizeMode::END);
+	//label_title.set_max_width_chars(0);
 	box_right.append(label_title);
+
+	label_artist.set_halign(Gtk::Align::START);
+	label_artist.set_wrap(true);
+	label_artist.set_ellipsize(Pango::EllipsizeMode::END);
+	//label_artist.set_max_width_chars(0);
 	box_right.append(label_artist);
 	//box_right.append(progressbar_playback);
 }
