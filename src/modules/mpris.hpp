@@ -8,7 +8,13 @@
 class module_mpris : public module {
 	public:
 		module_mpris(sysbar *window, const bool &icon_on_start = true);
+
 		int status = 0;
+		std::string artist = "";
+		std::string album = "";
+		std::string title = "";
+		std::string length = "";
+
 		Glib::Dispatcher dispatcher_callback;
 
 	private:
