@@ -15,6 +15,7 @@ class module_mpris : public module {
 		std::string album = "";
 		std::string title = "";
 		std::string length = "";
+		std::string album_art_url = "";
 
 		Gtk::Box box_player;
 		Gtk::Box box_right;
