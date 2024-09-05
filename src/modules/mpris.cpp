@@ -46,8 +46,8 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 	g_signal_connect(player, "playback-status", G_CALLBACK(playback_status), this);
 	g_signal_connect(player, "metadata", G_CALLBACK(metadata), this);
 	metadata(player, nullptr, this);
-	update_info();
 	setup_widget();
+	update_info();
 }
 
 void module_mpris::update_info() {
@@ -58,11 +58,10 @@ void module_mpris::update_info() {
 	label_title.set_text(title);
 	label_artist.set_text(artist);
 
-	// No worky yet
-	/*if (album_art_url.find("file://") == 0) {
+	if (album_art_url.find("file://") == 0) {
 		album_art_url.erase(0, 7);
 		image_album_art.set(album_art_url);
-	}*/
+	}
 
 	// TODO: Playback status can be tracked using a timer by getting..
 	// the "length" property every second if the player is playing
@@ -73,8 +72,6 @@ void module_mpris::setup_widget() {
 	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
 	container->append(box_player);
 
-	// For some reason this makes things omega unstable..
-	// Disabling for now..
 	image_album_art.set_from_icon_name("music-app-symbolic");
 	image_album_art.set_size_request(96 ,96);
 	box_player.append(image_album_art);
@@ -86,13 +83,13 @@ void module_mpris::setup_widget() {
 	label_title.set_halign(Gtk::Align::START);
 	label_title.set_wrap(true);
 	label_title.set_ellipsize(Pango::EllipsizeMode::END);
-	label_title.set_max_width_chars(0);
+	label_title.set_max_width_chars(4);
 	box_right.append(label_title);
 
 	label_artist.set_halign(Gtk::Align::START);
 	label_artist.set_wrap(true);
 	label_artist.set_ellipsize(Pango::EllipsizeMode::END);
-	label_artist.set_max_width_chars(0);
+	label_artist.set_max_width_chars(4);
 	box_right.append(label_artist);
 	//box_right.append(progressbar_playback);
 }
