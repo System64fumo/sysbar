@@ -5,11 +5,13 @@
 #include <playerctl.h>
 #include <glibmm/dispatcher.h>
 #include <gtkmm/progressbar.h>
+#include <gtkmm/button.h>
 
 class module_mpris : public module {
 	public:
 		module_mpris(sysbar *window, const bool &icon_on_start = true);
 
+		PlayerctlPlayer *player = nullptr;
 		int status = 0;
 		std::string artist = "";
 		std::string album = "";
@@ -27,6 +29,11 @@ class module_mpris : public module {
 		Glib::Dispatcher dispatcher_callback;
 
 	private:
+		Gtk::Box box_controls;
+		Gtk::Button button_previous;
+		Gtk::Button button_play_pause;
+		Gtk::Button button_next;
+
 		void update_info();
 		void setup_widget();
 };
