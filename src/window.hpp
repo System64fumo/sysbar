@@ -15,13 +15,12 @@ class sysbar : public Gtk::Window {
 		config_bar config_main;
 		Gtk::Window overlay_window;
 		Gtk::Box *box_widgets_start;
-		Gtk::Box *box_widgets_center;
 		Gtk::Box *box_widgets_end;
 
 	private:
 		Gtk::Revealer revealer_box;
 		Gtk::CenterBox centerbox_main;
-		Gtk::CenterBox centerbox_overlay;
+		Gtk::Box box_overlay;
 		Gtk::Box box_start;
 		Gtk::Box box_center;
 		Gtk::Box box_end;
