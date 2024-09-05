@@ -10,15 +10,14 @@
 	background: transparent;
 }
 
-#sysbar popover contents {
+#sysbar_overlay .box_widgets_start,
+#sysbar_overlay .box_widgets_center,
+#sysbar_overlay .box_widgets_end {
 	background: @theme_base_color;
-	margin: 0px;
-	padding: 0px;
-	border: unset;
-}
-
-#sysbar popover .view  {
-	background: transparent;
+	margin: 10px;
+	box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+	border: 1px solid @borders;
+	border-radius: 10px;
 }
 
 #sysbar .module {
