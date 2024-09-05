@@ -5,7 +5,6 @@
 #include <gtkmm/revealer.h>
 #include <gtkmm/centerbox.h>
 #include <gtkmm/box.h>
-#include <gtkmm/popover.h>
 
 class sysbar : public Gtk::Window {
 
@@ -14,20 +13,25 @@ class sysbar : public Gtk::Window {
 		void handle_signal(const int &signum);
 
 		config_bar config_main;
-		Gtk::Popover *popover_start;
-		Gtk::Popover *popover_center;
-		Gtk::Popover *popover_end;
+		Gtk::Window overlay_window;
+		Gtk::Box *box_widgets_start;
+		Gtk::Box *box_widgets_center;
+		Gtk::Box *box_widgets_end;
 
 	private:
 		Gtk::Revealer revealer_box;
 		Gtk::CenterBox centerbox_main;
+		Gtk::CenterBox centerbox_overlay;
 		Gtk::Box box_start;
 		Gtk::Box box_center;
 		Gtk::Box box_end;
+
+		GdkMonitor *monitor;
 		int width, height;
 
 		void load_modules(const std::string &modules, Gtk::Box &box);
 		void setup_popovers();
+		void setup_overlay();
 };
 
 extern "C" {

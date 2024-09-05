@@ -62,7 +62,7 @@ void module_mpris::update_info() {
 }
 
 void module_mpris::setup_widget() {
-	auto container = static_cast<Gtk::Box*>(win->popover_end->get_child());
+	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
 	container->append(box_player);
 
 	// For some reason this makes things omega unstable..

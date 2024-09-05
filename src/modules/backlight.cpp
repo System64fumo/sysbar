@@ -77,7 +77,7 @@ void module_backlight::on_scale_brightness_change() {
 }
 
 void module_backlight::setup_widget() {
-	auto container = static_cast<Gtk::Box*>(win->popover_end->get_child());
+	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
 	container->append(scale_backlight);
 }
 

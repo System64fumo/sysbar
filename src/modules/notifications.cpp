@@ -53,7 +53,7 @@ bool module_notifications::update_info() {
 }
 
 void module_notifications::setup_widget() {
-	auto container = static_cast<Gtk::Box*>(win->popover_end->get_child());
+	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
 	box_notifications = Gtk::make_managed<Gtk::Box>();
 	box_notifications->set_orientation(Gtk::Orientation::VERTICAL);
 	container->append(*box_notifications);
