@@ -32,7 +32,6 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_mpris::update_info));
 
 	// Setup
-	PlayerctlPlayer *player = nullptr;
 	GList *players = playerctl_list_players(nullptr);
 
 	// Itterate over all players
@@ -91,5 +90,36 @@ void module_mpris::setup_widget() {
 	label_artist.set_ellipsize(Pango::EllipsizeMode::END);
 	label_artist.set_max_width_chars(4);
 	box_right.append(label_artist);
+
+	button_previous.set_icon_name("media-skip-backward");
+	button_play_pause.set_icon_name("media-playback-pause");
+	button_next.set_icon_name("media-skip-forward");
+
+	button_previous.set_focusable(false);
+	button_play_pause.set_focusable(false);
+	button_next.set_focusable(false);
+
+	button_previous.signal_clicked().connect([&]() {
+		playerctl_player_previous(player, nullptr);
+	});
+
+	button_play_pause.signal_clicked().connect([&]() {
+		playerctl_player_play_pause(player, nullptr);
+	});
+
+	button_next.signal_clicked().connect([&]() {
+		playerctl_player_next(player, nullptr);
+	});
+
+	box_right.append(box_controls);
+	box_controls.set_vexpand(true);
+	box_controls.set_hexpand(true);
+	box_controls.set_halign(Gtk::Align::CENTER);
+	box_controls.set_valign(Gtk::Align::END);
+
+	box_controls.append(button_previous);
+	box_controls.append(button_play_pause);
+	box_controls.append(button_next);
+	
 	//box_right.append(progressbar_playback);
 }
