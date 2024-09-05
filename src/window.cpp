@@ -246,6 +246,8 @@ void sysbar::setup_popovers() {
 		Glib::RefPtr<Gtk::GestureClick> click_gesture = Gtk::GestureClick::create();
 		click_gesture->set_button(GDK_BUTTON_PRIMARY);
 		click_gesture->signal_pressed().connect([&](const int &n_press, const double &x, const double &y) {
+			// TODO: Show the appropiate box instead of showing/hiding the overlay
+			// The overlay itself should show on click and hide if every other box is hidden too
 			if (overlay_window.get_visible())
 				overlay_window.hide();
 			else
@@ -276,6 +278,22 @@ void sysbar::setup_overlay() {
 	box_widgets_start->set_valign(Gtk::Align::START);
 	box_widgets_center->set_valign(Gtk::Align::START);
 	box_widgets_end->set_valign(Gtk::Align::START);
+
+	box_widgets_start->set_halign(Gtk::Align::START);
+	box_widgets_center->set_halign(Gtk::Align::CENTER);
+	box_widgets_end->set_halign(Gtk::Align::END);
+
+	box_widgets_start->set_orientation(Gtk::Orientation::VERTICAL);
+	box_widgets_center->set_orientation(Gtk::Orientation::VERTICAL);
+	box_widgets_end->set_orientation(Gtk::Orientation::VERTICAL);
+
+	box_widgets_start->set_size_request(300, -1);
+	box_widgets_center->set_size_request(300, -1);
+	box_widgets_end->set_size_request(300, -1);
+
+	box_widgets_start->get_style_context()->add_class("box_widgets_start");
+	box_widgets_center->get_style_context()->add_class("box_widgets_center");
+	box_widgets_end->get_style_context()->add_class("box_widgets_end");
 
 	centerbox_overlay.set_start_widget(*box_widgets_start);
 	centerbox_overlay.set_center_widget(*box_widgets_center);
