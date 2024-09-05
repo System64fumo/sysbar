@@ -30,7 +30,7 @@ sysbar::sysbar(const config_bar &cfg) {
 	else if (config_main.main_monitor >= monitorCount)
 		config_main.main_monitor = monitorCount - 1;
 
-	GdkMonitor *monitor = GDK_MONITOR(g_list_model_get_item(monitors, config_main.main_monitor));
+	monitor = GDK_MONITOR(g_list_model_get_item(monitors, config_main.main_monitor));
 
 	// Initialize layer shell
 	gtk_layer_init_for_window(gobj());
@@ -110,6 +110,7 @@ sysbar::sysbar(const config_bar &cfg) {
 
 	// Popups
 	setup_popovers();
+	setup_overlay();
 
 	// Load modules
 	load_modules(config_main.m_start, box_start);
@@ -226,48 +227,59 @@ void sysbar::handle_signal(const int &signum) {
 }
 
 void sysbar::setup_popovers() {
+	// TODO: Figure out which box should be shown
 	for (int i = 0; i < 3; i++) {
 		Gtk::Box *box_container;
-		Gtk::Box box_popout;
-		box_popout.set_size_request(300,-1);
-		box_popout.set_orientation(Gtk::Orientation::VERTICAL);
 
-		Gtk::Popover *popover = Gtk::make_managed<Gtk::Popover>();
 		switch (i) {
 			case 0:
-				popover_start = popover;
 				box_container = &box_start;
 				break;
 			case 1:
-				popover_center = popover;
 				box_container = &box_center;
 				break;
 			case 2:
-				popover_end = popover;
 				box_container = &box_end;
 				break;
 		}
 
-		popover->set_parent(*box_container);
-		popover->set_child(box_popout);
-		popover->set_autohide(false);
-		popover->set_has_arrow(false);
-		popover->set_offset(0,10);
-		popover->set_autohide(false);
-
 		Glib::RefPtr<Gtk::GestureClick> click_gesture = Gtk::GestureClick::create();
 		click_gesture->set_button(GDK_BUTTON_PRIMARY);
-		click_gesture->signal_pressed().connect([popover](const int &n_press, const double &x, const double &y) {
-			if (popover->get_child()->get_children().size() == 0)
-				return;
-
-			if (popover->get_visible())
-				popover->popdown();
+		click_gesture->signal_pressed().connect([&](const int &n_press, const double &x, const double &y) {
+			if (overlay_window.get_visible())
+				overlay_window.hide();
 			else
-				popover->popup();
+				overlay_window.show();
 		});
 		box_container->add_controller(click_gesture);
 	}
+}
+
+void sysbar::setup_overlay() {
+	overlay_window.set_name("sysbar_overlay");
+	gtk_layer_init_for_window(overlay_window.gobj());
+	gtk_layer_set_namespace(overlay_window.gobj(), "sysbar-overlay");
+	gtk_layer_set_layer(overlay_window.gobj(), GTK_LAYER_SHELL_LAYER_TOP);
+	gtk_layer_set_exclusive_zone(overlay_window.gobj(), config_main.size);
+	gtk_layer_set_monitor(overlay_window.gobj(), monitor);
+
+	gtk_layer_set_anchor(overlay_window.gobj(), GTK_LAYER_SHELL_EDGE_TOP, true);
+	gtk_layer_set_anchor(overlay_window.gobj(), GTK_LAYER_SHELL_EDGE_RIGHT, true);
+	gtk_layer_set_anchor(overlay_window.gobj(), GTK_LAYER_SHELL_EDGE_BOTTOM, true);
+	gtk_layer_set_anchor(overlay_window.gobj(), GTK_LAYER_SHELL_EDGE_LEFT, true);
+
+	overlay_window.set_child(centerbox_overlay);
+	box_widgets_start = Gtk::make_managed<Gtk::Box>();
+	box_widgets_center = Gtk::make_managed<Gtk::Box>();
+	box_widgets_end = Gtk::make_managed<Gtk::Box>();
+
+	box_widgets_start->set_valign(Gtk::Align::START);
+	box_widgets_center->set_valign(Gtk::Align::START);
+	box_widgets_end->set_valign(Gtk::Align::START);
+
+	centerbox_overlay.set_start_widget(*box_widgets_start);
+	centerbox_overlay.set_center_widget(*box_widgets_center);
+	centerbox_overlay.set_end_widget(*box_widgets_end);
 }
 
 extern "C" {

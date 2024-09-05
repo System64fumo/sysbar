@@ -6,6 +6,10 @@
 #sysbar .centerbox_main {
 }
 
+#sysbar_overlay {
+	background: transparent;
+}
+
 #sysbar popover contents {
 	background: @theme_base_color;
 	margin: 0px;
