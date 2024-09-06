@@ -76,3 +76,23 @@
 #sysbar .notification .body {
 	font-size: 13px;
 }
+
+#sysbar_overlay .widget_mpris {
+	background: alpha(currentcolor, 0.05);
+	border-radius: 4px;
+	margin: 10px;
+}
+
+#sysbar_overlay .widget_mpris .image_album_art {
+	background: alpha(currentcolor, 0.05);
+	margin: 10px;
+	border-radius: 10px;
+}
+
+#sysbar_overlay .widget_mpris .label_title {
+	margin-top: 10px;
+}
+
+#sysbar_overlay .widget_mpris .box_controls {
+	margin-bottom: 10px;
+}

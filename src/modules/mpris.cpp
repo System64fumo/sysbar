@@ -59,7 +59,15 @@ void module_mpris::update_info() {
 
 	if (album_art_url.find("file://") == 0) {
 		album_art_url.erase(0, 7);
-		image_album_art.set(album_art_url);
+		Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create_from_file(album_art_url);
+		int width = pixbuf->get_width();
+		int height = pixbuf->get_height();
+
+		int square_size = std::min(width, height);
+		int offset_x = (width - square_size) / 2;
+		int offset_y = (height - square_size) / 2;
+		pixbuf = Gdk::Pixbuf::create_subpixbuf(pixbuf, offset_x, offset_y, square_size, square_size);
+		image_album_art.set(pixbuf);
 	}
 
 	// TODO: Playback status can be tracked using a timer by getting..
@@ -71,6 +79,8 @@ void module_mpris::setup_widget() {
 	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
 	container->append(box_player);
 
+	box_player.get_style_context()->add_class("widget_mpris");
+	image_album_art.get_style_context()->add_class("image_album_art");
 	image_album_art.set_from_icon_name("music-app-symbolic");
 	image_album_art.set_size_request(96 ,96);
 	box_player.append(image_album_art);
@@ -78,13 +88,14 @@ void module_mpris::setup_widget() {
 	box_player.append(box_right);
 	box_right.set_orientation(Gtk::Orientation::VERTICAL);
 
-	// I REALLY hate how popovers work..
+	label_title.get_style_context()->add_class("label_title");
 	label_title.set_halign(Gtk::Align::START);
 	label_title.set_wrap(true);
 	label_title.set_ellipsize(Pango::EllipsizeMode::END);
 	label_title.set_max_width_chars(4);
 	box_right.append(label_title);
 
+	label_artist.get_style_context()->add_class("label_artist");
 	label_artist.set_halign(Gtk::Align::START);
 	label_artist.set_wrap(true);
 	label_artist.set_ellipsize(Pango::EllipsizeMode::END);
@@ -99,6 +110,10 @@ void module_mpris::setup_widget() {
 	button_play_pause.set_focusable(false);
 	button_next.set_focusable(false);
 
+	button_previous.set_has_frame(false);
+	button_play_pause.set_has_frame(false);
+	button_next.set_has_frame(false);
+
 	button_previous.signal_clicked().connect([&]() {
 		playerctl_player_previous(player, nullptr);
 	});
@@ -112,6 +127,7 @@ void module_mpris::setup_widget() {
 	});
 
 	box_right.append(box_controls);
+	box_controls.get_style_context()->add_class("box_controls");
 	box_controls.set_vexpand(true);
 	box_controls.set_hexpand(true);
 	box_controls.set_halign(Gtk::Align::CENTER);

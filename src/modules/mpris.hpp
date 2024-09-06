@@ -11,7 +11,9 @@ class module_mpris : public module {
 	public:
 		module_mpris(sysbar *window, const bool &icon_on_start = true);
 
+		Glib::Dispatcher dispatcher_callback;
 		PlayerctlPlayer *player = nullptr;
+
 		int status = 0;
 		std::string artist = "";
 		std::string album = "";
@@ -19,6 +21,7 @@ class module_mpris : public module {
 		std::string length = "";
 		std::string album_art_url = "";
 
+	private:
 		Gtk::Box box_player;
 		Gtk::Box box_right;
 		Gtk::Image image_album_art;
@@ -26,9 +29,7 @@ class module_mpris : public module {
 		Gtk::Label label_album;
 		Gtk::Label label_artist;
 		Gtk::ProgressBar progressbar_playback;
-		Glib::Dispatcher dispatcher_callback;
 
-	private:
 		Gtk::Box box_controls;
 		Gtk::Button button_previous;
 		Gtk::Button button_play_pause;
