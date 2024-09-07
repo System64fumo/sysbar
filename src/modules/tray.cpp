@@ -113,21 +113,24 @@ void tray_watcher::on_bus_acquired_watcher(const DBusConnection& conn, const Gli
 	watcher_connection = conn;
 }
 
-void tray_watcher::on_interface_method_call(const Glib::RefPtr<Gio::DBus::Connection> & connection,
-	const Glib::ustring & sender, const Glib::ustring & object_path,
-	const Glib::ustring & interface_name, const Glib::ustring & method_name,
-	const Glib::VariantContainerBase & parameters,
-	const Glib::RefPtr<Gio::DBus::MethodInvocation> & invocation) {
+void tray_watcher::on_interface_method_call(
+	const Glib::RefPtr<Gio::DBus::Connection>& connection,
+	const Glib::ustring& sender,
+	const Glib::ustring& object_path,
+	const Glib::ustring& interface_name,
+	const Glib::ustring& method_name,
+	const Glib::VariantContainerBase& parameters,
+	const Glib::RefPtr<Gio::DBus::MethodInvocation>& invocation) {
 
 	handle_signal(sender, method_name, parameters);
 
 	invocation->return_value(Glib::VariantContainerBase());
 }
 
-void tray_watcher::on_interface_get_property(Glib::VariantBase & property,
-	const Glib::RefPtr<Gio::DBus::Connection> & connection,
-	const Glib::ustring & sender, const Glib::ustring & object_path,
-	const Glib::ustring & interface_name, const Glib::ustring & property_name) {
+void tray_watcher::on_interface_get_property(Glib::VariantBase& property,
+	const Glib::RefPtr<Gio::DBus::Connection>& connection,
+	const Glib::ustring & sender, const Glib::ustring& object_path,
+	const Glib::ustring & interface_name, const Glib::ustring& property_name) {
 
 	// TODO: This sucks, Use real data!!
 	// Write actual code to get stuff
@@ -216,12 +219,16 @@ tray_item::tray_item(const Glib::ustring &service) {
 	dbus_path = (slash_ind != Glib::ustring::npos) ? service.substr(slash_ind) : "/StatusNotifierItem";
 
 	Gio::DBus::Proxy::create_for_bus(
-		Gio::DBus::BusType::SESSION, dbus_name, dbus_path, "org.kde.StatusNotifierItem",
+		Gio::DBus::BusType::SESSION,
+		dbus_name,
+		dbus_path,
+		"org.kde.StatusNotifierItem",
 		[this](const Glib::RefPtr<Gio::AsyncResult> &result) {
 			item_proxy = Gio::DBus::Proxy::create_for_bus_finish(result);
 
-			item_proxy->signal_signal().connect([this](const Glib::ustring &sender, const Glib::ustring &signal,
-													   const Glib::VariantContainerBase &params) {
+			item_proxy->signal_signal().connect([this](const Glib::ustring &sender,
+													const Glib::ustring &signal,
+													const Glib::VariantContainerBase &params) {
 				if (signal.size() >= 3) {
 					std::string_view property(signal.c_str() + 3, signal.size() - 3);
 					update_properties();
@@ -261,7 +268,7 @@ static Glib::RefPtr<Gdk::Pixbuf> extract_pixbuf(std::vector<std::tuple<gint32, g
 		return {};
 
 	auto chosen_image = std::max_element(pixbuf_data.begin(), pixbuf_data.end());
-	auto & [width, height, data] = *chosen_image;
+	auto &[width, height, data] = *chosen_image;
 
 	// Convert ARGB to RGBA
 	for (size_t i = 0; i + 3 < data.size(); i += 4) {
@@ -273,13 +280,23 @@ static Glib::RefPtr<Gdk::Pixbuf> extract_pixbuf(std::vector<std::tuple<gint32, g
 	}
 
 	auto *data_ptr = new auto(std::move(data));
+
 	return Gdk::Pixbuf::create_from_data(
-		data_ptr->data(), Gdk::Colorspace::RGB, true, 8, width, height,
-		4 * width, [data_ptr] (auto*) { delete data_ptr; });
+		data_ptr->data(),
+		Gdk::Colorspace::RGB,
+		true,
+		8,
+		width,
+		height,
+		4 * width,
+		[data_ptr] (auto*) { delete data_ptr; }
+	);
 }
 
 void tray_item::build_menu(const Glib::VariantBase &layout) {
 	auto layout_tuple = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(layout);
+
+	// This mess has to get cleaned up one day..
 	auto id_variant = layout_tuple.get_child(0);
 	auto properties_variant = layout_tuple.get_child(1);
 	auto children_variant = layout_tuple.get_child(2);
@@ -331,13 +348,11 @@ void tray_item::update_properties() {
 		set_tooltip_text(label);
 
 	std::string icon_path = icon_theme_path + "/" + icon_name + ".png";
-	if (std::filesystem::exists(icon_path)) {
+
+	if (std::filesystem::exists(icon_path))
 		set(icon_path);
-	}
-	else {
-		const auto pixmap_data = extract_pixbuf(get_item_property<std::vector<std::tuple<gint32, gint32, std::vector<guint8>>>>(icon_type_name + "Pixmap"));
-		set(pixmap_data);
-	}
+	else
+		set(extract_pixbuf(get_item_property<std::vector<std::tuple<gint32, gint32, std::vector<guint8>>>>(icon_type_name + "Pixmap")));
 
 	if (menu_path.empty())
 		return;
@@ -345,29 +360,24 @@ void tray_item::update_properties() {
 	// TODO: Maybe don't rebuild the menu on EVERY update?
 	// This is very horrible
 
-	auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SESSION);
-
 	auto proxy = Gio::DBus::Proxy::create_sync(
-		connection, dbus_name, menu_path,
+		Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SESSION),
+		dbus_name,
+		menu_path,
 		"com.canonical.dbusmenu"	// Does this change?
 	);
 
-	auto parent_id = Glib::Variant<int>::create(0);
-	auto recursion_depth = Glib::Variant<int>::create(1);
-	auto property_names = Glib::Variant<std::vector<Glib::ustring>>::create({});
-
 	std::vector<Glib::VariantBase> args_vector;
-	args_vector.push_back(parent_id);
-	args_vector.push_back(recursion_depth);
-	args_vector.push_back(property_names);
+	args_vector.push_back(Glib::Variant<int>::create(0));
+	args_vector.push_back(Glib::Variant<int>::create(1));
+	args_vector.push_back(Glib::Variant<std::vector<Glib::ustring>>::create({}));
 
 	auto args = Glib::VariantContainerBase::create_tuple(args_vector);
 
 	auto result = proxy->call_sync("GetLayout", args);
 	auto result_tuple = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(result);
-	auto layout_variant = result_tuple.get_child(1);
 
-	build_menu(layout_variant);
+	build_menu(result_tuple.get_child(1));
 }
 
 void tray_item::on_right_clicked(const int &n_press, const double &x, const double &y) {
