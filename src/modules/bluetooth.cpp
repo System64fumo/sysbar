@@ -1,5 +1,23 @@
 #include "bluetooth.hpp"
 
+void extract_data(const Glib::VariantBase& variant_base) {
+	auto variant = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::DBusObjectPathString, std::map<Glib::ustring, std::map<Glib::ustring, Glib::VariantBase>>>>>(variant_base);
+	auto data_map = variant.get();
+
+	for (const auto& [object_path, interface_map] : data_map) {
+		std::printf("Object Path: %s\n", object_path.c_str());
+
+		for (const auto& [interface_name, property_map] : interface_map) {
+			std::printf("  Interface: %s\n", interface_name.c_str());
+
+			for (const auto& [property_name, value] : property_map) {
+				std::printf("    Property: %s = %s\n", property_name.c_str(), value.print().c_str());
+			}
+		}
+	}
+}
+
+
 module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_bluetooth");
 	label_info.hide();
@@ -29,6 +47,17 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 		image_icon.set_from_icon_name("bluetooth-active-symbolic");
 	else
 		image_icon.set_from_icon_name("bluetooth-inactive-symbolic");
+
+	auto s_proxy = Gio::DBus::Proxy::create_sync(connection, "org.bluez", "/", "org.freedesktop.DBus.ObjectManager");
+
+	std::vector<Glib::VariantBase> args_vector;
+	auto args = Glib::VariantContainerBase::create_tuple(args_vector);
+
+	auto result = s_proxy->call_sync("GetManagedObjects", args);
+	Glib::VariantContainerBase result_cb = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(result);
+	Glib::VariantBase base = result_cb.get_child(0);
+
+	extract_data(base);
 }
 
 void module_bluetooth::update_info(DBusPropMap changed, DBusPropList invalid) {
