@@ -12,6 +12,7 @@
 #include "modules/taskbar.hpp"
 #include "modules/backlight.hpp"
 #include "modules/mpris.hpp"
+#include "modules/bluetooth.hpp"
 
 #include <gtk4-layer-shell.h>
 #include <filesystem>
@@ -189,6 +190,11 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 		#ifdef MODULE_MPRIS
 		else if (module_name == "mpris")
 			my_module = Gtk::make_managed<module_mpris>(this, false);
+		#endif
+
+		#ifdef MODULE_BLUETOOTH
+		else if (module_name == "bluetooth")
+			my_module = Gtk::make_managed<module_bluetooth>(this, false);
 		#endif
 
 		else {

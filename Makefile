@@ -52,6 +52,9 @@ ifneq (, $(shell grep -E '^#define MODULE_MPRIS' src/config.hpp))
 	SRCS += src/modules/mpris.cpp
 	PKGS += playerctl
 endif
+ifneq (, $(shell grep -E '^#define MODULE_BLUETOOTH' src/config.hpp))
+	SRCS += src/modules/bluetooth.cpp
+endif
 
 OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(patsubst src/modules/%,$(BUILDDIR)/%,$(SRCS:.cpp=.o)))
 

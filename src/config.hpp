@@ -16,6 +16,7 @@
 #define MODULE_TASKBAR			// Include the taskbar module
 #define MODULE_BACKLIGHT		// Include the backlight module
 #define MODULE_MPRIS			// Include the mpris module
+#define MODULE_BLUETOOTH		// Include the bluetooth module
 
 // Default config
 struct config_bar {
