@@ -186,7 +186,7 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 			my_module = Gtk::make_managed<module_backlight>(this, false);
 		#endif
 
-		#ifdef MODULE_BACKLIGHT
+		#ifdef MODULE_MPRIS
 		else if (module_name == "mpris")
 			my_module = Gtk::make_managed<module_mpris>(this, false);
 		#endif
