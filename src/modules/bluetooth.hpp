@@ -16,11 +16,22 @@ struct device {
 	bool trusted;
 };
 
+struct adapter {
+	std::string path;
+	std::string alias;
+	bool discoverable;
+	bool discovering;
+	std::string name;
+	bool pairable;
+	bool powered;
+};
+
 class module_bluetooth : public module {
 	public:
 		module_bluetooth(sysbar *window, const bool &icon_on_start = true);
 
 	private:
+		std::vector<adapter> adapters;
 		std::vector<device> devices;
 		void update_info(DBusPropMap changed, DBusPropList invalid);
 		void extract_data(const Glib::VariantBase& variant_base);
