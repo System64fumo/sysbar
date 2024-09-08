@@ -1,23 +1,5 @@
 #include "bluetooth.hpp"
 
-void extract_data(const Glib::VariantBase& variant_base) {
-	auto variant = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::DBusObjectPathString, std::map<Glib::ustring, std::map<Glib::ustring, Glib::VariantBase>>>>>(variant_base);
-	auto data_map = variant.get();
-
-	for (const auto& [object_path, interface_map] : data_map) {
-		std::printf("Object Path: %s\n", object_path.c_str());
-
-		for (const auto& [interface_name, property_map] : interface_map) {
-			std::printf("  Interface: %s\n", interface_name.c_str());
-
-			for (const auto& [property_name, value] : property_map) {
-				std::printf("    Property: %s = %s\n", property_name.c_str(), value.print().c_str());
-			}
-		}
-	}
-}
-
-
 module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_bluetooth");
 	label_info.hide();
@@ -62,4 +44,39 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 
 void module_bluetooth::update_info(DBusPropMap changed, DBusPropList invalid) {
 	std::printf("Bluetooth properties updated\n");
+}
+
+void module_bluetooth::extract_data(const Glib::VariantBase& variant_base) {
+	auto variant = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::DBusObjectPathString, std::map<Glib::ustring, std::map<Glib::ustring, Glib::VariantBase>>>>>(variant_base);
+	auto data_map = variant.get();
+
+	for (const auto& [object_path, interface_map] : data_map) {
+		std::printf("Object Path: %s\n", object_path.c_str());
+
+		for (const auto& [interface_name, property_map] : interface_map) {
+			std::printf("  Interface: %s\n", interface_name.c_str());
+			device dev;
+			dev.path = object_path;
+
+			for (const auto& [property_name, value] : property_map) {
+				std::printf("    Property: %s = %s\n", property_name.c_str(), value.print().c_str());
+
+				if (interface_name.find("org.bluez.Device") == 0) {
+					if (property_name == "Blocked")
+						dev.blocked = (value.print() == "true");
+					else if (property_name == "Connected")
+						dev.connected = (value.print() == "true");
+					else if (property_name == "Icon")
+						dev.icon = value.print();
+					else if (property_name == "Name")
+						dev.name = value.print();
+					else if (property_name == "Paired")
+						dev.paired = (value.print() == "true");
+					else if (property_name == "Trusted")
+						dev.trusted = (value.print() == "true");
+				}
+			}
+			devices.push_back(dev);
+		}
+	}
 }
