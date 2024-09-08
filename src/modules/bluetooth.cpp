@@ -55,13 +55,32 @@ void module_bluetooth::extract_data(const Glib::VariantBase& variant_base) {
 
 		for (const auto& [interface_name, property_map] : interface_map) {
 			std::printf("  Interface: %s\n", interface_name.c_str());
-			device dev;
-			dev.path = object_path;
 
-			for (const auto& [property_name, value] : property_map) {
-				std::printf("    Property: %s = %s\n", property_name.c_str(), value.print().c_str());
+			if (interface_name.find("org.bluez.Adapter") == 0) {
+				adapter adp;
+				adp.path = object_path;
 
-				if (interface_name.find("org.bluez.Device") == 0) {
+				for (const auto& [property_name, value] : property_map) {
+					if (property_name == "Alias")
+						adp.alias = value.print();
+					else if (property_name == "Discoverable")
+						adp.discoverable = (value.print() == "true");
+					else if (property_name == "Discovering")
+						adp.discovering = (value.print() == "true");
+					else if (property_name == "Name")
+						adp.name = value.print();
+					else if (property_name == "Pairable")
+						adp.pairable = (value.print() == "true");
+					else if (property_name == "Powered")
+						adp.powered = (value.print() == "true");
+				}
+				adapters.push_back(adp);
+			}
+			else if (interface_name.find("org.bluez.Device") == 0) {
+				device dev;
+				dev.path = object_path;
+
+				for (const auto& [property_name, value] : property_map) {
 					if (property_name == "Blocked")
 						dev.blocked = (value.print() == "true");
 					else if (property_name == "Connected")
@@ -75,8 +94,12 @@ void module_bluetooth::extract_data(const Glib::VariantBase& variant_base) {
 					else if (property_name == "Trusted")
 						dev.trusted = (value.print() == "true");
 				}
+				devices.push_back(dev);
 			}
-			devices.push_back(dev);
+
+			for (const auto& [property_name, value] : property_map) {
+				std::printf("    Property: %s = %s\n", property_name.c_str(), value.print().c_str());
+			}
 		}
 	}
 }
