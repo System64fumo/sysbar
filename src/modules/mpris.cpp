@@ -41,6 +41,11 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 		break;
 	}
 
+	// TODO: Add code to handle whenever a new player appears
+
+	if (!player)
+		return;
+
 	g_object_get(player, "playback-status", &status, nullptr);
 	g_signal_connect(player, "playback-status", G_CALLBACK(playback_status), this);
 	g_signal_connect(player, "metadata", G_CALLBACK(metadata), this);
