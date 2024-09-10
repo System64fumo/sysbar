@@ -99,3 +99,7 @@
 #sysbar_overlay .widget_mpris .box_controls {
 	margin-bottom: 10px;
 }
+#sysbar_overlay .widget_controls .control {
+	border: 1px solid @borders;
+	border-radius: 10px;
+}
