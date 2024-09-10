@@ -22,9 +22,10 @@ module_volume::module_volume(sysbar *window, const bool &icon_on_start) : module
 	// Why is this even necessary??
 	// Why does audio not work if not initialized from another thread?
 	std::thread thread_audio = std::thread([this]() {
-		sys_wp = new sysvol_wireplumber(&dispatcher_callback);
+		usleep(100 * 1000); // WHY!
+		sys_wp = new syshud_wireplumber(nullptr, &dispatcher_callback);
 	});
-	thread_audio.join();
+	thread_audio.detach();
 }
 
 void module_volume::update_info() {
