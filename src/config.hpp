@@ -17,6 +17,7 @@
 #define MODULE_BACKLIGHT		// Include the backlight module
 #define MODULE_MPRIS			// Include the mpris module
 #define MODULE_BLUETOOTH		// Include the bluetooth module
+#define MODULE_CONTROLS			// Include the controls module (technically widget only)
 
 // Default config
 struct config_bar {

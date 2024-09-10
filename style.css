@@ -77,6 +77,9 @@
 	font-size: 13px;
 }
 
+#sysbar_overlay .widget_controls {
+}
+
 #sysbar_overlay .widget_mpris {
 	background: alpha(currentcolor, 0.05);
 	border-radius: 4px;

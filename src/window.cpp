@@ -13,6 +13,7 @@
 #include "modules/backlight.hpp"
 #include "modules/mpris.hpp"
 #include "modules/bluetooth.hpp"
+#include "modules/controls.hpp"
 
 #include <gtk4-layer-shell.h>
 #include <filesystem>
@@ -113,10 +114,26 @@ sysbar::sysbar(const config_bar &cfg) {
 	setup_overlay();
 	setup_popovers();
 
+	// Setup the controls widget
+	#ifdef MODULE_CONTROLS
+	setup_controls();
+	#endif
+
 	// Load modules
 	load_modules(config_main.m_start, box_start);
 	load_modules(config_main.m_center, box_center);
 	load_modules(config_main.m_end, box_end);
+}
+
+void sysbar::setup_controls() {
+	if (config_main.m_start.find("controls") != std::string::npos) {
+		box_controls = Gtk::make_managed<module_controls>(this, false);
+		box_start.append(*box_controls);
+	}
+	else if (config_main.m_end.find("controls") != std::string::npos) {
+		box_controls = Gtk::make_managed<module_controls>(this, false);
+		box_end.append(*box_controls);
+	}
 }
 
 void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
@@ -195,6 +212,11 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 		#ifdef MODULE_BLUETOOTH
 		else if (module_name == "bluetooth")
 			my_module = Gtk::make_managed<module_bluetooth>(this, false);
+		#endif
+
+		#ifdef MODULE_CONTROLS
+		else if (module_name == "controls")
+			continue;
 		#endif
 
 		else {

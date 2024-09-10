@@ -55,6 +55,9 @@ endif
 ifneq (, $(shell grep -E '^#define MODULE_BLUETOOTH' src/config.hpp))
 	SRCS += src/modules/bluetooth.cpp
 endif
+ifneq (, $(shell grep -E '^#define MODULE_CONTROLS' src/config.hpp))
+	SRCS += src/modules/controls.cpp
+endif
 
 OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(patsubst src/modules/%,$(BUILDDIR)/%,$(SRCS:.cpp=.o)))
 
