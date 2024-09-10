@@ -16,6 +16,7 @@ class sysbar : public Gtk::Window {
 		Gtk::Window overlay_window;
 		Gtk::Box *box_widgets_start;
 		Gtk::Box *box_widgets_end;
+		Gtk::Box *box_controls;
 
 	private:
 		Gtk::Revealer revealer_box;
@@ -29,6 +30,7 @@ class sysbar : public Gtk::Window {
 		int width, height;
 
 		void load_modules(const std::string &modules, Gtk::Box &box);
+		void setup_controls();
 		void setup_popovers();
 		void setup_overlay();
 };
