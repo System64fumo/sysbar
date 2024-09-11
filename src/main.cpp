@@ -111,18 +111,18 @@ int main(int argc, char* argv[]) {
 
 			case 'h':
 			default :
-				std::printf("usage:");
-				std::printf("  sysbar [argument...]:\n");
-				std::printf("arguments:");
-				std::printf("  -p	Set position");
-				std::printf("  -s	Set start modules");
-				std::printf("  -c	Set center modules");
-				std::printf("  -e	Set end modules");
-				std::printf("  -S	Set bar size");
-				std::printf("  -V	Be more verbose");
-				std::printf("  -m	Set primary monitor");
-				std::printf("  -v	Prints version info");
-				std::printf("  -h	Show this help message");
+				std::printf("usage:\n");
+				std::printf("  sysbar [argument...]:\n\n");
+				std::printf("arguments:\n");
+				std::printf("  -p	Set position\n");
+				std::printf("  -s	Set start modules\n");
+				std::printf("  -c	Set center modules\n");
+				std::printf("  -e	Set end modules\n");
+				std::printf("  -S	Set bar size\n");
+				std::printf("  -V	Be more verbose\n");
+				std::printf("  -m	Set primary monitor\n");
+				std::printf("  -v	Prints version info\n");
+				std::printf("  -h	Show this help message\n");
 				return 0;
 
 			case -1:

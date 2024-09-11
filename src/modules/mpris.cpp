@@ -57,6 +57,7 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 void module_mpris::update_info() {
 	std::string status_icon = status ? "player_play" : "player_pause";
 	image_icon.set_from_icon_name(status_icon);
+	button_play_pause.set_icon_name(status_icon);
 	label_info.set_text(title);
 
 	label_title.set_text(title);
