@@ -94,17 +94,13 @@ void module_mpris::setup_widget() {
 	box_right.set_orientation(Gtk::Orientation::VERTICAL);
 
 	label_title.get_style_context()->add_class("label_title");
-	label_title.set_halign(Gtk::Align::START);
-	label_title.set_wrap(true);
 	label_title.set_ellipsize(Pango::EllipsizeMode::END);
-	label_title.set_max_width_chars(4);
+	label_title.set_max_width_chars(0);
 	box_right.append(label_title);
 
 	label_artist.get_style_context()->add_class("label_artist");
-	label_artist.set_halign(Gtk::Align::START);
-	label_artist.set_wrap(true);
 	label_artist.set_ellipsize(Pango::EllipsizeMode::END);
-	label_artist.set_max_width_chars(4);
+	label_artist.set_max_width_chars(0);
 	box_right.append(label_artist);
 
 	button_previous.set_icon_name("media-skip-backward");
