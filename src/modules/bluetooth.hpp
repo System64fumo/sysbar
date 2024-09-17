@@ -31,8 +31,12 @@ class module_bluetooth : public module {
 		module_bluetooth(sysbar *window, const bool &icon_on_start = true);
 
 	private:
+		Glib::RefPtr<Gio::DBus::Proxy> prop_proxy;
 		std::vector<adapter> adapters;
 		std::vector<device> devices;
-		void update_info(DBusPropMap changed, DBusPropList invalid);
+		void on_properties_changed(
+			const Glib::ustring& sender_name,
+			const Glib::ustring& signal_name,
+			const Glib::VariantContainerBase& parameters);
 		void extract_data(const Glib::VariantBase& variant_base);
 };
