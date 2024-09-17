@@ -13,7 +13,7 @@ module_volume::module_volume(sysbar *window, const bool &icon_on_start) : module
 	if (config->available) {
 		std::string cfg_label = config->get_value("volume", "label");
 		if (cfg_label == "true")
-			label_info.show(); 
+			label_info.show();
 	}
 	#endif
 
@@ -21,11 +21,10 @@ module_volume::module_volume(sysbar *window, const bool &icon_on_start) : module
 
 	// Why is this even necessary??
 	// Why does audio not work if not initialized from another thread?
-	std::thread thread_audio = std::thread([this]() {
+	std::thread([&]() {
 		usleep(100 * 1000); // WHY!
 		sys_wp = new syshud_wireplumber(nullptr, &dispatcher_callback);
-	});
-	thread_audio.detach();
+	}).detach();
 
 	setup_widget();
 }

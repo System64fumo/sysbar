@@ -29,16 +29,14 @@ module_backlight::module_backlight(sysbar *window, const bool &icon_on_start) : 
 
 	// Setup
 	get_backlight_path(backlight_path);
-	setup_widget();
 	brightness = get_brightness();
 	update_info();
-	scale_backlight.set_value(brightness_literal);
+	setup_widget();
 
 	// Listen for changes
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_backlight::update_info));
-	scale_backlight.signal_value_changed().connect(sigc::mem_fun(*this, &module_backlight::on_scale_brightness_change));
 
-	std::thread monitor_thread([&]() {
+	std::thread([&]() {
 		int inotify_fd = inotify_init();
 		inotify_add_watch(inotify_fd, backlight_path.c_str(), IN_MODIFY);
 
@@ -56,8 +54,7 @@ module_backlight::module_backlight(sysbar *window, const bool &icon_on_start) : 
 			last_brightness = brightness;
 			dispatcher_callback.emit();
 		}
-	});
-	monitor_thread.detach();
+	}).detach();
 }
 
 void module_backlight::update_info() {
@@ -73,12 +70,15 @@ void module_backlight::on_scale_brightness_change() {
 
 	std::ofstream backlight_file(backlight_path + "/brightness", std::ios::trunc);
 	backlight_file << scale_val;
-
 }
 
 void module_backlight::setup_widget() {
 	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
 	scale_backlight.set_hexpand(true);
+	scale_backlight.set_value(brightness_literal);
+
+	scale_backlight.signal_value_changed().connect(sigc::mem_fun(*this, &module_backlight::on_scale_brightness_change));
+
 	container->append(scale_backlight);
 }
 

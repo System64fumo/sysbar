@@ -5,7 +5,11 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 	label_info.hide();
 
 	auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM);
-	auto proxy = Gio::DBus::Proxy::create_sync(connection, "org.bluez", "/org/bluez/hci0", "org.bluez.Adapter1");
+	auto proxy = Gio::DBus::Proxy::create_sync(
+		connection,
+		"org.bluez",
+		"/org/bluez/hci0",
+		"org.bluez.Adapter1");
 
 	if (!proxy)
 		return;
@@ -23,7 +27,13 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 	std::printf("Name: %s\n", name.get().c_str());
 
 	// TODO: Figure out why this doesn't work
-	proxy->signal_properties_changed().connect(sigc::mem_fun(*this, &module_bluetooth::update_info));
+	prop_proxy = Gio::DBus::Proxy::create_sync(
+		connection,
+		"org.bluez",
+		"/org/bluez/hci0",
+		"org.freedesktop.DBus.Properties");
+
+	prop_proxy->signal_signal().connect(sigc::mem_fun(*this, &module_bluetooth::on_properties_changed));
 
 	if (powered)
 		image_icon.set_from_icon_name("bluetooth-active-symbolic");
@@ -42,7 +52,10 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 	extract_data(base);
 }
 
-void module_bluetooth::update_info(DBusPropMap changed, DBusPropList invalid) {
+void module_bluetooth::on_properties_changed(
+	const Glib::ustring& sender_name,
+	const Glib::ustring& signal_name,
+	const Glib::VariantContainerBase& parameters) {
 	std::printf("Bluetooth properties updated\n");
 }
 
