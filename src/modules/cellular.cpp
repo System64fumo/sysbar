@@ -1,16 +1,19 @@
 #include "cellular.hpp"
 
-#include <giomm/dbusproxy.h>
 #include <giomm/dbusconnection.h>
 
 module_cellular::module_cellular(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_cellular");
+	image_icon.set_from_icon_name("network-cellular-acquiring-symbolic");
+	label_info.set_text("0");
+
+	// TODO: Add config to hide the label
 
 	setup();
 }
 
 void module_cellular::setup() {
-	Glib::RefPtr<Gio::DBus::Proxy> proxy = Gio::DBus::Proxy::create_sync(
+	proxy = Gio::DBus::Proxy::create_sync(
 		Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM),
 		"org.freedesktop.ModemManager1",
 		"/org/freedesktop/ModemManager1/Modem/0",
@@ -39,6 +42,20 @@ void module_cellular::on_properties_changed(
 			auto tuple = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(value);
 			uint32_t signal = Glib::VariantBase::cast_dynamic<Glib::Variant<uint32_t>>(tuple.get_child(0)).get();
 			//uint32_t boolean = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(tuple.get_child(1)).get();
+			label_info.set_text(std::to_string(signal));
+
+			std::string icon;
+			if (signal > 80)
+				icon = "network-cellular-signal-excellent-symbolic";
+			else if (signal > 60)
+				icon = "network-cellular-signal-good-symbolic";
+			else if (signal > 40)
+				icon = "network-cellular-signal-ok-symbolic";
+			else if (signal > 20)
+				icon = "network-cellular-signal-weak-symbolic";
+			else
+				icon = "network-cellular-signal-none-symbolic";
+			image_icon.set_from_icon_name(icon);
 		}
 	}
 }
