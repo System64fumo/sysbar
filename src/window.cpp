@@ -14,6 +14,7 @@
 #include "modules/mpris.hpp"
 #include "modules/bluetooth.hpp"
 #include "modules/controls.hpp"
+#include "modules/cellular.hpp"
 
 #include <gtk4-layer-shell.h>
 #include <filesystem>
@@ -212,6 +213,11 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 		#ifdef MODULE_BLUETOOTH
 		else if (module_name == "bluetooth")
 			my_module = Gtk::make_managed<module_bluetooth>(this, false);
+		#endif
+
+		#ifdef MODULE_CELLULAR
+		else if (module_name == "cellular")
+			my_module = Gtk::make_managed<module_cellular>(this, false);
 		#endif
 
 		#ifdef MODULE_CONTROLS
