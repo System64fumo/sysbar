@@ -3,6 +3,7 @@
 #ifdef MODULE_VOLUME
 
 #include "../wireplumber.hpp"
+#include <gtkmm/scale.h>
 
 class module_volume : public module {
 	public:
@@ -11,9 +12,11 @@ class module_volume : public module {
 	private:
 		syshud_wireplumber *sys_wp;
 		Glib::Dispatcher dispatcher_callback;
+		Gtk::Scale scale_volume;
 		std::map<int, std::string> volume_icons;
 
 		void update_info();
+		void setup_widget();
 };
 
 #endif

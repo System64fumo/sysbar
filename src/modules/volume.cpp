@@ -26,6 +26,16 @@ module_volume::module_volume(sysbar *window, const bool &icon_on_start) : module
 		sys_wp = new syshud_wireplumber(nullptr, &dispatcher_callback);
 	});
 	thread_audio.detach();
+
+	setup_widget();
+}
+
+void module_volume::setup_widget() {
+	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
+	scale_volume.set_hexpand(true);
+	scale_volume.set_range(0, 100);
+	scale_volume.set_sensitive(false); // Setting volume is currently unsupported
+	container->append(scale_volume);
 }
 
 void module_volume::update_info() {
@@ -34,4 +44,5 @@ void module_volume::update_info() {
 		image_icon.set_from_icon_name("audio-volume-muted-blocking-symbolic");
 	else
 		image_icon.set_from_icon_name(volume_icons[sys_wp->volume / 35]);
+	scale_volume.set_value(sys_wp->volume);
 }
