@@ -6,7 +6,7 @@
 
 class notification : public Gtk::Box {
 	public:
-		notification(std::vector<notification*> notifications, Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters);
+		notification(std::vector<notification*> notifications, Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters, const std::string);
 		guint32 notif_id;
 
 	private:
@@ -27,6 +27,7 @@ class module_notifications : public module {
 		std::vector<notification*> notifications;
 
 	private:
+		std::string command;
 		Gtk::Box *box_notifications;
 		guint object_id;
 		Glib::RefPtr<Gio::DBus::Connection> daemon_connection;
