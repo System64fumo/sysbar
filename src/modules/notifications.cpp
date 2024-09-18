@@ -180,7 +180,7 @@ notification::notification(std::vector<notification*> notifications, Gtk::Box *b
 		image_icon.set(image_data);
 		image_data = image_data->scale_simple(64, 64, Gdk::InterpType::BILINEAR);
 		image_icon.set_size_request(64, 64);
-		append(image_icon);
+		box_main.append(image_icon);
 	}
 
 	label_headerbar.get_style_context()->add_class("summary");
@@ -189,6 +189,7 @@ notification::notification(std::vector<notification*> notifications, Gtk::Box *b
 	label_headerbar.set_max_width_chars(0);
 	label_headerbar.set_wrap(true);
 	label_headerbar.set_ellipsize(Pango::EllipsizeMode::END);
+	label_headerbar.set_wrap_mode(Pango::WrapMode::WORD_CHAR);
 	label_headerbar.set_margin_start(5);
 	box_notification.append(label_headerbar);
 
@@ -197,11 +198,20 @@ notification::notification(std::vector<notification*> notifications, Gtk::Box *b
 	label_body.set_max_width_chars(0);
 	label_body.set_halign(Gtk::Align::START);
 	label_body.set_wrap(true);
-	label_body.set_natural_wrap_mode(Gtk::NaturalWrapMode::NONE);
+	label_body.set_ellipsize(Pango::EllipsizeMode::END);
+	label_body.set_wrap_mode(Pango::WrapMode::WORD_CHAR);
+	label_body.set_lines(3);
 	label_body.set_margin_start(5);
 	box_notification.append(label_body);
 
-	append(box_notification);
+	box_main.append(box_notification);
+	set_child(box_main);
+	set_focusable(false);
+
+	signal_clicked().connect([&, box_notifications]() {
+		box_notifications->remove(*this);
+		delete this;
+	});
 
 	box_notification.set_orientation(Gtk::Orientation::VERTICAL);
 	box_notifications->prepend(*this);
