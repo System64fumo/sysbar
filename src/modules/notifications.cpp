@@ -1,6 +1,7 @@
 #include "notifications.hpp"
 
 #include <giomm/dbusownname.h>
+#include <thread>
 
 const auto introspection_data = Gio::DBus::NodeInfo::create_for_xml(
 	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -44,6 +45,15 @@ module_notifications::module_notifications(sysbar *window, const bool &icon_on_s
 	get_style_context()->add_class("module_notifications");
 	image_icon.set_from_icon_name("notification-symbolic");
 	label_info.hide();
+
+	#ifdef CONFIG_FILE
+	if (config->available) {
+		std::string cfg_command = config->get_value("notification", "command");
+		if (cfg_command != "empty")
+			command = cfg_command;
+	}
+	#endif
+
 	setup_widget();
 	setup_daemon();
 }
@@ -91,7 +101,7 @@ void module_notifications::on_interface_method_call(
 			invocation->return_value(info);
 	}
 	else if (method_name == "Notify") {
-		notification *notif = Gtk::make_managed<notification>(notifications, box_notifications, sender, parameters);
+		notification *notif = Gtk::make_managed<notification>(notifications, box_notifications, sender, parameters, command);
 		auto id_var = Glib::VariantContainerBase::create_tuple(
 			Glib::Variant<guint32>::create(notif->notif_id));
 		invocation->return_value(id_var);
@@ -99,7 +109,7 @@ void module_notifications::on_interface_method_call(
 	}
 }
 
-notification::notification(std::vector<notification*> notifications, Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters) {
+notification::notification(std::vector<notification*> notifications, Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters, const std::string command) {
 	get_style_context()->add_class("notification");
 	if (!parameters.is_of_type(Glib::VariantType("(susssasa{sv}i)")))
 		return;
@@ -195,6 +205,12 @@ notification::notification(std::vector<notification*> notifications, Gtk::Box *b
 
 	box_notification.set_orientation(Gtk::Orientation::VERTICAL);
 	box_notifications->prepend(*this);
+
+	if (!command.empty()) {
+		std::thread([command]() {
+			system(command.c_str());
+		}).detach();
+	}
 }
 
 void notification::handle_hint(Glib::ustring key, const Glib::VariantBase &value) {
