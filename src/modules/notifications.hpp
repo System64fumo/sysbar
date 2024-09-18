@@ -3,13 +3,16 @@
 #ifdef MODULE_NOTIFICATION
 
 #include <giomm/dbusconnection.h>
+#include <gtkmm/button.h>
 
-class notification : public Gtk::Box {
+class notification : public Gtk::Button {
 	public:
 		notification(std::vector<notification*> notifications, Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters, const std::string);
 		guint32 notif_id;
 
 	private:
+		Gtk::Box box_main;
+
 		Glib::ustring app_name;
 		guint32 replaces_id;
 		Glib::ustring app_icon;
