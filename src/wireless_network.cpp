@@ -63,15 +63,28 @@ int wireless_manager::nl_socket_modify_cb(struct nl_msg *msg, void *arg) {
 	nla_parse_nested(bss, NL80211_BSS_MAX, tb[NL80211_ATTR_BSS], nullptr);
 
 	if (bss[NL80211_BSS_BSSID]) {
-		std::ostringstream oss;
-		uint8_t *bssid = static_cast<uint8_t*>(nla_data(bss[NL80211_BSS_BSSID]));
-		for (int i = 0; i < 6; ++i) {
-			if (i > 0)
-				oss << ":";
-			oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(bssid[i]);
+		auto ies = static_cast<char *>(nla_data(bss[NL80211_BSS_INFORMATION_ELEMENTS]));
+		auto ies_len = nla_len(bss[NL80211_BSS_INFORMATION_ELEMENTS]);
+		int hdr_len = 2;
+
+		while (ies_len > hdr_len) {
+			uint8_t element_id = static_cast<uint8_t>(ies[0]);
+			uint8_t element_len = static_cast<uint8_t>(ies[1]);
+
+			if (ies_len < element_len + hdr_len)
+				break;
+
+			if (element_id == 0x00) {
+				if (element_len > 0)
+					manager->info.bssid.assign(ies + hdr_len, ies + hdr_len + element_len);
+				else
+					manager->info.bssid = "<hidden>";
+				break;
+			}
+	
+			ies_len -= element_len + hdr_len;
+			ies += element_len + hdr_len;
 		}
-		oss << std::dec;
-		manager->info.bssid = oss.str();
 	}
 
 	if (bss[NL80211_BSS_SIGNAL_MBM]) {
