@@ -64,15 +64,28 @@ void module_network::update_info() {
 	if (config_main.verbose)
 		std::printf("Default interface is %s\n", default_if->interface.c_str());
 
-	if (default_if->type == "Ethernet")
+	if (default_if->type == "Ethernet") {
 		image_icon.set_from_icon_name("network-wired-symbolic");
+		label_info.set_text("");
+	}
 	else if (default_if->type == "Wireless") {
-		manager.get_wireless_info("wlan0");
+		manager.get_wireless_info(default_if->interface);
 		auto info = manager.get_info();
-		std::printf("BSSID: %s\n", info.bssid.c_str());
-		std::printf("Signal: %d dBm (%d%%)\n", info.signal_dbm, info.signal_percentage);
-		std::printf("Frequency: %.3f GHz\n", info.frequency);
-		image_icon.set_from_icon_name("network-wireless-symbolic");
+		label_info.set_text(std::to_string(info.signal_percentage));
+
+		std::string icon;
+		if (info.signal_percentage > 80)
+			icon = "network-wireless-signal-excellent-symbolic";
+		else if (info.signal_percentage > 60)
+			icon = "network-wireless-signal-good-symbolic";
+		else if (info.signal_percentage > 40)
+			icon = "network-wireless-signal-ok-symbolic";
+		else if (info.signal_percentage > 20)
+			icon = "network-wireless-signal-weak-symbolic";
+		else
+			icon = "network-wireless-signal-none-symbolic";
+
+		image_icon.set_from_icon_name(icon);
 	}
 }
 
