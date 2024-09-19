@@ -1,6 +1,7 @@
 #pragma once
 #include "../module.hpp"
 #ifdef MODULE_NETWORK
+#include "../wireless_network.hpp"
 
 struct network_adapter {
 	std::string interface;
@@ -15,6 +16,7 @@ class module_network : public module {
 		~module_network();
 
 	private:
+		wireless_manager manager;
 		int nl_socket;
 		char buffer[4096];
 		uint default_if_index = 0;
