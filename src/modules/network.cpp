@@ -11,6 +11,8 @@ module_network::module_network(sysbar *window, const bool &icon_on_start) : modu
 	get_style_context()->add_class("module_network");
 	label_info.hide();
 
+	manager.init_nl80211();
+
 	// Set up networking stuff
 	if (!setup_netlink())
 		return;
@@ -18,6 +20,11 @@ module_network::module_network(sysbar *window, const bool &icon_on_start) : modu
 	dispatcher.connect(sigc::mem_fun(*this, &module_network::update_info));
 	std::thread thread_network(&module_network::interface_thread, this);
 	thread_network.detach();
+
+	Glib::signal_timeout().connect([&]() {
+		update_info();
+		return true;
+	}, 10000);
 }
 
 module_network::~module_network() {
@@ -59,8 +66,14 @@ void module_network::update_info() {
 
 	if (default_if->type == "Ethernet")
 		image_icon.set_from_icon_name("network-wired-symbolic");
-	else if (default_if->type == "Wireless")
+	else if (default_if->type == "Wireless") {
+		manager.get_wireless_info("wlan0");
+		auto info = manager.get_info();
+		std::printf("BSSID: %s\n", info.bssid.c_str());
+		std::printf("Signal: %d dBm (%d%%)\n", info.signal_dbm, info.signal_percentage);
+		std::printf("Frequency: %.3f GHz\n", info.frequency);
 		image_icon.set_from_icon_name("network-wireless-symbolic");
+	}
 }
 
 bool module_network::setup_netlink() {
@@ -123,7 +136,6 @@ void module_network::process_message(struct nlmsghdr *nlh) {
 	unsigned int if_index = 0;
 
 	for (; RTA_OK(rth, rtl); rth = RTA_NEXT(rth, rtl)) {
-
 		// Get interface type
 		if (if_indextoname(ifa->ifa_index, if_name) != nullptr) {
 			std::string interface_path = "/sys/class/net/";

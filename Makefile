@@ -32,6 +32,7 @@ else
 endif
 ifneq (, $(shell grep -E '^#define MODULE_NETWORK' src/config.hpp))
 	SRCS += src/modules/network.cpp
+	CXXFLAGS += -I /usr/include/libnl3/ -lnl-3 -lnl-genl-3
 endif
 ifneq (, $(shell grep -E '^#define MODULE_BATTERY' src/config.hpp))
 	SRCS += src/modules/battery.cpp
