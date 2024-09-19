@@ -9,9 +9,7 @@
 
 module_network::module_network(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_network");
-	label_info.hide();
-
-	manager.init_nl80211();
+	//label_info.hide();
 
 	// Set up networking stuff
 	if (!setup_netlink())
@@ -69,18 +67,17 @@ void module_network::update_info() {
 		label_info.set_text("");
 	}
 	else if (default_if->type == "Wireless") {
-		manager.get_wireless_info(default_if->interface);
-		auto info = manager.get_info();
-		label_info.set_text(std::to_string(info.signal_percentage));
+		auto info = manager.get_wireless_info(default_if->interface);
+		label_info.set_text(std::to_string(info->signal_percentage));
 
 		std::string icon;
-		if (info.signal_percentage > 80)
+		if (info->signal_percentage > 80)
 			icon = "network-wireless-signal-excellent-symbolic";
-		else if (info.signal_percentage > 60)
+		else if (info->signal_percentage > 60)
 			icon = "network-wireless-signal-good-symbolic";
-		else if (info.signal_percentage > 40)
+		else if (info->signal_percentage > 40)
 			icon = "network-wireless-signal-ok-symbolic";
-		else if (info.signal_percentage > 20)
+		else if (info->signal_percentage > 20)
 			icon = "network-wireless-signal-weak-symbolic";
 		else
 			icon = "network-wireless-signal-none-symbolic";
