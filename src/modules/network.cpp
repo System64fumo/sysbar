@@ -9,7 +9,14 @@
 
 module_network::module_network(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_network");
-	//label_info.hide();
+
+	#ifdef CONFIG_FILE
+	if (config->available) {
+		std::string cfg_label = config->get_value("network", "show-label");
+		if (cfg_label != "true")
+			label_info.hide();
+	}
+	#endif
 
 	// Set up networking stuff
 	if (!setup_netlink())
