@@ -6,7 +6,7 @@
 
 class control : public Gtk::Box {
 	public:
-		control(const bool& extra);
+		control(const std::string& icon, const bool& extra);
 		Gtk::Button button_action;
 		Gtk::Button button_expand;
 };

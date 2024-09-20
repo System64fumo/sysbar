@@ -17,10 +17,12 @@ module_controls::module_controls(sysbar *window, const bool &icon_on_start) : mo
 	container->append(*this);
 }
 
-control::control(const bool& extra) {
+control::control(const std::string& icon, const bool& extra) {
 	get_style_context()->add_class("control");
 	append(button_action);
+	button_action.set_icon_name(icon);
 	button_action.get_style_context()->add_class("button_action");
+	button_action.set_focusable(false);
 	button_action.set_has_frame(false);
 	button_action.set_hexpand(true);
 
@@ -28,6 +30,7 @@ control::control(const bool& extra) {
 	if (extra) {
 		append(button_expand);
 		button_action.get_style_context()->add_class("button_expand");
+		button_expand.set_focusable(false);
 		button_expand.set_has_frame(false);
 		button_expand.set_icon_name("arrow-right");
 	}
