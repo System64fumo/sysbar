@@ -29,6 +29,19 @@ static void metadata(PlayerctlPlayer *player, GVariant *metadata, gpointer user_
 
 module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_mpris");
+
+	#ifdef CONFIG_FILE
+	if (config->available) {
+		std::string cfg_icon = config->get_value("mpris", "show-icon");
+		if (cfg_icon != "true")
+			image_icon.hide();
+
+		std::string cfg_label = config->get_value("mpris", "show-label");
+		if (cfg_label != "true")
+			label_info.hide();
+	}
+	#endif
+
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_mpris::update_info));
 
 	// Setup
