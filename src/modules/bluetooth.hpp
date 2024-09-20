@@ -39,4 +39,5 @@ class module_bluetooth : public module {
 			const Glib::ustring& signal_name,
 			const Glib::VariantContainerBase& parameters);
 		void extract_data(const Glib::VariantBase& variant_base);
+		void setup_control();
 };
