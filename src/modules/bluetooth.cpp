@@ -1,5 +1,4 @@
 #include "bluetooth.hpp"
-#include "controls.hpp"
 
 module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_bluetooth");
@@ -36,19 +35,36 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 	prop_proxy->signal_signal().connect(
 		sigc::mem_fun(*this, &module_bluetooth::on_properties_changed));
 
-	if (default_adapter.powered)
-		image_icon.set_from_icon_name("bluetooth-active-symbolic");
-	else
-		image_icon.set_from_icon_name("bluetooth-disabled-symbolic");
-
 	setup_control();
+	update_info("PowerState");
 }
 
 void module_bluetooth::on_properties_changed(
 	const Glib::ustring& sender_name,
 	const Glib::ustring& signal_name,
 	const Glib::VariantContainerBase& parameters) {
+
 	std::printf("Bluetooth properties updated\n");
+	Glib::VariantIter iter(parameters);
+	Glib::VariantBase child;
+	iter.next_value(child);
+	Glib::ustring adp_interface = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(child).get();
+	iter.next_value(child);
+
+	// Other adapters do not matter
+	if (std::string(adp_interface.c_str()) != default_adapter.interface)
+		return;
+
+	auto variant_dict = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::ustring, Glib::VariantBase>>>(child);
+	std::map<Glib::ustring, Glib::VariantBase> map_hints = variant_dict.get();
+	for (const auto& [key, value] : map_hints) {
+		std::printf("Property changed: %s\n", key.c_str());
+		if (key == "PowerState") {
+			std::string powered = Glib::VariantBase::cast_dynamic<Glib::Variant<std::string>>(value).get();
+			default_adapter.powered = (powered == "on");
+		}
+		update_info(key);
+	}
 }
 
 void module_bluetooth::extract_data(const Glib::VariantBase& variant_base) {
@@ -63,6 +79,7 @@ void module_bluetooth::extract_data(const Glib::VariantBase& variant_base) {
 
 			if (interface_name.find("org.bluez.Adapter") == 0) {
 				adapter adp;
+				adp.interface = interface_name;
 				adp.path = object_path;
 
 				for (const auto& [property_name, value] : property_map) {
@@ -109,8 +126,21 @@ void module_bluetooth::extract_data(const Glib::VariantBase& variant_base) {
 	}
 }
 
+void module_bluetooth::update_info(std::string property) {
+	if (property == "PowerState") {
+		std::string icon;
+		if (default_adapter.powered)
+			icon = "bluetooth-active-symbolic";
+		else
+			icon = "bluetooth-disabled-symbolic";
+
+		image_icon.set_from_icon_name(icon);
+		control_bluetooth->button_action.set_icon_name(icon);
+	}
+}
+
 void module_bluetooth::setup_control() {
 	auto container = static_cast<module_controls*>(win->box_controls);
-	control* control_bluetooth = Gtk::make_managed<control>("bluetooth-active-symbolic", false);
+	control_bluetooth = Gtk::make_managed<control>("bluetooth-active-symbolic", false);
 	container->flowbox_controls.append(*control_bluetooth);
 }
