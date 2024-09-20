@@ -1,4 +1,5 @@
 #include "bluetooth.hpp"
+#include "controls.hpp"
 
 module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_bluetooth");
@@ -50,6 +51,7 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 	Glib::VariantBase base = result_cb.get_child(0);
 
 	extract_data(base);
+	setup_control();
 }
 
 void module_bluetooth::on_properties_changed(
@@ -115,4 +117,10 @@ void module_bluetooth::extract_data(const Glib::VariantBase& variant_base) {
 			}
 		}
 	}
+}
+
+void module_bluetooth::setup_control() {
+	auto container = static_cast<module_controls*>(win->box_controls);
+	control* control_bluetooth = Gtk::make_managed<control>("bluetooth-active-symbolic", false);
+	container->flowbox_controls.append(*control_bluetooth);
 }
