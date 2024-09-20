@@ -6,51 +6,41 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 	label_info.hide();
 
 	auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM);
-	auto proxy = Gio::DBus::Proxy::create_sync(
+
+	// Get initial data
+	auto om_proxy = Gio::DBus::Proxy::create_sync(
 		connection,
 		"org.bluez",
-		"/org/bluez/hci0",
-		"org.bluez.Adapter1");
+		"/",
+		"org.freedesktop.DBus.ObjectManager");
 
-	if (!proxy)
-		return;
+	std::vector<Glib::VariantBase> args_vector;
+	auto args = Glib::VariantContainerBase::create_tuple(args_vector);
+	auto result = om_proxy->call_sync("GetManagedObjects", args);
+	auto result_cb = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(result);
+	auto result_base = result_cb.get_child(0);
 
-	Glib::Variant<bool> powered;
-	proxy->get_cached_property(powered, "Powered");
+	extract_data(result_base);
+	default_adapter = adapters.front();
 
-	Glib::Variant<Glib::ustring> address;
-	proxy->get_cached_property(address, "Address");
+	// TODO: This should probably use the first adapter's path-
+	// rather than using a hardcoded path..
 
-	Glib::Variant<Glib::ustring> name;
-	proxy->get_cached_property(name, "Name");
-
-	std::printf("Addr: %s\n", address.get().c_str());
-	std::printf("Name: %s\n", name.get().c_str());
-
-	// TODO: Figure out why this doesn't work
+	// Setup change detection
 	prop_proxy = Gio::DBus::Proxy::create_sync(
 		connection,
 		"org.bluez",
 		"/org/bluez/hci0",
 		"org.freedesktop.DBus.Properties");
 
-	prop_proxy->signal_signal().connect(sigc::mem_fun(*this, &module_bluetooth::on_properties_changed));
+	prop_proxy->signal_signal().connect(
+		sigc::mem_fun(*this, &module_bluetooth::on_properties_changed));
 
-	if (powered)
+	if (default_adapter.powered)
 		image_icon.set_from_icon_name("bluetooth-active-symbolic");
 	else
-		image_icon.set_from_icon_name("bluetooth-inactive-symbolic");
+		image_icon.set_from_icon_name("bluetooth-disabled-symbolic");
 
-	auto s_proxy = Gio::DBus::Proxy::create_sync(connection, "org.bluez", "/", "org.freedesktop.DBus.ObjectManager");
-
-	std::vector<Glib::VariantBase> args_vector;
-	auto args = Glib::VariantContainerBase::create_tuple(args_vector);
-
-	auto result = s_proxy->call_sync("GetManagedObjects", args);
-	Glib::VariantContainerBase result_cb = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(result);
-	Glib::VariantBase base = result_cb.get_child(0);
-
-	extract_data(base);
 	setup_control();
 }
 

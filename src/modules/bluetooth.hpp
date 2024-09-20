@@ -3,9 +3,6 @@
 #include <giomm/dbusconnection.h>
 #include <giomm/dbusproxy.h>
 
-using DBusPropMap = const Gio::DBus::Proxy::MapChangedProperties&;
-using DBusPropList = const std::vector<Glib::ustring>&;
-
 struct device {
 	std::string path;
 	bool blocked;
@@ -34,6 +31,7 @@ class module_bluetooth : public module {
 		Glib::RefPtr<Gio::DBus::Proxy> prop_proxy;
 		std::vector<adapter> adapters;
 		std::vector<device> devices;
+		adapter default_adapter;
 		void on_properties_changed(
 			const Glib::ustring& sender_name,
 			const Glib::ustring& signal_name,
