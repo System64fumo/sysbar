@@ -16,7 +16,7 @@ class sysbar : public Gtk::Window {
 		Gtk::Window overlay_window;
 		Gtk::Box *box_widgets_start;
 		Gtk::Box *box_widgets_end;
-		Gtk::Box *box_controls;
+		Gtk::Box *box_controls = nullptr;
 
 	private:
 		Gtk::Revealer revealer_box;

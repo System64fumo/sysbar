@@ -135,11 +135,15 @@ void module_bluetooth::update_info(std::string property) {
 			icon = "bluetooth-disabled-symbolic";
 
 		image_icon.set_from_icon_name(icon);
-		control_bluetooth->button_action.set_icon_name(icon);
+		if (win->box_controls)
+			control_bluetooth->button_action.set_icon_name(icon);
 	}
 }
 
 void module_bluetooth::setup_control() {
+	if (!win->box_controls)
+		return;
+
 	auto container = static_cast<module_controls*>(win->box_controls);
 	control_bluetooth = Gtk::make_managed<control>("bluetooth-active-symbolic", false);
 	container->flowbox_controls.append(*control_bluetooth);
