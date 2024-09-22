@@ -31,10 +31,19 @@ module_volume::module_volume(sysbar *window, const bool &icon_on_start) : module
 
 void module_volume::setup_widget() {
 	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
+	Gtk::Box *box_widget = Gtk::make_managed<Gtk::Box>();
+
+	box_widget->get_style_context()->add_class("widget_volume");
+
+	image_widget_icon.set_pixel_size(24);
+
 	scale_volume.set_hexpand(true);
 	scale_volume.set_range(0, 100);
 	scale_volume.set_sensitive(false); // Setting volume is currently unsupported
-	container->append(scale_volume);
+
+	box_widget->append(image_widget_icon);
+	box_widget->append(scale_volume);
+	container->append(*box_widget);
 }
 
 void module_volume::update_info() {
@@ -43,5 +52,8 @@ void module_volume::update_info() {
 		image_icon.set_from_icon_name("audio-volume-muted-blocking-symbolic");
 	else
 		image_icon.set_from_icon_name(volume_icons[sys_wp->volume / 35]);
+
+	// Widget
+	image_widget_icon.set_from_icon_name(image_icon.get_icon_name());
 	scale_volume.set_value(sys_wp->volume);
 }
