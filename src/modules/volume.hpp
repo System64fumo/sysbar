@@ -13,6 +13,7 @@ class module_volume : public module {
 		syshud_wireplumber *sys_wp;
 		Glib::Dispatcher dispatcher_callback;
 		Gtk::Scale scale_volume;
+		Gtk::Image image_widget_icon;
 		std::map<int, std::string> volume_icons;
 
 		void update_info();
