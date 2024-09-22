@@ -19,24 +19,38 @@ size_t write_data(void* ptr, size_t size, size_t nmemb, std::vector<unsigned cha
 static void metadata(PlayerctlPlayer *player, GVariant *metadata, gpointer user_data) {
 	module_mpris *self = static_cast<module_mpris*>(user_data);
 
-	// This could be better..
-	self->artist = playerctl_player_get_artist(player, nullptr);
-	self->album = playerctl_player_get_album(player, nullptr);
-	self->title = playerctl_player_get_title(player, nullptr);
-
-	auto length = playerctl_player_print_metadata_prop(player, "mpris:length", nullptr);
-	if (length)
-		self->length = length;
-	g_free(length);
-
-	auto album_art_url = playerctl_player_print_metadata_prop(player, "mpris:artUrl", nullptr);
-	if (album_art_url)
-		self->album_art_url = album_art_url;
-	g_free(album_art_url);
-
+	// Initial cleanup
+	self->artist.clear();
+	self->album.clear();
+	self->title.clear();
+	self->length.clear();
+	self->album_art_url.clear();
 	self->album_pixbuf = nullptr;
 	self->dispatcher_callback.emit();
 
+	// Gather metadata
+	if (auto artist = playerctl_player_get_artist(player, nullptr)) {
+		self->artist = artist;
+		g_free(artist);
+	}
+	if (auto album = playerctl_player_get_album(player, nullptr)) {
+		self->album = album;
+		g_free(album);
+	}
+	if (auto title = playerctl_player_get_title(player, nullptr)) {
+		self->title = title;
+		g_free(title);
+	}
+	if (auto length = playerctl_player_print_metadata_prop(player, "mpris:length", nullptr)) {
+		self->length = length;
+		g_free(length);
+	}
+	if (auto album_art_url = playerctl_player_print_metadata_prop(player, "mpris:artUrl", nullptr)) {
+		self->album_art_url = album_art_url;
+		g_free(album_art_url);
+	}
+
+	// Load album art
 	if (self->album_art_url.find("file://") == 0) {
 		std::thread([self]() {
 			self->album_art_url.erase(0, 7);
@@ -136,6 +150,8 @@ void module_mpris::update_info() {
 
 	if (album_pixbuf != nullptr)
 		image_album_art.set(album_pixbuf);
+	else if (album_art_url.empty())
+		image_album_art.set_from_icon_name("music-app-symbolic");
 	else
 		image_album_art.set_from_icon_name("process-working-symbolic");
 
