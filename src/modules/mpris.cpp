@@ -2,11 +2,18 @@
 
 #include <gdkmm/pixbufloader.h>
 #include <curl/curl.h>
+#include <thread>
 
 static void playback_status(PlayerctlPlayer *player, PlayerctlPlaybackStatus status, gpointer user_data) {
 	module_mpris *self = static_cast<module_mpris*>(user_data);
 	self->status = status;
 	self->dispatcher_callback.emit();
+}
+
+// Generate image from URL
+size_t write_data(void* ptr, size_t size, size_t nmemb, std::vector<unsigned char>* data) {
+	data->insert(data->end(), static_cast<unsigned char*>(ptr), static_cast<unsigned char*>(ptr) + size * nmemb);
+	return size * nmemb;
 }
 
 static void metadata(PlayerctlPlayer *player, GVariant *metadata, gpointer user_data) {
@@ -27,7 +34,42 @@ static void metadata(PlayerctlPlayer *player, GVariant *metadata, gpointer user_
 		self->album_art_url = album_art_url;
 	g_free(album_art_url);
 
+	self->album_pixbuf = nullptr;
 	self->dispatcher_callback.emit();
+
+	if (self->album_art_url.find("file://") == 0) {
+		std::thread([self]() {
+			self->album_art_url.erase(0, 7);
+			Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create_from_file(self->album_art_url);
+			int width = pixbuf->get_width();
+			int height = pixbuf->get_height();
+
+			int square_size = std::min(width, height);
+			int offset_x = (width - square_size) / 2;
+			int offset_y = (height - square_size) / 2;
+			self->album_pixbuf = Gdk::Pixbuf::create_subpixbuf(pixbuf, offset_x, offset_y, square_size, square_size);
+			self->dispatcher_callback.emit();
+		}).detach();
+	}
+	else if (self->album_art_url.find("https://") == 0) {
+		CURL* curl = curl_easy_init();
+		std::thread([&, curl, self]() {
+			std::vector<unsigned char> image_data;
+			curl_easy_setopt(curl, CURLOPT_URL, self->album_art_url.c_str());
+			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &image_data);
+			(void)curl_easy_perform(curl);
+	
+			auto pixbuf_loader = Gdk::PixbufLoader::create();
+			pixbuf_loader->write(image_data.data(), image_data.size());
+			pixbuf_loader->close();
+			self->album_pixbuf = pixbuf_loader->get_pixbuf();
+			curl_easy_cleanup(curl);
+			self->dispatcher_callback.emit();
+		}).detach();
+	}
+	else
+		self->dispatcher_callback.emit();
 }
 
 static void player_appeared(PlayerctlPlayerManager* manager, PlayerctlPlayerName* player_name, gpointer user_data) {
@@ -83,12 +125,6 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 	player_vanished(nullptr, nullptr, this);
 }
 
-// Generate image from URL
-size_t write_data(void* ptr, size_t size, size_t nmemb, std::vector<unsigned char>* data) {
-	data->insert(data->end(), static_cast<unsigned char*>(ptr), static_cast<unsigned char*>(ptr) + size * nmemb);
-	return size * nmemb;
-}
-
 void module_mpris::update_info() {
 	std::string status_icon = status ? "player_play" : "player_pause";
 	image_icon.set_from_icon_name(status_icon);
@@ -98,35 +134,10 @@ void module_mpris::update_info() {
 	label_title.set_text(title);
 	label_artist.set_text(artist);
 
-	if (last_album_art_url != album_art_url) {
-		last_album_art_url = album_art_url;
-		if (album_art_url.find("file://") == 0) {
-			album_art_url.erase(0, 7);
-			Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create_from_file(album_art_url);
-			int width = pixbuf->get_width();
-			int height = pixbuf->get_height();
-	
-			int square_size = std::min(width, height);
-			int offset_x = (width - square_size) / 2;
-			int offset_y = (height - square_size) / 2;
-			pixbuf = Gdk::Pixbuf::create_subpixbuf(pixbuf, offset_x, offset_y, square_size, square_size);
-			image_album_art.set(pixbuf);
-		}
-		else if (album_art_url.find("https://") == 0) {
-			CURL* curl = curl_easy_init();
-			std::vector<unsigned char> image_data;
-			curl_easy_setopt(curl, CURLOPT_URL, album_art_url.c_str());
-			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &image_data);
-			(void)curl_easy_perform(curl);
-
-			auto pixbuf_loader = Gdk::PixbufLoader::create();
-			pixbuf_loader->write(image_data.data(), image_data.size());
-			pixbuf_loader->close();
-			image_album_art.set(pixbuf_loader->get_pixbuf());
-			curl_easy_cleanup(curl);
-		}
-	}
+	if (album_pixbuf != nullptr)
+		image_album_art.set(album_pixbuf);
+	else
+		image_album_art.set_from_icon_name("process-working-symbolic");
 
 	// TODO: Playback status can be tracked using a timer by getting..
 	// the "length" property every second if the player is playing

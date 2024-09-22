@@ -51,7 +51,7 @@ ifneq (, $(shell grep -E '^#define MODULE_BACKLIGHT' src/config.hpp))
 endif
 ifneq (, $(shell grep -E '^#define MODULE_MPRIS' src/config.hpp))
 	SRCS += src/modules/mpris.cpp
-	PKGS += playerctl
+	PKGS += playerctl libcurl
 endif
 ifneq (, $(shell grep -E '^#define MODULE_BLUETOOTH' src/config.hpp))
 	SRCS += src/modules/bluetooth.cpp
