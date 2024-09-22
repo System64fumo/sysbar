@@ -27,6 +27,31 @@ static void metadata(PlayerctlPlayer *player, GVariant *metadata, gpointer user_
 	self->dispatcher_callback.emit();
 }
 
+static void player_appeared(PlayerctlPlayerManager* manager, PlayerctlPlayerName* player_name, gpointer user_data) {
+	module_mpris *self = static_cast<module_mpris*>(user_data);
+	self->player = playerctl_player_new_from_name(player_name, nullptr);
+
+	g_object_get(self->player, "playback-status", &self->status, nullptr);
+	g_signal_connect(self->player, "playback-status", G_CALLBACK(playback_status), self);
+	g_signal_connect(self->player, "metadata", G_CALLBACK(metadata), self);
+	metadata(self->player, nullptr, self);
+
+	self->update_info();
+}
+
+static void player_vanished(PlayerctlPlayerManager* manager, PlayerctlPlayerName* player_name, gpointer user_data) {
+	module_mpris *self = static_cast<module_mpris*>(user_data);
+	self->player = nullptr;
+
+	// Itterate over all players
+	GList *players = playerctl_list_players(nullptr);
+	for (auto plr = players; plr != nullptr; plr = plr->next) {
+		auto plr_name = static_cast<PlayerctlPlayerName*>(plr->data);
+		player_appeared(nullptr, plr_name, self);
+		return;
+	}
+}
+
 module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_mpris");
 
@@ -45,26 +70,14 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_mpris::update_info));
 
 	// Setup
-	GList *players = playerctl_list_players(nullptr);
+	auto manager = playerctl_player_manager_new(nullptr);
+	g_object_connect(manager, "signal::name-appeared", G_CALLBACK(player_appeared), this, nullptr);
+	g_object_connect(manager, "signal::name-vanished", G_CALLBACK(player_vanished), this, nullptr);
 
-	// Itterate over all players
-	for (auto plr = players; plr != nullptr; plr = plr->next) {
-		auto plr_name = static_cast<PlayerctlPlayerName*>(plr->data);
-		player = playerctl_player_new_from_name(plr_name, nullptr);
-		break;
-	}
-
-	// TODO: Add code to handle whenever a new player appears
-
-	if (!player)
-		return;
-
-	g_object_get(player, "playback-status", &status, nullptr);
-	g_signal_connect(player, "playback-status", G_CALLBACK(playback_status), this);
-	g_signal_connect(player, "metadata", G_CALLBACK(metadata), this);
-	metadata(player, nullptr, this);
 	setup_widget();
-	update_info();
+
+	// Reuse code to get available players
+	player_vanished(nullptr, nullptr, this);
 }
 
 void module_mpris::update_info() {
