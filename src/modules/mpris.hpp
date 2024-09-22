@@ -21,6 +21,8 @@ class module_mpris : public module {
 		std::string length = "";
 		std::string album_art_url = "";
 
+		void update_info();
+
 	private:
 		Gtk::Box box_player;
 		Gtk::Box box_right;
@@ -35,7 +37,6 @@ class module_mpris : public module {
 		Gtk::Button button_play_pause;
 		Gtk::Button button_next;
 
-		void update_info();
 		void setup_widget();
 };
 
