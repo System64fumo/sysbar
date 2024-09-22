@@ -24,6 +24,8 @@ class module_mpris : public module {
 		void update_info();
 
 	private:
+		std::string last_album_art_url;
+
 		Gtk::Box box_player;
 		Gtk::Box box_right;
 		Gtk::Image image_album_art;
