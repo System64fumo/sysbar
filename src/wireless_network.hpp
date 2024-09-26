@@ -1,4 +1,5 @@
 #pragma once
+#include "config.hpp"
 #ifdef MODULE_NETWORK
 #include <string>
 
