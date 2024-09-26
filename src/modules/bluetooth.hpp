@@ -34,12 +34,14 @@ class module_bluetooth : public module {
 		std::vector<adapter> adapters;
 		std::vector<device> devices;
 		adapter default_adapter;
+		#ifdef MODULE_CONTROLS
 		control* control_bluetooth;
+		void setup_control();
+		#endif
 		void on_properties_changed(
 			const Glib::ustring& sender_name,
 			const Glib::ustring& signal_name,
 			const Glib::VariantContainerBase& parameters);
 		void extract_data(const Glib::VariantBase& variant_base);
 		void update_info(std::string property);
-		void setup_control();
 };

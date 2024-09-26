@@ -126,6 +126,7 @@ sysbar::sysbar(const config_bar &cfg) {
 	load_modules(config_main.m_end, box_end);
 }
 
+#ifdef MODULE_CONTROLS
 void sysbar::setup_controls() {
 	if (config_main.m_start.find("controls") != std::string::npos) {
 		box_controls = Gtk::make_managed<module_controls>(this, false);
@@ -136,6 +137,7 @@ void sysbar::setup_controls() {
 		box_end.append(*box_controls);
 	}
 }
+#endif
 
 void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 	std::istringstream iss(modules);
