@@ -2,6 +2,7 @@
 
 #include <gdkmm/pixbufloader.h>
 #include <curl/curl.h>
+#include <filesystem>
 #include <thread>
 
 static void playback_status(PlayerctlPlayer *player, PlayerctlPlaybackStatus status, gpointer user_data) {
@@ -54,6 +55,8 @@ static void metadata(PlayerctlPlayer *player, GVariant *metadata, gpointer user_
 	if (self->album_art_url.find("file://") == 0) {
 		std::thread([self]() {
 			self->album_art_url.erase(0, 7);
+			if (!std::filesystem::exists(self->album_art_url))
+				return;
 			Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create_from_file(self->album_art_url);
 			int width = pixbuf->get_width();
 			int height = pixbuf->get_height();
