@@ -1,4 +1,5 @@
 #include "wireless_network.hpp"
+#ifdef MODULE_NETWORK
 #include <sstream>
 #include <cmath>
 #include <cstdint>
@@ -126,3 +127,4 @@ wireless_manager::wireless_info* wireless_manager::get_wireless_info(const std::
 
 	return &info;
 }
+#endif

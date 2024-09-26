@@ -1,4 +1,5 @@
 #pragma once
+#ifdef MODULE_NETWORK
 #include <string>
 
 class wireless_manager {
@@ -27,3 +28,4 @@ class wireless_manager {
 		int convert_signal_strength(const int& signal_strength_dbm);
 		static int nl_socket_modify_cb(struct nl_msg *msg, void *arg);
 };
+#endif

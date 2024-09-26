@@ -35,7 +35,9 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 	prop_proxy->signal_signal().connect(
 		sigc::mem_fun(*this, &module_bluetooth::on_properties_changed));
 
+	#ifdef MODULE_CONTROLS
 	setup_control();
+	#endif
 	update_info("PowerState");
 }
 
@@ -140,6 +142,7 @@ void module_bluetooth::update_info(std::string property) {
 	}
 }
 
+#ifdef MODULE_CONTROLS
 void module_bluetooth::setup_control() {
 	if (!win->box_controls)
 		return;
@@ -148,3 +151,4 @@ void module_bluetooth::setup_control() {
 	control_bluetooth = Gtk::make_managed<control>("bluetooth-active-symbolic", false);
 	container->flowbox_controls.append(*control_bluetooth);
 }
+#endif
