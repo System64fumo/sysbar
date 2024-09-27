@@ -314,8 +314,8 @@ void sysbar::setup_overlay() {
 	overlay_window.set_name("sysbar_overlay");
 	gtk_layer_init_for_window(overlay_window.gobj());
 	gtk_layer_set_namespace(overlay_window.gobj(), "sysbar-overlay");
-	gtk_layer_set_layer(overlay_window.gobj(), GTK_LAYER_SHELL_LAYER_TOP);
-	gtk_layer_set_exclusive_zone(overlay_window.gobj(), config_main.size);
+	gtk_layer_set_layer(overlay_window.gobj(), GTK_LAYER_SHELL_LAYER_OVERLAY);
+	gtk_layer_set_keyboard_mode(overlay_window.gobj(), GTK_LAYER_SHELL_KEYBOARD_MODE_NONE);
 	gtk_layer_set_monitor(overlay_window.gobj(), monitor);
 
 	gtk_layer_set_anchor(overlay_window.gobj(), GTK_LAYER_SHELL_EDGE_TOP, true);
