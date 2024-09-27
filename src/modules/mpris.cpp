@@ -55,7 +55,7 @@ static void metadata(PlayerctlPlayer *player, GVariant *metadata, gpointer user_
 	if (self->album_art_url.find("file://") == 0) {
 		std::thread([self]() {
 			self->album_art_url.erase(0, 7);
-			if (!std::filesystem::exists(self->album_art_url))
+			if (self->album_art_url == "" || !std::filesystem::exists(self->album_art_url))
 				return;
 			Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create_from_file(self->album_art_url);
 			int width = pixbuf->get_width();
