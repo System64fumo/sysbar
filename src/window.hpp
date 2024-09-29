@@ -4,6 +4,7 @@
 
 #include <gtkmm/revealer.h>
 #include <gtkmm/centerbox.h>
+#include <gtkmm/gesturedrag.h>
 #include <gtkmm/box.h>
 
 class sysbar : public Gtk::Window {
@@ -26,13 +27,20 @@ class sysbar : public Gtk::Window {
 		Gtk::Box box_center;
 		Gtk::Box box_end;
 
+		Glib::RefPtr<Gtk::GestureDrag> gesture_drag;
 		GdkMonitor *monitor;
+		GdkRectangle monitor_geometry;
 		int width, height;
 
 		void load_modules(const std::string &modules, Gtk::Box &box);
 		void setup_controls();
 		void setup_popovers();
 		void setup_overlay();
+		void setup_gestures();
+
+		void on_drag_start(const double &x, const double &y);
+		void on_drag_update(const double &x, const double &y);
+		void on_drag_stop(const double &x, const double &y);
 };
 
 extern "C" {
