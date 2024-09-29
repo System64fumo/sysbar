@@ -35,6 +35,9 @@ sysbar::sysbar(const config_bar &cfg) {
 
 	monitor = GDK_MONITOR(g_list_model_get_item(monitors, config_main.main_monitor));
 
+	gdk_monitor_get_geometry(monitor, &monitor_geometry);
+
+
 	// Initialize layer shell
 	gtk_layer_init_for_window(gobj());
 	gtk_layer_set_namespace(gobj(), "sysbar");
@@ -114,6 +117,7 @@ sysbar::sysbar(const config_bar &cfg) {
 	// Overlay
 	setup_overlay();
 	setup_popovers();
+	setup_gestures();
 
 	// Setup the controls widget
 	#ifdef MODULE_CONTROLS
@@ -263,21 +267,17 @@ void sysbar::handle_signal(const int &signum) {
 }
 
 void sysbar::setup_popovers() {
-	// TODO: Figure out which box should be shown
 	for (int i = 0; i < 2; i++) {
-		Gtk::Box *box_container;
 		Gtk::Box *box_widget;
 
 		switch (i) {
 			case 0:
-				box_container = &box_start;
 				box_widgets_start = Gtk::make_managed<Gtk::Box>();
 				box_widget = box_widgets_start;
 				box_widgets_start->set_halign(Gtk::Align::START);
 				box_widgets_start->get_style_context()->add_class("box_widgets_start");
 				break;
 			case 1:
-				box_container = &box_end;
 				box_widgets_end = Gtk::make_managed<Gtk::Box>();
 				box_widget = box_widgets_end;
 				box_widgets_end->set_halign(Gtk::Align::END);
@@ -291,21 +291,6 @@ void sysbar::setup_popovers() {
 		box_widget->set_hexpand(true);
 		box_widget->hide();
 
-		Glib::RefPtr<Gtk::GestureClick> click_gesture = Gtk::GestureClick::create();
-		click_gesture->set_button(GDK_BUTTON_PRIMARY);
-		click_gesture->signal_pressed().connect([&, box_widget](const int &n_press, const double &x, const double &y) {
-			overlay_window.show();
-
-			if (box_widget->get_visible())
-				box_widget->hide();
-			else
-				box_widget->show();
-
-			if (!box_widgets_start->get_visible() && !box_widgets_end->get_visible())
-				overlay_window.hide();
-
-		});
-		box_container->add_controller(click_gesture);
 		box_overlay.append(*box_widget);
 	}
 }
@@ -324,6 +309,48 @@ void sysbar::setup_overlay() {
 	gtk_layer_set_anchor(overlay_window.gobj(), GTK_LAYER_SHELL_EDGE_LEFT, true);
 
 	overlay_window.set_child(box_overlay);
+}
+
+void sysbar::setup_gestures() {
+	// Gestures are not supported on vertical layouts yet
+	// TODO: Support vertical layouts eventually
+	if (config_main.position % 2)
+		return;
+
+	gesture_drag = Gtk::GestureDrag::create();
+	gesture_drag->signal_drag_begin().connect(sigc::mem_fun(*this, &sysbar::on_drag_start));
+	gesture_drag->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
+	gesture_drag->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
+	add_controller(gesture_drag);
+}
+
+void sysbar::on_drag_start(const double &x, const double &y) {
+	overlay_window.show();
+	if (x < monitor_geometry.width / 2) {
+		// Left
+		if (box_widgets_start->get_visible())
+			box_widgets_start->hide();
+		else
+			box_widgets_start->show();
+	}
+	else {
+		// Right
+		if (box_widgets_end->get_visible())
+			box_widgets_end->hide();
+		else
+			box_widgets_end->show();
+	}
+
+	if (!box_widgets_start->get_visible() && !box_widgets_end->get_visible())
+		overlay_window.hide();
+}
+
+void sysbar::on_drag_update(const double &x, const double &y) {
+	//std::printf("Gesture update\n");
+}
+
+void sysbar::on_drag_stop(const double &x, const double &y) {
+	//std::printf("Gesture end\n");
 }
 
 extern "C" {
