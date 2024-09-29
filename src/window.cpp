@@ -267,50 +267,69 @@ void sysbar::handle_signal(const int &signum) {
 }
 
 void sysbar::setup_popovers() {
+	int default_size = 300;
 	box_widgets_start = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
 	box_widgets_end = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
+
+	box_widgets_start->get_style_context()->add_class("box_widgets_start");
+	box_widgets_end->get_style_context()->add_class("box_widgets_end");
+
 	scrolled_Window_start = Gtk::make_managed<Gtk::ScrolledWindow>();
 	scrolled_Window_end = Gtk::make_managed<Gtk::ScrolledWindow>();
 
 	scrolled_Window_start->set_child(*box_widgets_start);
 	scrolled_Window_end->set_child(*box_widgets_end);
 
-	scrolled_Window_start->set_visible(false);
-	scrolled_Window_end->set_visible(false);
-
-	if (config_main.position % 2 == 0) {
-		box_widgets_start->set_size_request(300, -1);
-		box_widgets_end->set_size_request(300, -1);
-		box_overlay.set_orientation(Gtk::Orientation::HORIZONTAL);
-		scrolled_Window_start->set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::EXTERNAL);
-		scrolled_Window_end->set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::EXTERNAL);
-	}
-	else {
-		box_widgets_start->set_size_request(-1, 300);
-		box_widgets_end->set_size_request(-1, 300);
-		box_overlay.set_orientation(Gtk::Orientation::VERTICAL);
-		scrolled_Window_start->set_policy(Gtk::PolicyType::EXTERNAL, Gtk::PolicyType::NEVER);
-		scrolled_Window_end->set_policy(Gtk::PolicyType::EXTERNAL, Gtk::PolicyType::NEVER);
-	}
-
-	if (config_main.position == 0 || config_main.position == 2) {
-		scrolled_Window_start->set_valign(config_main.position == 0 ? Gtk::Align::START : Gtk::Align::END);
-		scrolled_Window_end->set_valign(Gtk::Align::END);
-		box_widgets_start->set_valign(scrolled_Window_start->get_valign());
-		box_widgets_end->set_valign(Gtk::Align::END);
-		scrolled_Window_start->set_halign(Gtk::Align::START);
+	if (config_main.position == 0) {
+		scrolled_Window_start->set_valign(Gtk::Align::START);
+		scrolled_Window_end->set_valign(Gtk::Align::START);
+		box_widgets_start->set_valign(Gtk::Align::START);
+		box_widgets_end->set_valign(Gtk::Align::START);
 		scrolled_Window_end->set_halign(Gtk::Align::END);
 	}
-	else {
+	else if (config_main.position == 1) {
+		scrolled_Window_start->set_valign(Gtk::Align::START);
+		scrolled_Window_end->set_valign(Gtk::Align::END);
+		scrolled_Window_start->set_halign(Gtk::Align::END);
+		scrolled_Window_end->set_halign(Gtk::Align::END);
+		box_widgets_start->set_halign(Gtk::Align::END);
+		box_widgets_end->set_halign(Gtk::Align::END);
+	}
+	else if (config_main.position == 2) {
+		scrolled_Window_start->set_valign(Gtk::Align::END);
+		scrolled_Window_end->set_valign(Gtk::Align::END);
+		box_widgets_start->set_valign(Gtk::Align::END);
+		box_widgets_end->set_valign(Gtk::Align::END);
+		scrolled_Window_end->set_halign(Gtk::Align::END);
+	}
+	else if (config_main.position == 3) {
 		scrolled_Window_start->set_valign(Gtk::Align::START);
 		scrolled_Window_end->set_valign(Gtk::Align::END);
 		box_widgets_start->set_valign(Gtk::Align::START);
 		box_widgets_end->set_valign(Gtk::Align::START);
-		scrolled_Window_start->set_halign(config_main.position == 1 ? Gtk::Align::END : Gtk::Align::START);
-		scrolled_Window_end->set_halign(Gtk::Align::END);
-		box_widgets_start->set_halign(scrolled_Window_start->get_halign());
-		box_widgets_end->set_halign(scrolled_Window_start->get_halign());
+		box_widgets_start->set_halign(Gtk::Align::START);
+		box_widgets_end->set_halign(Gtk::Align::START);
 	}
+
+	// Common
+	if (config_main.position % 2) { // Vertical
+		box_widgets_start->set_size_request(-1, default_size);
+		box_widgets_end->set_size_request(-1, default_size);
+		scrolled_Window_start->set_policy(Gtk::PolicyType::EXTERNAL, Gtk::PolicyType::NEVER);
+		scrolled_Window_end->set_policy(Gtk::PolicyType::EXTERNAL, Gtk::PolicyType::NEVER);
+		box_overlay.set_orientation(Gtk::Orientation::VERTICAL);
+	}
+	else { // Horizontal
+		box_widgets_start->set_size_request(default_size, -1);
+		box_widgets_end->set_size_request(default_size, -1);
+		scrolled_Window_start->set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::EXTERNAL);
+		scrolled_Window_end->set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::EXTERNAL);
+		box_overlay.set_orientation(Gtk::Orientation::HORIZONTAL);
+		scrolled_Window_start->set_halign(Gtk::Align::START);
+	}
+
+	scrolled_Window_start->set_visible(false);
+	scrolled_Window_end->set_visible(false);
 
 	box_overlay.append(*scrolled_Window_start);
 	box_overlay.append(*scrolled_Window_end);
@@ -402,12 +421,16 @@ void sysbar::on_drag_stop(const double &x, const double &y) {
 	bool passed_threshold = size > monitor_geometry.height / 5;
 
 	if (passed_threshold || click_show) {
-		is_vertical ? scrolled_Window->set_halign(Gtk::Align::FILL) 
-					: scrolled_Window->set_valign(Gtk::Align::FILL);
+		if (config_main.position % 2)
+			scrolled_Window->set_halign(Gtk::Align::FILL);
+		else
+			scrolled_Window->set_valign(Gtk::Align::FILL);
 	}
 	else {
-		is_vertical ? scrolled_Window->set_halign(align) 
-					: scrolled_Window->set_valign(align);
+		if (config_main.position % 2)
+			scrolled_Window->set_halign(align);
+		else
+			scrolled_Window->set_valign(align);
 		scrolled_Window->hide();
 	}
 
