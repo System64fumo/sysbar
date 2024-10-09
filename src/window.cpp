@@ -279,6 +279,8 @@ void sysbar::setup_popovers() {
 
 	scrolled_Window_start->set_child(*box_widgets_start);
 	scrolled_Window_end->set_child(*box_widgets_end);
+	scrolled_Window_start->set_kinetic_scrolling(false);
+	scrolled_Window_end->set_kinetic_scrolling(false);
 
 	if (config_main.position == 0) {
 		scrolled_Window_start->set_valign(Gtk::Align::START);
@@ -386,12 +388,21 @@ void sysbar::on_drag_start(const double &x, const double &y) {
 		initial_size_end = scrolled_Window_end->get_height();
 	}
 
+	if (initial_size_start != 0 || initial_size_end != 0) {
+		if (config_main.position % 2) {
+			initial_size_start = box_widgets_start->get_allocated_width();
+			initial_size_end = box_widgets_end->get_allocated_width();
+		}
+		else {
+			initial_size_start = box_widgets_start->get_allocated_height();
+			initial_size_end = box_widgets_end->get_allocated_height();
+		}
+	}
+
 	if (sliding_start_widget)
 		scrolled_Window_start->show();
 	else
 		scrolled_Window_end->show();
-
-	on_drag_update(x, y);
 }
 
 void sysbar::on_drag_update(const double &x, const double &y) {
@@ -445,7 +456,7 @@ void sysbar::on_drag_stop(const double &x, const double &y) {
 
 	// Ensure size is not negative
 	size = std::max(0.0, size);
-	bool passed_threshold = size > monitor_geometry.height / 5;
+	bool passed_threshold = size != 0;
 
 	if ((passed_threshold || click_show) && initial_size == 0) {
 		if (config_main.position % 2)
