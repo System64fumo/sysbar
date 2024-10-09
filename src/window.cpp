@@ -351,39 +351,62 @@ void sysbar::setup_overlay() {
 	overlay_window.set_child(box_overlay);
 }
 
+
+// TODO: The whole gesture system needs a rework
+// This is a horrible mess..
 void sysbar::setup_gestures() {
 	gesture_drag = Gtk::GestureDrag::create();
 	gesture_drag->signal_drag_begin().connect(sigc::mem_fun(*this, &sysbar::on_drag_start));
 	gesture_drag->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
 	gesture_drag->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
 	add_controller(gesture_drag);
+
+
+	auto gesture_drag_overlay = Gtk::GestureDrag::create();
+	gesture_drag_overlay->signal_drag_begin().connect(sigc::mem_fun(*this, &sysbar::on_drag_start));
+	gesture_drag_overlay->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
+	gesture_drag_overlay->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
+	overlay_window.add_controller(gesture_drag_overlay);
 }
 
 void sysbar::on_drag_start(const double &x, const double &y) {
 	overlay_window.show();
-	if (config_main.position % 2)
+
+	scrolled_Window_start->set_valign(Gtk::Align::START);
+	scrolled_Window_end->set_valign(Gtk::Align::START);
+
+	if (config_main.position % 2) {
 		sliding_start_widget = y < monitor_geometry.height / 2;
-	else
+		initial_size_start = scrolled_Window_start->get_width();
+		initial_size_end = scrolled_Window_end->get_width();
+	}
+	else {
 		sliding_start_widget = x < monitor_geometry.width / 2;
+		initial_size_start = scrolled_Window_start->get_height();
+		initial_size_end = scrolled_Window_end->get_height();
+	}
 
 	if (sliding_start_widget)
 		scrolled_Window_start->show();
 	else
 		scrolled_Window_end->show();
+
+	on_drag_update(x, y);
 }
 
 void sysbar::on_drag_update(const double &x, const double &y) {
 	double width = -1;
 	double height = -1;
+	double initial_size = sliding_start_widget ? initial_size_start : initial_size_end;
 
 	if (config_main.position == 0)
-		height = std::max(0.0, y);
+		height = std::max(0.0, y + initial_size);
 	else if (config_main.position == 1)
-		width = std::max(0.0, -x);
+		width = std::max(0.0, -x + initial_size);
 	else if (config_main.position == 2)
-		height = std::max(0.0, -y);
+		height = std::max(0.0, -y + initial_size);
 	else if (config_main.position == 3)
-		width = std::max(0.0, x);
+		width = std::max(0.0, x + initial_size);
 
 	if (sliding_start_widget)
 		scrolled_Window_start->set_size_request(width, height);
@@ -391,8 +414,12 @@ void sysbar::on_drag_update(const double &x, const double &y) {
 		scrolled_Window_end->set_size_request(width, height);
 }
 
+// Like can you actually even read and understand what any of this does?
+// No.
+// TODO: Clean this section up in particular
 void sysbar::on_drag_stop(const double &x, const double &y) {
 	double size = 0;
+	double initial_size = sliding_start_widget ? initial_size_start : initial_size_end;
 	Gtk::Align align = Gtk::Align::START;
 
 	if (config_main.position == 0) {
@@ -420,7 +447,7 @@ void sysbar::on_drag_stop(const double &x, const double &y) {
 	size = std::max(0.0, size);
 	bool passed_threshold = size > monitor_geometry.height / 5;
 
-	if (passed_threshold || click_show) {
+	if ((passed_threshold || click_show) && initial_size == 0) {
 		if (config_main.position % 2)
 			scrolled_Window->set_halign(Gtk::Align::FILL);
 		else

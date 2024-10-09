@@ -33,6 +33,7 @@ class sysbar : public Gtk::Window {
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag;
 		GdkMonitor *monitor;
 		GdkRectangle monitor_geometry;
+		double initial_size_start, initial_size_end;
 		int width, height;
 		bool sliding_start_widget;
 
