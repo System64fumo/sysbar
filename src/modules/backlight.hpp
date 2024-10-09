@@ -19,8 +19,10 @@ class module_backlight : public module {
 		int inotify_fd;
 		std::string backlight_path;
 		std::mutex brightness_mutex;
+		std::map<int, std::string> volume_brightness;
 
 		Gtk::Scale scale_backlight;
+		Gtk::Image image_widget_icon;
 		Glib::Dispatcher dispatcher_callback;
 
 		void update_info();
