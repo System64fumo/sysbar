@@ -8,6 +8,9 @@
 module_backlight::module_backlight(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_backlight");
 	image_icon.set_from_icon_name("brightness-display-symbolic");
+	volume_brightness[0] = "display-brightness-low-symbolic";
+	volume_brightness[1] = "display-brightness-medium-symbolic";
+	volume_brightness[2] = "display-brightness-high-symbolic";
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
@@ -59,6 +62,7 @@ module_backlight::module_backlight(sysbar *window, const bool &icon_on_start) : 
 
 void module_backlight::update_info() {
 	label_info.set_text(std::to_string(brightness));
+	image_widget_icon.set_from_icon_name(volume_brightness[brightness / 35]);
 	// TODO: Prevent this from changing if currently being dragged
 	//scale_backlight.set_value(brightness);
 }
@@ -70,16 +74,25 @@ void module_backlight::on_scale_brightness_change() {
 
 	std::ofstream backlight_file(backlight_path + "/brightness", std::ios::trunc);
 	backlight_file << scale_val;
+	image_widget_icon.set_from_icon_name(volume_brightness[scale_val / 35]);
 }
 
 void module_backlight::setup_widget() {
 	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
+	Gtk::Box *box_widget = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL);
+
+	box_widget->get_style_context()->add_class("widget_backlight");
+	image_widget_icon.set_from_icon_name("brightness-display-symbolic");
+	image_widget_icon.set_pixel_size(24);
+
 	scale_backlight.set_hexpand(true);
 	scale_backlight.set_value(brightness_literal);
 
 	scale_backlight.signal_value_changed().connect(sigc::mem_fun(*this, &module_backlight::on_scale_brightness_change));
 
-	container->append(scale_backlight);
+	box_widget->append(image_widget_icon);
+	box_widget->append(scale_backlight);
+	container->append(*box_widget);
 }
 
 void module_backlight::get_backlight_path(std::string custom_backlight_path) {
