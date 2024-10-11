@@ -57,7 +57,7 @@ static void metadata(PlayerctlPlayer *player, GVariant *metadata, gpointer user_
 		if (self->album_art_url == "" || !std::filesystem::exists(self->album_art_url))
 			return;
 
-		std::thread([self]() {
+		try {
 			Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create_from_file(self->album_art_url);
 			int width = pixbuf->get_width();
 			int height = pixbuf->get_height();
@@ -67,7 +67,10 @@ static void metadata(PlayerctlPlayer *player, GVariant *metadata, gpointer user_
 			int offset_y = (height - square_size) / 2;
 			self->album_pixbuf = Gdk::Pixbuf::create_subpixbuf(pixbuf, offset_x, offset_y, square_size, square_size);
 			self->dispatcher_callback.emit();
-		}).detach();
+		}
+		catch (...) {
+			return;
+		}
 	}
 	else if (self->album_art_url.find("https://") == 0) {
 		CURL* curl = curl_easy_init();
