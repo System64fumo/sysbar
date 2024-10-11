@@ -431,34 +431,36 @@ void sysbar::on_drag_update(const double &x, const double &y) {
 void sysbar::on_drag_stop(const double &x, const double &y) {
 	double size = 0;
 	double initial_size = sliding_start_widget ? initial_size_start : initial_size_end;
+	double size_threshold = sliding_start_widget ? box_widgets_start->get_allocated_height() : box_widgets_end->get_allocated_height();;
 	Gtk::Align align = Gtk::Align::START;
 
 	if (config_main.position == 0) {
-		size = y;
+		size = std::max(0.0, y + initial_size);
 	}
 	else if (config_main.position == 1) {
-		size = -x;
+		size = std::max(0.0, -x + initial_size);
 		align = Gtk::Align::END;
 	}
 	else if (config_main.position == 2) {
-		size = -y;
+		size = std::max(0.0, -y + initial_size);
 		align = Gtk::Align::END;
 	}
 	else if (config_main.position == 3) {
-		size = x;
+		size = std::max(0.0, x + initial_size);
 	}
 
 	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? scrolled_Window_start : scrolled_Window_end;
-	bool is_vertical = config_main.position % 2;
+	// TODO: Re implement this but also disable dragging via mouse input
+	/*bool is_vertical = config_main.position % 2;
 	bool click_show = (is_vertical ? x == 0 : y == 0) && 
 					(is_vertical ? scrolled_Window->get_halign() != Gtk::Align::FILL 
-								: scrolled_Window->get_valign() != Gtk::Align::FILL);
+								: scrolled_Window->get_valign() != Gtk::Align::FILL);*/
 
 	// Ensure size is not negative
 	size = std::max(0.0, size);
-	bool passed_threshold = size != 0;
+	bool passed_threshold = size > (size_threshold * 0.75);
 
-	if ((passed_threshold || click_show) && initial_size == 0) {
+	if (passed_threshold) {
 		if (config_main.position % 2)
 			scrolled_Window->set_halign(Gtk::Align::FILL);
 		else
