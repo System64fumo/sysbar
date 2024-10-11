@@ -74,10 +74,12 @@ void module_bluetooth::extract_data(const Glib::VariantBase& variant_base) {
 	auto data_map = variant.get();
 
 	for (const auto& [object_path, interface_map] : data_map) {
-		std::printf("Object Path: %s\n", object_path.c_str());
+		if (config_main.verbose)
+			std::printf("Object Path: %s\n", object_path.c_str());
 
 		for (const auto& [interface_name, property_map] : interface_map) {
-			std::printf("  Interface: %s\n", interface_name.c_str());
+			if (config_main.verbose)
+				std::printf("  Interface: %s\n", interface_name.c_str());
 
 			if (interface_name.find("org.bluez.Adapter") == 0) {
 				adapter adp;
@@ -121,9 +123,10 @@ void module_bluetooth::extract_data(const Glib::VariantBase& variant_base) {
 				devices.push_back(dev);
 			}
 
-			for (const auto& [property_name, value] : property_map) {
-				std::printf("    Property: %s = %s\n", property_name.c_str(), value.print().c_str());
-			}
+			if (config_main.verbose)
+				for (const auto& [property_name, value] : property_map) {
+					std::printf("    Property: %s = %s\n", property_name.c_str(), value.print().c_str());
+				}
 		}
 	}
 }
@@ -137,8 +140,11 @@ void module_bluetooth::update_info(std::string property) {
 			icon = "bluetooth-disabled-symbolic";
 
 		image_icon.set_from_icon_name(icon);
-		if (win->box_controls)
-			control_bluetooth->button_action.set_icon_name(icon);
+
+		if (!win->box_controls)
+			return;
+
+		control_bluetooth->button_action.set_icon_name(icon);
 	}
 }
 

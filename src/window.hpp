@@ -39,8 +39,8 @@ class sysbar : public Gtk::Window {
 
 		void load_modules(const std::string &modules, Gtk::Box &box);
 		void setup_controls();
-		void setup_popovers();
 		void setup_overlay();
+		void setup_overlay_widgets();
 		void setup_gestures();
 
 		void on_drag_start(const double &x, const double &y);
