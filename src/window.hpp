@@ -31,6 +31,7 @@ class sysbar : public Gtk::Window {
 		Gtk::ScrolledWindow *scrolled_Window_start;
 		Gtk::ScrolledWindow *scrolled_Window_end;
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag;
+		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_overlay;
 		GdkMonitor *monitor;
 		GdkRectangle monitor_geometry;
 		double initial_size_start, initial_size_end;
