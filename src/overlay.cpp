@@ -93,14 +93,24 @@ void sysbar::setup_overlay_widgets() {
 // This is a horrible mess..
 void sysbar::setup_gestures() {
 	gesture_drag = Gtk::GestureDrag::create();
-	gesture_drag->signal_drag_begin().connect(sigc::mem_fun(*this, &sysbar::on_drag_start));
+	gesture_drag->signal_drag_begin().connect([&](const double &x, const double &y) {
+		on_drag_start(x, y);
+
+		if (!gesture_drag->get_current_event()->get_pointer_emulated())
+			gesture_drag->reset();
+	});
 	gesture_drag->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
 	gesture_drag->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
 	add_controller(gesture_drag);
 
-
-	auto gesture_drag_overlay = Gtk::GestureDrag::create();
-	gesture_drag_overlay->signal_drag_begin().connect(sigc::mem_fun(*this, &sysbar::on_drag_start));
+	gesture_drag_overlay = Gtk::GestureDrag::create();
+	gesture_drag_overlay->signal_drag_begin().connect([&](const double &x, const double &y) {
+		if (!gesture_drag_overlay->get_current_event()->get_pointer_emulated()) {
+			gesture_drag_overlay->reset();
+			return;
+		}
+		on_drag_start(x, y);
+	});
 	gesture_drag_overlay->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
 	gesture_drag_overlay->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
 	overlay_window.add_controller(gesture_drag_overlay);
@@ -185,17 +195,12 @@ void sysbar::on_drag_stop(const double &x, const double &y) {
 	}
 
 	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? scrolled_Window_start : scrolled_Window_end;
-	// TODO: Re implement this but also disable dragging via mouse input
-	/*bool is_vertical = config_main.position % 2;
-	bool click_show = (is_vertical ? x == 0 : y == 0) && 
-					(is_vertical ? scrolled_Window->get_halign() != Gtk::Align::FILL 
-								: scrolled_Window->get_valign() != Gtk::Align::FILL);*/
 
 	// Ensure size is not negative
 	size = std::max(0.0, size);
 	bool passed_threshold = size > (size_threshold * 0.75);
 
-	if (passed_threshold) {
+	if ((passed_threshold && size != size_threshold) || size == 0) {
 		if (config_main.position % 2)
 			scrolled_Window->set_halign(Gtk::Align::FILL);
 		else
