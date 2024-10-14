@@ -107,9 +107,42 @@ void module_cellular::extract_data(const Glib::VariantBase& variant_base) {
 						signal = std::stoi(signal_str);
 						update_info();
 					}
+					else if (property_name == "AccessTechnologies") {
+						// TODO: Set network module icon using this
+						std::string icon = tech_to_icon(std::stoi(value.print()));
+					}
 					//std::printf("    Property: %s = %s\n", property_name.c_str(), value.print().c_str());
 				}
 			}
 		}
 	}
+}
+
+std::string module_cellular::tech_to_icon(const int& tech) {
+	// 2G
+	bool GSM = tech & MM_MODEM_ACCESS_TECHNOLOGY_GSM;
+	bool GPRS = tech & MM_MODEM_ACCESS_TECHNOLOGY_GPRS;
+	bool EDGE = tech & MM_MODEM_ACCESS_TECHNOLOGY_EDGE;
+
+	// 3G
+	bool UMTS = tech & MM_MODEM_ACCESS_TECHNOLOGY_UMTS;
+	bool HSPA = tech & MM_MODEM_ACCESS_TECHNOLOGY_HSPA;
+
+	// 4G
+	bool LTE = tech & MM_MODEM_ACCESS_TECHNOLOGY_LTE;
+
+	// 5G
+	bool NR = tech & MM_MODEM_ACCESS_TECHNOLOGY_5GNR;
+
+	// For now the specifics are irrelevant
+	if (GSM || GPRS || EDGE) // 2G
+		return "network-cellular-2g-symbolic";
+	else if (UMTS || HSPA) // 3G
+		return "network-cellular-3g-symbolic";
+	else if (LTE) // 4G
+		return "network-cellular-4g-symbolic";
+	else if (NR) // 5G
+		return "network-cellular-5g-symbolic";
+
+	return "network-cellular-gprs-symbolic"; // Fallback
 }
