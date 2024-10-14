@@ -23,6 +23,21 @@ module_cellular::module_cellular(sysbar *window, const bool &icon_on_start) : mo
 }
 
 void module_cellular::setup() {
+	// Fetch initial data
+	auto om_proxy = Gio::DBus::Proxy::create_sync(
+		Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM),
+		"org.freedesktop.ModemManager1",
+		"/org/freedesktop/ModemManager1",
+		"org.freedesktop.DBus.ObjectManager");
+
+	std::vector<Glib::VariantBase> args_vector;
+	auto args = Glib::VariantContainerBase::create_tuple(args_vector);
+	auto result = om_proxy->call_sync("GetManagedObjects", args);
+	auto result_cb = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(result);
+	auto result_base = result_cb.get_child(0);
+	extract_data(result_base);
+
+	// Monitor changes
 	proxy = Gio::DBus::Proxy::create_sync(
 		Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM),
 		"org.freedesktop.ModemManager1",
@@ -31,8 +46,6 @@ void module_cellular::setup() {
 
 	proxy->signal_signal().connect(
 		sigc::mem_fun(*this, &module_cellular::on_properties_changed));
-
-	// TODO: Add a manual trigger
 }
 
 void module_cellular::on_properties_changed(
@@ -50,22 +63,53 @@ void module_cellular::on_properties_changed(
 	for (const auto& [key, value] : map_hints) {
 		if (key == "SignalQuality") {
 			auto tuple = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(value);
-			uint32_t signal = Glib::VariantBase::cast_dynamic<Glib::Variant<uint32_t>>(tuple.get_child(0)).get();
+			signal = Glib::VariantBase::cast_dynamic<Glib::Variant<uint32_t>>(tuple.get_child(0)).get();
 			//uint32_t boolean = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(tuple.get_child(1)).get();
-			label_info.set_text(std::to_string(signal));
+			update_info();
+		}
+	}
+}
 
-			std::string icon;
-			if (signal > 80)
-				icon = "network-cellular-signal-excellent-symbolic";
-			else if (signal > 60)
-				icon = "network-cellular-signal-good-symbolic";
-			else if (signal > 40)
-				icon = "network-cellular-signal-ok-symbolic";
-			else if (signal > 20)
-				icon = "network-cellular-signal-weak-symbolic";
-			else
-				icon = "network-cellular-signal-none-symbolic";
-			image_icon.set_from_icon_name(icon);
+void module_cellular::update_info() {
+	label_info.set_text(std::to_string(signal));
+	std::string icon;
+	if (signal > 80)
+		icon = "network-cellular-signal-excellent-symbolic";
+	else if (signal > 60)
+		icon = "network-cellular-signal-good-symbolic";
+	else if (signal > 40)
+		icon = "network-cellular-signal-ok-symbolic";
+	else if (signal > 20)
+		icon = "network-cellular-signal-weak-symbolic";
+	else
+		icon = "network-cellular-signal-none-symbolic";
+	image_icon.set_from_icon_name(icon);
+}
+
+void module_cellular::extract_data(const Glib::VariantBase& variant_base) {
+	auto variant = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::DBusObjectPathString, std::map<Glib::ustring, std::map<Glib::ustring, Glib::VariantBase>>>>>(variant_base);
+	auto data_map = variant.get();
+
+	for (const auto& [object_path, interface_map] : data_map) {
+		//std::printf("Object Path: %s\n", object_path.c_str());
+
+		for (const auto& [interface_name, property_map] : interface_map) {
+			//std::printf("  Interface: %s\n", interface_name.c_str());
+
+			if (interface_name == "org.freedesktop.ModemManager1.Modem") {
+				for (const auto& [property_name, value] : property_map) {
+					if (property_name == "SignalQuality") {
+						std::string signal_str;
+						for (char ch : value.print()) {
+							if (isdigit(ch))
+								signal_str += ch;
+						}
+						signal = std::stoi(signal_str);
+						update_info();
+					}
+					//std::printf("    Property: %s = %s\n", property_name.c_str(), value.print().c_str());
+				}
+			}
 		}
 	}
 }
