@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 #include <thread>
 #include <filesystem>
+#include <fstream>
 
 module_network::module_network(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_network");
@@ -91,6 +92,8 @@ void module_network::update_info() {
 
 		image_icon.set_from_icon_name(icon);
 	}
+	else if (default_if->type == "Cellular")
+		image_icon.set_from_icon_name("network-cellular-connected-symbolic");
 }
 
 bool module_network::setup_netlink() {
@@ -156,13 +159,19 @@ void module_network::process_message(struct nlmsghdr *nlh) {
 		// Get interface type
 		if (if_indextoname(ifa->ifa_index, if_name) != nullptr) {
 			std::string interface_path = "/sys/class/net/";
-			interface_path.append(if_name);
-			interface_path.append("/wireless");
-			bool wireless = std::filesystem::exists(interface_path);
+			std::ifstream file(interface_path + if_name + "/type");
+			bool wireless = std::filesystem::exists(interface_path + if_name + "/wireless");
+			std::ostringstream type_buffer;
+			type_buffer << file.rdbuf();
+			std::string type = type_buffer.str();
+			type.pop_back();
 
 			// TODO: Add more types
-			if (wireless)
+			// Hotspot and VPN types are left
+			if (wireless && (type == "1"))
 				if_type = "Wireless";
+			else if (type == "519")
+				if_type = "Cellular";
 			else
 				if_type = "Ethernet";
 		}
