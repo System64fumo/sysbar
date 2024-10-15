@@ -132,9 +132,10 @@ void sysbar::setup_overlay_widgets() {
 void sysbar::setup_gestures() {
 	gesture_drag = Gtk::GestureDrag::create();
 	gesture_drag->signal_drag_begin().connect([&](const double &x, const double &y) {
+		gesture_touch = gesture_drag->get_current_event()->get_pointer_emulated();
 		on_drag_start(x, y);
 
-		if (!gesture_drag->get_current_event()->get_pointer_emulated())
+		if (!gesture_touch)
 			gesture_drag->reset();
 	});
 	gesture_drag->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
@@ -143,7 +144,8 @@ void sysbar::setup_gestures() {
 
 	gesture_drag_overlay = Gtk::GestureDrag::create();
 	gesture_drag_overlay->signal_drag_begin().connect([&](const double &x, const double &y) {
-		if (!gesture_drag_overlay->get_current_event()->get_pointer_emulated()) {
+		gesture_touch = gesture_drag_overlay->get_current_event()->get_pointer_emulated();
+		if (!gesture_touch) {
 			gesture_drag_overlay->reset();
 			return;
 		}
@@ -182,10 +184,14 @@ void sysbar::on_drag_start(const double &x, const double &y) {
 		}
 	}
 
-	if (sliding_start_widget)
+	if (sliding_start_widget) {
 		scrolled_Window_start->show();
-	else
+		scrolled_Window_end->hide();
+	}
+	else {
+		scrolled_Window_start->hide();
 		scrolled_Window_end->show();
+	}
 }
 
 void sysbar::on_drag_update(const double &x, const double &y) {
@@ -238,7 +244,7 @@ void sysbar::on_drag_stop(const double &x, const double &y) {
 	size = std::max(0.0, size);
 	bool passed_threshold = size > (size_threshold * 0.75);
 
-	if ((passed_threshold && size != size_threshold) || size == 0) {
+	if ((passed_threshold && size != size_threshold) || (size == 0 && !gesture_touch)) {
 		if (config_main.position % 2)
 			scrolled_Window->set_halign(Gtk::Align::FILL);
 		else
