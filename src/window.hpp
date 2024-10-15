@@ -1,4 +1,5 @@
 #pragma once
+#include "config_parser.hpp"
 #include "config.hpp"
 #include "css.hpp"
 
@@ -21,6 +22,10 @@ class sysbar : public Gtk::Window {
 		Gtk::Box *box_controls = nullptr;
 
 	private:
+		#ifdef CONFIG_FILE
+		config_parser *config;
+		#endif
+
 		Gtk::Revealer revealer_box;
 		Gtk::CenterBox centerbox_main;
 		Gtk::Box box_overlay;

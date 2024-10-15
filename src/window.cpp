@@ -22,6 +22,11 @@
 sysbar::sysbar(const config_bar &cfg) {
 	config_main = cfg;
 
+	// Read config
+	#ifdef CONFIG_FILE
+	config = new config_parser(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
+	#endif
+
 	// Get main monitor
 	GdkDisplay *display = gdk_display_get_default();
 	GListModel *monitors = gdk_display_get_monitors(display);
