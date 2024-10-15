@@ -42,6 +42,7 @@ class sysbar : public Gtk::Window {
 		double initial_size_start, initial_size_end;
 		int width, height;
 		bool sliding_start_widget;
+		bool gesture_touch;
 
 		void load_modules(const std::string &modules, Gtk::Box &box);
 		void setup_controls();
