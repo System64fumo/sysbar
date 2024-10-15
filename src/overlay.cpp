@@ -2,6 +2,12 @@
 
 #include <gtk4-layer-shell.h>
 
+/*
+	Just as a heads up to whomever decides to work on this.
+	You are about to see some horrible & nonsensical code.
+	YOU HAVE BEEN WARNED!!
+*/
+
 void sysbar::setup_overlay() {
 	overlay_window.set_name("sysbar_overlay");
 	gtk_layer_init_for_window(overlay_window.gobj());
@@ -38,13 +44,11 @@ void sysbar::setup_overlay_widgets() {
 
 	box_widgets_start = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
 	box_widgets_end = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
-
 	box_widgets_start->get_style_context()->add_class("box_widgets_start");
 	box_widgets_end->get_style_context()->add_class("box_widgets_end");
 
 	scrolled_Window_start = Gtk::make_managed<Gtk::ScrolledWindow>();
 	scrolled_Window_end = Gtk::make_managed<Gtk::ScrolledWindow>();
-
 	scrolled_Window_start->set_child(*box_widgets_start);
 	scrolled_Window_end->set_child(*box_widgets_end);
 	scrolled_Window_start->set_kinetic_scrolling(false);
@@ -81,7 +85,8 @@ void sysbar::setup_overlay_widgets() {
 	}
 
 	// Common
-	if (config_main.position % 2) { // Vertical
+	bool vertical_layout = config_main.position % 2;
+	if (vertical_layout) { // Vertical
 		if (size / 2 > default_size_start) {
 			box_widgets_start->set_size_request(-1, default_size_start);
 			scrolled_Window_start->set_halign(Gtk::Align::START);
@@ -96,8 +101,6 @@ void sysbar::setup_overlay_widgets() {
 		else
 			scrolled_Window_end->set_hexpand(true);
 
-		scrolled_Window_start->set_policy(Gtk::PolicyType::EXTERNAL, Gtk::PolicyType::NEVER);
-		scrolled_Window_end->set_policy(Gtk::PolicyType::EXTERNAL, Gtk::PolicyType::NEVER);
 		box_overlay.set_orientation(Gtk::Orientation::VERTICAL);
 	}
 	else { // Horizontal
@@ -115,10 +118,15 @@ void sysbar::setup_overlay_widgets() {
 		else
 			scrolled_Window_end->set_hexpand(true);
 
-		scrolled_Window_start->set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::EXTERNAL);
-		scrolled_Window_end->set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::EXTERNAL);
 		box_overlay.set_orientation(Gtk::Orientation::HORIZONTAL);
 	}
+
+	scrolled_Window_start->set_policy(
+		vertical_layout ? Gtk::PolicyType::EXTERNAL : Gtk::PolicyType::NEVER,
+		!vertical_layout ? Gtk::PolicyType::EXTERNAL : Gtk::PolicyType::NEVER);
+	scrolled_Window_end->set_policy(
+		vertical_layout ? Gtk::PolicyType::EXTERNAL : Gtk::PolicyType::NEVER,
+		!vertical_layout ? Gtk::PolicyType::EXTERNAL : Gtk::PolicyType::NEVER);
 
 	scrolled_Window_start->set_visible(false);
 	scrolled_Window_end->set_visible(false);
@@ -149,7 +157,9 @@ void sysbar::setup_gestures() {
 			gesture_drag_overlay->reset();
 			return;
 		}
+
 		on_drag_start(x, y);
+		on_drag_update(0, 0);
 	});
 	gesture_drag_overlay->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
 	gesture_drag_overlay->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
@@ -184,20 +194,15 @@ void sysbar::on_drag_start(const double &x, const double &y) {
 		}
 	}
 
-	if (sliding_start_widget) {
-		scrolled_Window_start->show();
-		scrolled_Window_end->hide();
-	}
-	else {
-		scrolled_Window_start->hide();
-		scrolled_Window_end->show();
-	}
+	scrolled_Window_start->set_visible(sliding_start_widget);
+	scrolled_Window_end->set_visible(!sliding_start_widget);
 }
 
 void sysbar::on_drag_update(const double &x, const double &y) {
 	double width = -1;
 	double height = -1;
 	double initial_size = sliding_start_widget ? initial_size_start : initial_size_end;
+	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? scrolled_Window_start : scrolled_Window_end;
 
 	if (config_main.position == 0)
 		height = std::max(0.0, y + initial_size);
@@ -208,10 +213,7 @@ void sysbar::on_drag_update(const double &x, const double &y) {
 	else if (config_main.position == 3)
 		width = std::max(0.0, x + initial_size);
 
-	if (sliding_start_widget)
-		scrolled_Window_start->set_size_request(width, height);
-	else
-		scrolled_Window_end->set_size_request(width, height);
+	scrolled_Window->set_size_request(width, height);
 }
 
 // Like can you actually even read and understand what any of this does?
@@ -221,10 +223,12 @@ void sysbar::on_drag_stop(const double &x, const double &y) {
 	double size = 0;
 	double initial_size = sliding_start_widget ? initial_size_start : initial_size_end;
 	double size_threshold = sliding_start_widget ? box_widgets_start->get_allocated_height() : box_widgets_end->get_allocated_height();;
+	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? scrolled_Window_start : scrolled_Window_end;
 	Gtk::Align align = Gtk::Align::START;
 
 	if (config_main.position == 0) {
 		size = std::max(0.0, y + initial_size);
+		align = Gtk::Align::FILL;
 	}
 	else if (config_main.position == 1) {
 		size = std::max(0.0, -x + initial_size);
@@ -236,27 +240,20 @@ void sysbar::on_drag_stop(const double &x, const double &y) {
 	}
 	else if (config_main.position == 3) {
 		size = std::max(0.0, x + initial_size);
+		align = Gtk::Align::FILL;
 	}
-
-	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? scrolled_Window_start : scrolled_Window_end;
 
 	// Ensure size is not negative
 	size = std::max(0.0, size);
 	bool passed_threshold = size > (size_threshold * 0.75);
 
-	if ((passed_threshold && size != size_threshold) || (size == 0 && !gesture_touch)) {
-		if (config_main.position % 2)
-			scrolled_Window->set_halign(Gtk::Align::FILL);
-		else
-			scrolled_Window->set_valign(Gtk::Align::FILL);
-	}
-	else {
-		if (config_main.position % 2)
-			scrolled_Window->set_halign(align);
-		else
-			scrolled_Window->set_valign(align);
+	if (!((passed_threshold && gesture_touch) || (size == 0 && !gesture_touch)))
 		scrolled_Window->hide();
-	}
+
+	if (config_main.position % 2)
+		scrolled_Window->set_halign(align);
+	else
+		scrolled_Window->set_valign(align);
 
 	scrolled_Window->set_size_request(-1, -1);
 
