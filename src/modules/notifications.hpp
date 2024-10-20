@@ -5,17 +5,18 @@
 #include <giomm/dbusconnection.h>
 #include <gtkmm/button.h>
 #include <gtkmm/popover.h>
+#include <gtkmm/flowbox.h>
 
 class notification : public Gtk::Button {
 	public:
-		notification(std::vector<notification*> notifications, Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters, const std::string);
+		notification(std::vector<notification*> notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters, const std::string);
 		guint32 notif_id;
+		guint32 replaces_id;
 
 	private:
 		Gtk::Box box_main;
 
 		Glib::ustring app_name;
-		guint32 replaces_id;
 		Glib::ustring app_icon;
 		Glib::ustring summary;
 		Glib::ustring body;
@@ -34,7 +35,9 @@ class module_notifications : public module {
 		std::string command;
 		Gtk::Box *box_notifications;
 		Gtk::Popover popover_alert;
-		Gtk::Box box_alert;
+		Gtk::FlowBox flowbox_alert;
+		Gtk::ScrolledWindow scrolledwindow_alert;
+		sigc::connection timeout_connection;
 
 		guint object_id;
 		Glib::RefPtr<Gio::DBus::Connection> daemon_connection;

@@ -70,11 +70,15 @@ void module_notifications::setup_widget() {
 	container->append(*box_notifications);
 
 	// TODO: Support other orientations
+	popover_alert.get_style_context()->add_class("popover_notifications");
 	popover_alert.set_parent(*win);
-	popover_alert.set_child(box_alert);
+	popover_alert.set_child(scrolledwindow_alert);
 	popover_alert.set_autohide(false);
-	box_alert.set_orientation(Gtk::Orientation::VERTICAL);
-	box_alert.set_size_request(200, 0);
+	popover_alert.set_has_arrow(false);
+	scrolledwindow_alert.set_size_request(300, -1);
+	scrolledwindow_alert.set_child(flowbox_alert);
+	scrolledwindow_alert.set_propagate_natural_height(true);
+	flowbox_alert.set_max_children_per_line(1);
 }
 
 void module_notifications::setup_daemon() {
@@ -109,23 +113,61 @@ void module_notifications::on_interface_method_call(
 			invocation->return_value(info);
 	}
 	else if (method_name == "Notify") {
-		// TODO: This is terrible.
-		notification *notif = Gtk::make_managed<notification>(notifications, box_notifications, sender, parameters, command);
+		// TODO: This is worse
+		notification *notif = Gtk::make_managed<notification>(notifications, sender, parameters, command);
+		notification *notif_alert = Gtk::make_managed<notification>(notifications, sender, parameters, "");
+
+		// Pretty sure a memory leak happens here
+		// TODO: Fix said memory leak
+		if (notif->replaces_id != 0) {
+			for (auto n : notifications) {
+				if (n->notif_id == notif->replaces_id) {
+					// TODO: Alert notifications don't get replaced yet
+					box_notifications->remove(*n);
+					notif->notif_id = notif->replaces_id;
+				}
+			}
+		}
+
 		auto id_var = Glib::VariantContainerBase::create_tuple(
 			Glib::Variant<guint32>::create(notif->notif_id));
 
 		notif->signal_clicked().connect([&, notif]() {
 			box_notifications->remove(*notif);
-			delete &notif;
 		});
+
+		notif_alert->signal_clicked().connect([&, notif_alert]() {
+			for (auto n : notifications) {
+				if (n->notif_id == notif_alert->notif_id)
+					box_notifications->remove(*n);
+			}
+
+			flowbox_alert.remove(*notif_alert);
+
+			if (flowbox_alert.get_children().size() == 0)
+				popover_alert.popdown();
+		});
+
+		box_notifications->prepend(*notif);
+		flowbox_alert.prepend(*notif_alert);
+
+		Glib::signal_timeout().connect([&, notif_alert]() {
+			flowbox_alert.remove(*notif_alert);
+			return false;
+		}, 5000);
 
 		invocation->return_value(id_var);
 		notifications.push_back(notif);
-		//popover_alert.popup();
+		popover_alert.popup();
+		timeout_connection.disconnect();
+		timeout_connection = Glib::signal_timeout().connect([&]() {
+			popover_alert.popdown();
+			return false;
+		}, 5000);
 	}
 }
 
-notification::notification(std::vector<notification*> notifications, Gtk::Box *box_notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters, const std::string command) {
+notification::notification(std::vector<notification*> notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters, const std::string command) {
 	get_style_context()->add_class("notification");
 	if (!parameters.is_of_type(Glib::VariantType("(susssasa{sv}i)")))
 		return;
@@ -139,18 +181,6 @@ notification::notification(std::vector<notification*> notifications, Gtk::Box *b
 	iter.next_value(child);
 	replaces_id = Glib::VariantBase::cast_dynamic<Glib::Variant<guint32>>(child).get();
 	notif_id = notifications.size() + 1;
-
-	// Pretty sure a memory leak happens here
-	// TODO: Fix said memory leak
-	if (replaces_id != 0) {
-		for (auto notif : notifications) {
-			if (notif->notif_id == replaces_id) {
-				// GTK My dear friend.. Why do you complain?
-				box_notifications->remove(*notif);
-				notif_id = replaces_id;
-			}
-		}
-	}
 
 	iter.next_value(child);
 	app_icon = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(child).get();
@@ -225,7 +255,6 @@ notification::notification(std::vector<notification*> notifications, Gtk::Box *b
 	set_focusable(false);
 
 	box_notification.set_orientation(Gtk::Orientation::VERTICAL);
-	box_notifications->prepend(*this);
 
 	if (!command.empty()) {
 		std::thread([command]() {
