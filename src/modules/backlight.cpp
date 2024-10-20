@@ -79,7 +79,6 @@ void module_backlight::on_scale_brightness_change() {
 }
 
 void module_backlight::setup_widget() {
-	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
 	Gtk::Box *box_widget = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL);
 
 	box_widget->get_style_context()->add_class("widget_backlight");
@@ -93,7 +92,7 @@ void module_backlight::setup_widget() {
 
 	box_widget->append(image_widget_icon);
 	box_widget->append(scale_backlight);
-	container->append(*box_widget);
+	win->grid_widgets_end.attach(*box_widget, 0, 3, 4, 1);
 }
 
 void module_backlight::get_backlight_path(std::string custom_backlight_path) {

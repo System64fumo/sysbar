@@ -30,7 +30,6 @@ module_volume::module_volume(sysbar *window, const bool &icon_on_start) : module
 }
 
 void module_volume::setup_widget() {
-	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
 	Gtk::Box *box_widget = Gtk::make_managed<Gtk::Box>();
 
 	box_widget->get_style_context()->add_class("widget_volume");
@@ -43,7 +42,7 @@ void module_volume::setup_widget() {
 
 	box_widget->append(image_widget_icon);
 	box_widget->append(scale_volume);
-	container->append(*box_widget);
+	win->grid_widgets_end.attach(*box_widget, 0, 4, 4, 1);
 }
 
 void module_volume::update_info() {
