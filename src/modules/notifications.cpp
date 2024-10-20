@@ -63,11 +63,10 @@ bool module_notifications::update_info() {
 }
 
 void module_notifications::setup_widget() {
-	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
 	box_notifications = Gtk::make_managed<Gtk::Box>();
 	box_notifications->set_orientation(Gtk::Orientation::VERTICAL);
 
-	container->append(*box_notifications);
+	win->grid_widgets_end.attach(*box_notifications, 0, 5, 4, 4);
 
 	// TODO: Support other orientations
 	popover_alert.get_style_context()->add_class("popover_notifications");

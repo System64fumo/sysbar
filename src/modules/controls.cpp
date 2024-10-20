@@ -13,8 +13,7 @@ module_controls::module_controls(sysbar *window, const bool &icon_on_start) : mo
 
 	// This causes a critical error.. Why?
 	// TODO: Fix said error
-	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
-	container->append(*this);
+	win->grid_widgets_end.attach(*this, 0, 0, 4, 1);
 }
 
 control::control(const std::string& icon, const bool& extra) {

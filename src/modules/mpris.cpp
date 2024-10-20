@@ -168,8 +168,7 @@ void module_mpris::update_info() {
 }
 
 void module_mpris::setup_widget() {
-	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
-	container->append(box_player);
+	win->grid_widgets_end.attach(box_player, 0, 1, 4, 2);
 
 	box_player.get_style_context()->add_class("widget_mpris");
 	image_album_art.get_style_context()->add_class("image_album_art");

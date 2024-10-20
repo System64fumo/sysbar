@@ -45,6 +45,6 @@ bool module_clock::update_info() {
 
 void module_clock::setup_widget() {
 	Gtk::Calendar calendar;
-	auto container = static_cast<Gtk::Box*>(win->box_widgets_start);
-	container->append(calendar);
+	calendar.set_hexpand(true);
+	win->grid_widgets_start.attach(calendar, 0, 0, 4, 4);
 }
