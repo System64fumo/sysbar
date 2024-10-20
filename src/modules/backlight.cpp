@@ -68,13 +68,13 @@ void module_backlight::update_info() {
 }
 
 void module_backlight::on_scale_brightness_change() {
-	int scale_val = (int)scale_backlight.get_value();
-	if (scale_val == brightness)
+	double scale_val = scale_backlight.get_value();
+	if ((int)scale_val == brightness)
 		return;
 
 	std::ofstream backlight_file(backlight_path + "/brightness", std::ios::trunc);
 	backlight_file << scale_val;
-	image_widget_icon.set_from_icon_name(volume_brightness[scale_val / 35]);
+	image_widget_icon.set_from_icon_name(volume_brightness[(scale_val / max_brightness) * 100.0 / 35]);
 }
 
 void module_backlight::setup_widget() {
@@ -83,7 +83,7 @@ void module_backlight::setup_widget() {
 
 	box_widget->get_style_context()->add_class("widget_backlight");
 	image_widget_icon.set_from_icon_name("brightness-display-symbolic");
-	image_widget_icon.set_pixel_size(24);
+	image_widget_icon.set_pixel_size(16);
 
 	scale_backlight.set_hexpand(true);
 	scale_backlight.set_value(brightness_literal);
@@ -113,7 +113,6 @@ int module_backlight::get_brightness() {
 	std::lock_guard<std::mutex> lock(brightness_mutex);
 	std::ifstream brightness_file(backlight_path + "/brightness");
 	std::ifstream max_brightness_file(backlight_path + "/max_brightness");
-	double max_brightness;
 	brightness_file >> brightness_literal;
 	max_brightness_file >> max_brightness;
 
