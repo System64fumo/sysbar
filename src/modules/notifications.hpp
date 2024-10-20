@@ -12,6 +12,7 @@ class notification : public Gtk::Button {
 		notification(std::vector<notification*> notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters, const std::string);
 		guint32 notif_id;
 		guint32 replaces_id;
+		sigc::connection timeout_connection;
 
 	private:
 		Gtk::Box box_main;
