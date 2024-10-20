@@ -9,14 +9,14 @@ module_battery::module_battery(sysbar *window, const bool &icon_on_start) : modu
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
-		std::string cfg_percentage = config->get_value("battery", "show-percentage");
-		if (cfg_percentage != "empty")
-			show_percentage = (cfg_percentage == "true");
+		std::string cfg_label = config->get_value("battery", "show-label");
+		if (cfg_label != "true")
+			label_info.hide();
 	}
 	#endif
 
 	if (!show_percentage)
-		label_info.hide();
+		
 
 	setup();
 }
