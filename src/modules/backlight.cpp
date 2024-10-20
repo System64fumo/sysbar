@@ -73,7 +73,8 @@ void module_backlight::on_scale_brightness_change() {
 		return;
 
 	std::ofstream backlight_file(backlight_path + "/brightness", std::ios::trunc);
-	backlight_file << scale_val;
+	backlight_file << (int)scale_val;
+
 	image_widget_icon.set_from_icon_name(volume_brightness[(scale_val / max_brightness) * 100.0 / 35]);
 }
 
