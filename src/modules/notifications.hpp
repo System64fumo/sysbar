@@ -4,6 +4,7 @@
 
 #include <giomm/dbusconnection.h>
 #include <gtkmm/button.h>
+#include <gtkmm/popover.h>
 
 class notification : public Gtk::Button {
 	public:
@@ -32,6 +33,9 @@ class module_notifications : public module {
 	private:
 		std::string command;
 		Gtk::Box *box_notifications;
+		Gtk::Popover popover_alert;
+		Gtk::Box box_alert;
+
 		guint object_id;
 		Glib::RefPtr<Gio::DBus::Connection> daemon_connection;
 		const Gio::DBus::InterfaceVTable interface_vtable{sigc::mem_fun(*this, &module_notifications::on_interface_method_call)};

@@ -66,7 +66,15 @@ void module_notifications::setup_widget() {
 	auto container = static_cast<Gtk::Box*>(win->box_widgets_end);
 	box_notifications = Gtk::make_managed<Gtk::Box>();
 	box_notifications->set_orientation(Gtk::Orientation::VERTICAL);
+
 	container->append(*box_notifications);
+
+	// TODO: Support other orientations
+	popover_alert.set_parent(*win);
+	popover_alert.set_child(box_alert);
+	popover_alert.set_autohide(false);
+	box_alert.set_orientation(Gtk::Orientation::VERTICAL);
+	box_alert.set_size_request(200, 0);
 }
 
 void module_notifications::setup_daemon() {
@@ -101,11 +109,19 @@ void module_notifications::on_interface_method_call(
 			invocation->return_value(info);
 	}
 	else if (method_name == "Notify") {
+		// TODO: This is terrible.
 		notification *notif = Gtk::make_managed<notification>(notifications, box_notifications, sender, parameters, command);
 		auto id_var = Glib::VariantContainerBase::create_tuple(
 			Glib::Variant<guint32>::create(notif->notif_id));
+
+		notif->signal_clicked().connect([&, notif]() {
+			box_notifications->remove(*notif);
+			delete &notif;
+		});
+
 		invocation->return_value(id_var);
 		notifications.push_back(notif);
+		//popover_alert.popup();
 	}
 }
 
@@ -207,11 +223,6 @@ notification::notification(std::vector<notification*> notifications, Gtk::Box *b
 	box_main.append(box_notification);
 	set_child(box_main);
 	set_focusable(false);
-
-	signal_clicked().connect([&, box_notifications]() {
-		box_notifications->remove(*this);
-		delete this;
-	});
 
 	box_notification.set_orientation(Gtk::Orientation::VERTICAL);
 	box_notifications->prepend(*this);
