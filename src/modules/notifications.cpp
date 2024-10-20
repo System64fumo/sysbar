@@ -75,7 +75,7 @@ void module_notifications::setup_widget() {
 	popover_alert.set_child(scrolledwindow_alert);
 	popover_alert.set_autohide(false);
 	popover_alert.set_has_arrow(false);
-	scrolledwindow_alert.set_size_request(300, -1);
+	scrolledwindow_alert.set_size_request(350, -1);
 	scrolledwindow_alert.set_child(flowbox_alert);
 	scrolledwindow_alert.set_propagate_natural_height(true);
 	flowbox_alert.set_max_children_per_line(1);
@@ -142,16 +142,19 @@ void module_notifications::on_interface_method_call(
 					box_notifications->remove(*n);
 			}
 
+			notif_alert->timeout_connection.disconnect();
 			flowbox_alert.remove(*notif_alert);
 
-			if (flowbox_alert.get_children().size() == 0)
+			if (flowbox_alert.get_children().size() == 0) {
+				timeout_connection.disconnect();
 				popover_alert.popdown();
+			}
 		});
 
 		box_notifications->prepend(*notif);
 		flowbox_alert.prepend(*notif_alert);
 
-		Glib::signal_timeout().connect([&, notif_alert]() {
+		notif_alert->timeout_connection = Glib::signal_timeout().connect([&, notif_alert]() {
 			flowbox_alert.remove(*notif_alert);
 			return false;
 		}, 5000);
