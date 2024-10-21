@@ -147,6 +147,11 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 }
 
 void module_mpris::update_info() {
+	bool sensitivity = (player != nullptr);
+	button_previous.set_sensitive(sensitivity);
+	button_play_pause.set_sensitive(sensitivity);
+	button_next.set_sensitive(sensitivity);
+
 	std::string status_icon = status ? "player_play" : "player_pause";
 	image_icon.set_from_icon_name(status_icon);
 	button_play_pause.set_icon_name(status_icon);
@@ -190,7 +195,7 @@ void module_mpris::setup_widget() {
 	box_right.append(label_artist);
 
 	button_previous.set_icon_name("media-skip-backward");
-	button_play_pause.set_icon_name("media-playback-pause");
+	button_play_pause.set_icon_name("player_play");
 	button_next.set_icon_name("media-skip-forward");
 
 	button_previous.set_focusable(false);
@@ -200,6 +205,10 @@ void module_mpris::setup_widget() {
 	button_previous.set_has_frame(false);
 	button_play_pause.set_has_frame(false);
 	button_next.set_has_frame(false);
+
+	button_previous.set_sensitive(false);
+	button_play_pause.set_sensitive(false);
+	button_next.set_sensitive(false);
 
 	button_previous.signal_clicked().connect([&]() {
 		playerctl_player_previous(player, nullptr);

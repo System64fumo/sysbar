@@ -74,6 +74,7 @@ void module_network::update_info() {
 		image_icon.set_from_icon_name("network-wired-symbolic");
 		label_info.set_text("");
 	}
+	#ifdef FEATURE_WIRELESS
 	else if (default_if->type == "Wireless") {
 		auto info = manager.get_wireless_info(default_if->interface);
 		label_info.set_text(std::to_string(info->signal_percentage));
@@ -94,6 +95,9 @@ void module_network::update_info() {
 	}
 	else if (default_if->type == "Cellular")
 		image_icon.set_from_icon_name("network-cellular-connected-symbolic");
+	#endif
+	else
+		image_icon.set_from_icon_name("network-error-symbolic");
 }
 
 bool module_network::setup_netlink() {

@@ -19,7 +19,7 @@
 #define MODULE_BLUETOOTH		// Include the bluetooth module
 #define MODULE_CONTROLS			// Include the controls module (technically widget only)
 #define MODULE_CELLULAR			// Include the cellular module
-
+#define FEATURE_WIRELESS		// Support for wireless networks
 
 // Default config
 struct config_bar {

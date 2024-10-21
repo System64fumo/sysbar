@@ -17,7 +17,6 @@ class sysbar : public Gtk::Window {
 		void handle_signal(const int &signum);
 
 		config_bar config_main;
-		Gtk::Window overlay_window;
 		Gtk::Box *box_controls = nullptr;
 		Gtk::Grid grid_widgets_start;
 		Gtk::Grid grid_widgets_end;
@@ -34,10 +33,13 @@ class sysbar : public Gtk::Window {
 		Gtk::Box box_center;
 		Gtk::Box box_end;
 
+		Gtk::Window overlay_window;
 		Gtk::ScrolledWindow *scrolled_Window_start;
 		Gtk::ScrolledWindow *scrolled_Window_end;
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag;
-		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_overlay;
+		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_start;
+		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_end;
+
 		GdkMonitor *monitor;
 		GdkRectangle monitor_geometry;
 		double initial_size_start, initial_size_end;

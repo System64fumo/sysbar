@@ -62,6 +62,9 @@ endif
 ifneq (, $(shell grep -E '^#define MODULE_CELLULAR' src/config.hpp))
 	SRCS += src/modules/cellular.cpp
 endif
+ifeq (, $(shell grep -E '^#define FEATURE_WIRELESS' src/config.hpp))
+	SRCS := $(filter-out src/wireless_network.cpp, $(SRCS))
+endif
 
 OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(patsubst src/modules/%,$(BUILDDIR)/%,$(SRCS:.cpp=.o)))
 
