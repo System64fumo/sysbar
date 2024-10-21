@@ -2,10 +2,6 @@
 Sysbar is a modular status bar for wayland written in gtkmm4<br>
 ![preview](https://github.com/System64fumo/sysbar/blob/main/preview.jpg "preview")
 
-> [!NOTE]
-> sysbar is work in progress and thus is missing a lot of features.<br>
-> Audio stuff is provided by wireplumber only for now<br>
-
 # Modules
 * clock
 * weather
@@ -14,13 +10,13 @@ Sysbar is a modular status bar for wayland written in gtkmm4<br>
 * volume
 * network
 * battery
-* notification (WIP)
+* notification
 * taskbar
 * backlight
-* mpris (WIP)
+* mpris
 * bluetooth (WIP)
 * controls (WIP)
-* cellular (WIP)
+* cellular
 
 # Configuration
 sysbar can be configured in 3 ways<br>
