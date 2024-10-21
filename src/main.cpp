@@ -29,46 +29,70 @@ void handle_signal(int signum) {
 }
 
 int main(int argc, char* argv[]) {
-	// Load the config
 	#ifdef CONFIG_FILE
 	std::string config_path;
-	if (std::filesystem::exists(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf"))
-		config_path = std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf";
-	else if (std::filesystem::exists("/usr/share/sys64/bar/config.conf"))
+	std::map<std::string, std::map<std::string, std::string>> config;
+	std::map<std::string, std::map<std::string, std::string>> config_usr;
+
+	bool cfg_sys = std::filesystem::exists("/usr/share/sys64/bar/config.conf");
+	bool cfg_sys_local = std::filesystem::exists("/usr/local/share/sys64/bar/config.conf");
+	bool cfg_usr = std::filesystem::exists(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
+
+	// Load default config
+	if (cfg_sys)
 		config_path = "/usr/share/sys64/bar/config.conf";
-	else
+	else if (cfg_sys_local)
 		config_path = "/usr/local/share/sys64/bar/config.conf";
+	else
+		std::fprintf(stderr, "No default config found, Things will get funky!\n");
 
-	config_parser config(config_path);
+	config = config_parser(config_path).data;
 
-	if (config.available) {
-		std::string cfg_position = config.data["main"]["position"];
+	// Load user config
+	if (cfg_usr)
+		config_path = std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf";
+	else
+		std::fprintf(stderr, "No user config found\n");
+
+	config_usr = config_parser(config_path).data;
+
+	// Merge configs
+	for (const auto& [key, nested_map] : config_usr)
+		config[key] = nested_map;
+
+	// TODO: This is stupid and needs to be replaced
+	// File based config loader should reside inside the program itself not the launcher
+	if (cfg_sys || cfg_sys_local || cfg_usr) {
+		std::string cfg_position = config["main"]["position"];
 		if (!cfg_position.empty())
 			config_main.position = std::stoi(cfg_position);
 
-		std::string cfg_size = config.data["main"]["size"];
+		std::string cfg_size = config["main"]["size"];
 		if (!cfg_size.empty())
 			config_main.size = std::stoi(cfg_size);
 
-		std::string cfg_verbose = config.data["main"]["verbose"];
+		std::string cfg_verbose = config["main"]["verbose"];
 		if (!cfg_verbose.empty())
 			config_main.verbose = (cfg_verbose == "true");
 
-		std::string cfg_main_monitor = config.data["main"]["main-monitor"];
+		std::string cfg_main_monitor = config["main"]["main-monitor"];
 		if (!cfg_main_monitor.empty())
 			config_main.main_monitor = std::stoi(cfg_main_monitor);
 
-		std::string cfg_m_start = config.data["main"]["m_start"];
+		std::string cfg_m_start = config["main"]["m_start"];
 		if (!cfg_m_start.empty())
 			config_main.m_start = cfg_m_start;
 
-		std::string cfg_m_center = config.data["main"]["m_center"];
+		std::string cfg_m_center = config["main"]["m_center"];
 		if (!cfg_m_center.empty())
 			config_main.m_center = cfg_m_center;
 
-		std::string cfg_m_end = config.data["main"]["m_end"];
+		std::string cfg_m_end = config["main"]["m_end"];
 		if (!cfg_m_end.empty())
 			config_main.m_end = cfg_m_end;
+	}
+	else {
+		std::fprintf(stderr, "No config available, Something ain't right here.");
 	}
 	#endif
 
