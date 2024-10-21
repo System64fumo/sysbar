@@ -8,13 +8,13 @@ module_cellular::module_cellular(sysbar *window, const bool &icon_on_start) : mo
 	label_info.set_text("0");
 
 	#ifdef CONFIG_FILE
-		std::string cfg_icon = config->get_value("cellular", "show-icon");
+		std::string cfg_icon = config->data["cellular"]["show-icon"];
 		if (cfg_icon != "true") {
 			image_icon.hide();
 			label_info.set_margin_end(config_main.size / 3);
 		}
 
-		std::string cfg_label = config->get_value("cellular", "show-label");
+		std::string cfg_label = config->data["cellular"]["show-label"];
 		if (cfg_label != "true")
 			label_info.hide();
 	#endif

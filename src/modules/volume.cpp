@@ -11,7 +11,7 @@ module_volume::module_volume(sysbar *window, const bool &icon_on_start) : module
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
-		std::string cfg_label = config->get_value("volume", "label");
+		std::string cfg_label = config->data["volume"]["show-label"];
 		if (cfg_label == "true")
 			label_info.show();
 	}

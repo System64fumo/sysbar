@@ -123,11 +123,11 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
-		std::string cfg_icon = config->get_value("mpris", "show-icon");
+		std::string cfg_icon = config->data["mpris"]["show-icon"];
 		if (cfg_icon != "true")
 			image_icon.hide();
 
-		std::string cfg_label = config->get_value("mpris", "show-label");
+		std::string cfg_label = config->data["mpris"]["show-label"];
 		if (cfg_label != "true")
 			label_info.hide();
 	}

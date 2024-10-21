@@ -151,18 +151,18 @@ module_taskbar::module_taskbar(sysbar *window, const bool &icon_on_start) : modu
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
-		std::string cfg_text_length = config->get_value("taskbar", "text-length");
-		if (cfg_text_length != "empty")
+		std::string cfg_text_length = config->data["taskbar"]["text-length"];
+		if (!cfg_text_length.empty())
 			cfg.text_length = std::stoi(cfg_text_length);
 
-		std::string cfg_icon_size = config->get_value("taskbar", "icon-size");
-		if (cfg_icon_size != "empty")
+		std::string cfg_icon_size = config->data["taskbar"]["icon-size"];
+		if (!cfg_icon_size.empty())
 			cfg.icon_size = std::stoi(cfg_icon_size);
 
-		std::string cfg_icon = config->get_value("taskbar", "show-icon");
+		std::string cfg_icon = config->data["taskbar"]["show-icon"];
 		cfg.show_icon = (cfg_icon == "true");
 
-		std::string cfg_label = config->get_value("taskbar", "show-label");
+		std::string cfg_label = config->data["taskbar"]["show-label"];
 		cfg.show_label = (cfg_label == "true");
 	}
 	#endif

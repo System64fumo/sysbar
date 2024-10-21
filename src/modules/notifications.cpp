@@ -48,8 +48,8 @@ module_notifications::module_notifications(sysbar *window, const bool &icon_on_s
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
-		std::string cfg_command = config->get_value("notification", "command");
-		if (cfg_command != "empty")
+		std::string cfg_command = config->data["notification"]["command"];
+		if (!cfg_command.empty())
 			command = cfg_command;
 	}
 	#endif

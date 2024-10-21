@@ -42,32 +42,32 @@ int main(int argc, char* argv[]) {
 	config_parser config(config_path);
 
 	if (config.available) {
-		std::string cfg_position = config.get_value("main", "position");
-		if (cfg_position != "empty")
+		std::string cfg_position = config.data["main"]["position"];
+		if (!cfg_position.empty())
 			config_main.position = std::stoi(cfg_position);
 
-		std::string cfg_size = config.get_value("main", "size");
-		if (cfg_size != "empty")
+		std::string cfg_size = config.data["main"]["size"];
+		if (!cfg_size.empty())
 			config_main.size = std::stoi(cfg_size);
 
-		std::string cfg_verbose = config.get_value("main", "verbose");
-		if (cfg_verbose != "empty")
+		std::string cfg_verbose = config.data["main"]["verbose"];
+		if (!cfg_verbose.empty())
 			config_main.verbose = (cfg_verbose == "true");
 
-		std::string cfg_main_monitor = config.get_value("main", "main-monitor");
-		if (cfg_main_monitor != "empty")
+		std::string cfg_main_monitor = config.data["main"]["main-monitor"];
+		if (!cfg_main_monitor.empty())
 			config_main.main_monitor = std::stoi(cfg_main_monitor);
 
-		std::string cfg_m_start = config.get_value("main", "m_start");
-		if (cfg_m_start != "empty")
+		std::string cfg_m_start = config.data["main"]["m_start"];
+		if (!cfg_m_start.empty())
 			config_main.m_start = cfg_m_start;
 
-		std::string cfg_m_center = config.get_value("main", "m_center");
-		if (cfg_m_center != "empty")
+		std::string cfg_m_center = config.data["main"]["m_center"];
+		if (!cfg_m_center.empty())
 			config_main.m_center = cfg_m_center;
 
-		std::string cfg_m_end = config.get_value("main", "m_end");
-		if (cfg_m_end != "empty")
+		std::string cfg_m_end = config.data["main"]["m_end"];
+		if (!cfg_m_end.empty())
 			config_main.m_end = cfg_m_end;
 	}
 	#endif

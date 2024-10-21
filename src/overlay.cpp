@@ -30,12 +30,12 @@ void sysbar::setup_overlay_widgets() {
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
-		std::string cfg_sidepanel_start_size = config->get_value("main", "sidepanel-start-size");
-		if (cfg_sidepanel_start_size != "empty")
+		std::string cfg_sidepanel_start_size = config->data["main"]["sidepanel-start-size"];
+		if (!cfg_sidepanel_start_size.empty())
 			default_size_start = std::stoi(cfg_sidepanel_start_size);
 
-		std::string cfg_sidepanel_end_size = config->get_value("main", "sidepanel-end-size");
-		if (cfg_sidepanel_end_size != "empty")
+		std::string cfg_sidepanel_end_size = config->data["main"]["sidepanel-end-size"];
+		if (!cfg_sidepanel_end_size.empty())
 			default_size_end = std::stoi(cfg_sidepanel_start_size);
 	}
 	#endif
