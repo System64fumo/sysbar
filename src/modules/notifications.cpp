@@ -112,6 +112,8 @@ void module_notifications::on_interface_method_call(
 			invocation->return_value(info);
 	}
 	else if (method_name == "Notify") {
+		image_icon.set_from_icon_name("notification-new-symbolic");
+
 		// TODO: This is worse
 		notification *notif = Gtk::make_managed<notification>(notifications, sender, parameters, command);
 		notification *notif_alert = Gtk::make_managed<notification>(notifications, sender, parameters, "");
@@ -133,6 +135,9 @@ void module_notifications::on_interface_method_call(
 
 		notif->signal_clicked().connect([&, notif]() {
 			box_notifications->remove(*notif);
+			if (box_notifications->get_children().size() == 0)
+				image_icon.set_from_icon_name("notification-symbolic");
+
 		});
 
 		notif_alert->signal_clicked().connect([&, notif_alert]() {
@@ -145,6 +150,7 @@ void module_notifications::on_interface_method_call(
 			flowbox_alert.remove(*notif_alert);
 
 			if (flowbox_alert.get_children().size() == 0) {
+				image_icon.set_from_icon_name("notification-symbolic");
 				timeout_connection.disconnect();
 				popover_alert.popdown();
 			}
@@ -239,6 +245,7 @@ notification::notification(std::vector<notification*> notifications, const Glib:
 	label_headerbar.set_ellipsize(Pango::EllipsizeMode::END);
 	label_headerbar.set_wrap_mode(Pango::WrapMode::WORD_CHAR);
 	label_headerbar.set_margin_start(5);
+	label_headerbar.set_hexpand(true);
 	box_notification.append(label_headerbar);
 
 	label_body.get_style_context()->add_class("body");
@@ -250,6 +257,7 @@ notification::notification(std::vector<notification*> notifications, const Glib:
 	label_body.set_wrap_mode(Pango::WrapMode::WORD_CHAR);
 	label_body.set_lines(3);
 	label_body.set_margin_start(5);
+	label_body.set_hexpand(true);
 	box_notification.append(label_body);
 
 	box_main.append(box_notification);

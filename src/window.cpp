@@ -155,6 +155,10 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 	std::istringstream iss(modules);
 	std::string module_name;
 
+	// TODO: add a config to force either left or right alignment
+	// Right now this is auto
+	bool icon_on_start = (&box == &box_start);
+
 	while (std::getline(iss, module_name, ',')) {
 		module *my_module;
 
@@ -166,72 +170,72 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 
 		#ifdef MODULE_CLOCK
 		else if (module_name == "clock")
-			my_module = Gtk::make_managed<module_clock>(this, true);
+			my_module = Gtk::make_managed<module_clock>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_WEATHER
 		else if (module_name == "weather")
-			my_module = Gtk::make_managed<module_weather>(this, true);
+			my_module = Gtk::make_managed<module_weather>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_TRAY
 		else if (module_name == "tray")
-			my_module = Gtk::make_managed<module_tray>(this, true);
+			my_module = Gtk::make_managed<module_tray>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_HYPRLAND
 		else if (module_name == "hyprland")
-			my_module = Gtk::make_managed<module_hyprland>(this, false);
+			my_module = Gtk::make_managed<module_hyprland>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_VOLUME
 		else if (module_name == "volume")
-			my_module = Gtk::make_managed<module_volume>(this, false);
+			my_module = Gtk::make_managed<module_volume>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_NETWORK
 		else if (module_name == "network")
-			my_module = Gtk::make_managed<module_network>(this, false);
+			my_module = Gtk::make_managed<module_network>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_BATTERY
 		else if (module_name == "battery")
-			my_module = Gtk::make_managed<module_battery>(this, false);
+			my_module = Gtk::make_managed<module_battery>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_NOTIFICATION
 		else if (module_name == "notification")
-			my_module = Gtk::make_managed<module_notifications>(this, false);
+			my_module = Gtk::make_managed<module_notifications>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_PERFORMANCE
 		else if (module_name == "performance")
-			my_module = Gtk::make_managed<module_performance>(this, false);
+			my_module = Gtk::make_managed<module_performance>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_TASKBAR
 		else if (module_name == "taskbar")
-			my_module = Gtk::make_managed<module_taskbar>(this, false);
+			my_module = Gtk::make_managed<module_taskbar>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_BACKLIGHT
 		else if (module_name == "backlight")
-			my_module = Gtk::make_managed<module_backlight>(this, false);
+			my_module = Gtk::make_managed<module_backlight>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_MPRIS
 		else if (module_name == "mpris")
-			my_module = Gtk::make_managed<module_mpris>(this, false);
+			my_module = Gtk::make_managed<module_mpris>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_BLUETOOTH
 		else if (module_name == "bluetooth")
-			my_module = Gtk::make_managed<module_bluetooth>(this, false);
+			my_module = Gtk::make_managed<module_bluetooth>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_CELLULAR
 		else if (module_name == "cellular")
-			my_module = Gtk::make_managed<module_cellular>(this, false);
+			my_module = Gtk::make_managed<module_cellular>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_CONTROLS
