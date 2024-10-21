@@ -16,7 +16,9 @@ class module_network : public module {
 		~module_network();
 
 	private:
+		#ifdef FEATURE_WIRELESS
 		wireless_manager manager;
+		#endif
 		int nl_socket;
 		char buffer[4096];
 		uint default_if_index = 0;

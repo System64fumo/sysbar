@@ -1,5 +1,5 @@
 #include "wireless_network.hpp"
-#ifdef MODULE_NETWORK
+#ifdef FEATURE_WIRELESS
 #include <sstream>
 #include <cmath>
 #include <cstdint>
@@ -38,7 +38,7 @@ wireless_manager::~wireless_manager() {
 
 int wireless_manager::convert_signal_strength(const int& signal_strength_dbm) {
 	const int min_dbm = -90;
-	const int max_dbm = -30;
+	const int max_dbm = -45;
 
 	if (signal_strength_dbm <= min_dbm)
 		return 0;
