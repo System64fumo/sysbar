@@ -9,7 +9,7 @@ module_battery::module_battery(sysbar *window, const bool &icon_on_start) : modu
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
-		std::string cfg_label = config->get_value("battery", "show-label");
+		std::string cfg_label = config->data["battery"]["show-label"];
 		if (cfg_label != "true")
 			label_info.hide();
 	}

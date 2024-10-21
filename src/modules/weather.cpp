@@ -13,12 +13,12 @@ module_weather::module_weather(sysbar *window, const bool &icon_on_start) : modu
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
-		std::string cfg_url = config->get_value("weather", "url");
-		if (cfg_url != "empty")
+		std::string cfg_url = config->data["weather"]["url"];
+		if (!cfg_url.empty())
 			weather_file_url = cfg_url;
 
-		std::string cfg_unit = config->get_value("weather", "unit");
-		if (cfg_unit != "empty")
+		std::string cfg_unit = config->data["weather"]["unit"];
+		if (!cfg_unit.empty())
 			unit = cfg_unit[0];
 	}
 	#endif

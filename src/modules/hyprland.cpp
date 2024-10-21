@@ -12,8 +12,8 @@ module_hyprland::module_hyprland(sysbar *window, const bool &icon_on_start) : mo
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
-		std::string cfg_char_limit = config->get_value("hyprland", "character-limit");
-		if (cfg_char_limit != "empty")
+		std::string cfg_char_limit = config->data["hyprland"]["character-limit"];
+		if (!cfg_char_limit.empty())
 			character_limit = std::stoi(cfg_char_limit);
 	}
 	#endif

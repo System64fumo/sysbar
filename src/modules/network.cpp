@@ -13,7 +13,7 @@ module_network::module_network(sysbar *window, const bool &icon_on_start) : modu
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
-		std::string cfg_label = config->get_value("network", "show-label");
+		std::string cfg_label = config->data["network"]["show-label"];
 		if (cfg_label != "true")
 			label_info.hide();
 	}

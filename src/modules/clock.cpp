@@ -9,16 +9,16 @@ module_clock::module_clock(sysbar *window, const bool &icon_on_start) : module(w
 
 	#ifdef CONFIG_FILE
 	if (config->available) {
-		std::string cfg_label_format = config->get_value("clock", "label-format");
-		if (cfg_label_format != "empty")
+		std::string cfg_label_format = config->data["clock"]["label-format"];
+		if (!cfg_label_format.empty())
 			tooltip_format = cfg_label_format;
 
-		std::string cfg_tooltip_format = config->get_value("clock", "tooltip-format");
-		if (cfg_tooltip_format != "empty")
+		std::string cfg_tooltip_format = config->data["clock"]["tooltip-format"];
+		if (!cfg_tooltip_format.empty())
 			tooltip_format = cfg_tooltip_format;
 
-		std::string cfg_interval = config->get_value("clock", "interval");
-		if (cfg_interval != "empty")
+		std::string cfg_interval = config->data["clock"]["interval"];
+		if (!cfg_interval.empty())
 			interval = std::stoi(cfg_interval);
 	}
 	#endif
