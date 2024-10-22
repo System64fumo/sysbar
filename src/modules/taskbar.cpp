@@ -149,25 +149,20 @@ module_taskbar::module_taskbar(sysbar *window, const bool &icon_on_start) : modu
 	image_icon.unparent();
 	label_info.unparent();
 
-	#ifdef CONFIG_FILE
-	if (config->available) {
-		std::string cfg_text_length = config->data["taskbar"]["text-length"];
-		if (!cfg_text_length.empty())
-			cfg.text_length = std::stoi(cfg_text_length);
+	std::string cfg_text_length = win->config_main["taskbar"]["text-length"];
+	if (!cfg_text_length.empty())
+		cfg.text_length = std::stoi(cfg_text_length);
 
-		std::string cfg_icon_size = config->data["taskbar"]["icon-size"];
-		if (!cfg_icon_size.empty())
-			cfg.icon_size = std::stoi(cfg_icon_size);
+	std::string cfg_icon_size = win->config_main["taskbar"]["icon-size"];
+	if (!cfg_icon_size.empty())
+		cfg.icon_size = std::stoi(cfg_icon_size);
 
-		std::string cfg_icon = config->data["taskbar"]["show-icon"];
-		cfg.show_icon = (cfg_icon == "true");
+	cfg.show_icon = (win->config_main["taskbar"]["show-icon"] == "true");
 
-		std::string cfg_label = config->data["taskbar"]["show-label"];
-		cfg.show_label = (cfg_label == "true");
-	}
-	#endif
+	cfg.show_label = (win->config_main["taskbar"]["show-label"] == "true");
 
-	if (config_main.position %2 == 0) {
+
+	if (win->position %2 == 0) {
 		box_container.set_halign(Gtk::Align::CENTER);
 		flowbox_main.set_min_children_per_line(25);
 		flowbox_main.set_max_children_per_line(25);

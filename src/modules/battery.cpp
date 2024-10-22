@@ -7,16 +7,8 @@ module_battery::module_battery(sysbar *window, const bool &icon_on_start) : modu
 	image_icon.set_from_icon_name("battery-missing-symbolic"); // Fallback
 	label_info.set_text("0"); // Fallback
 
-	#ifdef CONFIG_FILE
-	if (config->available) {
-		std::string cfg_label = config->data["battery"]["show-label"];
-		if (cfg_label != "true")
-			label_info.hide();
-	}
-	#endif
-
-	if (!show_percentage)
-		
+	if (win->config_main["battery"]["show-label"] != "true")
+		label_info.hide();
 
 	setup();
 }

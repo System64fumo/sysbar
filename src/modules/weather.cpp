@@ -11,17 +11,14 @@ module_weather::module_weather(sysbar *window, const bool &icon_on_start) : modu
 	image_icon.set_from_icon_name("content-loading-symbolic");
 	label_info.hide();
 
-	#ifdef CONFIG_FILE
-	if (config->available) {
-		std::string cfg_url = config->data["weather"]["url"];
-		if (!cfg_url.empty())
-			weather_file_url = cfg_url;
+	std::string cfg_url = win->config_main["weather"]["url"];
+	if (!cfg_url.empty())
+		weather_file_url = cfg_url;
 
-		std::string cfg_unit = config->data["weather"]["unit"];
-		if (!cfg_unit.empty())
-			unit = cfg_unit[0];
-	}
-	#endif
+	std::string cfg_unit = win->config_main["weather"]["unit"];
+	if (!cfg_unit.empty())
+		unit = cfg_unit[0];
+
 
 	std::thread update_thread(&module_weather::update_info, this);
 	update_thread.detach();

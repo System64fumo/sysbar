@@ -19,13 +19,13 @@
 #include <gtk4-layer-shell.h>
 #include <filesystem>
 
-sysbar::sysbar(const config_bar &cfg) {
+sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>> &cfg) {
 	config_main = cfg;
 
-	// Read config
-	#ifdef CONFIG_FILE
-	config = new config_parser(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
-	#endif
+	// Only load commonly used non string configs
+	position = std::stoi(config_main["main"]["position"]);
+	size = std::stoi(config_main["main"]["size"]);
+	verbose = config_main["main"]["verbose"] == "true";
 
 	// Get main monitor
 	GdkDisplay *display = gdk_display_get_default();
@@ -33,12 +33,12 @@ sysbar::sysbar(const config_bar &cfg) {
 
 	int monitorCount = g_list_model_get_n_items(monitors);
 
-	if (config_main.main_monitor < 0)
-		config_main.main_monitor = 0;
-	else if (config_main.main_monitor >= monitorCount)
-		config_main.main_monitor = monitorCount - 1;
+	if (std::stoi(config_main["main"]["main-monitor"]) < 0)
+		config_main["main"]["main-monitor"] = "0";
+	else if (std::stoi(config_main["main"]["main-monitor"]) >= monitorCount)
+		config_main["main"]["main-monitor"] = std::to_string(monitorCount - 1);
 
-	monitor = GDK_MONITOR(g_list_model_get_item(monitors, config_main.main_monitor));
+	monitor = GDK_MONITOR(g_list_model_get_item(monitors, std::stoi(config_main["main"]["main-monitor"])));
 
 	gdk_monitor_get_geometry(monitor, &monitor_geometry);
 
@@ -47,7 +47,7 @@ sysbar::sysbar(const config_bar &cfg) {
 	gtk_layer_init_for_window(gobj());
 	gtk_layer_set_namespace(gobj(), "sysbar");
 	gtk_layer_set_layer(gobj(), GTK_LAYER_SHELL_LAYER_TOP);
-	gtk_layer_set_exclusive_zone(gobj(), config_main.size);
+	gtk_layer_set_exclusive_zone(gobj(), size);
 	gtk_layer_set_monitor(gobj(), monitor);
 
 	gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_TOP, true);
@@ -57,29 +57,29 @@ sysbar::sysbar(const config_bar &cfg) {
 
 	Gtk::RevealerTransitionType transition_type = Gtk::RevealerTransitionType::SLIDE_DOWN;
 
-	switch (config_main.position) {
+	switch (position) {
 		case 0:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_DOWN;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_BOTTOM, false);
 			width = -1;
-			height = config_main.size;
+			height = size;
 			break;
 		case 1:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_LEFT;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_LEFT, false);
-			width = config_main.size;
+			width = size;
 			height = -1;
 			break;
 		case 2:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_UP;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_TOP, false);
 			width = -1;
-			height = config_main.size;
+			height = size;
 			break;
 		case 3:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_RIGHT;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_RIGHT, false);
-			width = config_main.size;
+			width = size;
 			height = -1;
 			break;
 	}
@@ -100,7 +100,7 @@ sysbar::sysbar(const config_bar &cfg) {
 	revealer_box.set_reveal_child(true);
 
 	// Set orientation
-	if (config_main.position % 2) {
+	if (position % 2) {
 		Gtk::Orientation orientation = Gtk::Orientation::VERTICAL;
 		centerbox_main.set_orientation(orientation);
 		box_start.set_orientation(orientation);
@@ -130,21 +130,21 @@ sysbar::sysbar(const config_bar &cfg) {
 	#endif
 
 	// Load modules
-	load_modules(config_main.m_start, box_start);
-	load_modules(config_main.m_center, box_center);
-	load_modules(config_main.m_end, box_end);
+	load_modules(config_main["main"]["m_start"], box_start);
+	load_modules(config_main["main"]["m_center"], box_center);
+	load_modules(config_main["main"]["m_end"], box_end);
 }
 
 #ifdef MODULE_CONTROLS
 void sysbar::setup_controls() {
-	if (config_main.m_start.find("controls") != std::string::npos) {
+	if (config_main["main"]["m_start"].find("controls") != std::string::npos) {
 		box_controls = Gtk::make_managed<module_controls>(this, false);
 		box_start.append(*box_controls);
 	}
-	else if (config_main.m_center.find("controls") != std::string::npos) {
+	else if (config_main["main"]["m_center"].find("controls") != std::string::npos) {
 		std::fprintf(stderr, "Controls widget cannot be put in the center.\n");
 	}
-	else if (config_main.m_end.find("controls") != std::string::npos) {
+	else if (config_main["main"]["m_end"].find("controls") != std::string::npos) {
 		box_controls = Gtk::make_managed<module_controls>(this, false);
 		box_end.append(*box_controls);
 	}
@@ -162,7 +162,7 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 	while (std::getline(iss, module_name, ',')) {
 		module *my_module;
 
-		if (config_main.verbose)
+		if (verbose)
 			std::printf("Loading module: %s\n", module_name.c_str());
 
 		if (false)
@@ -257,7 +257,7 @@ void sysbar::handle_signal(const int &signum) {
 		switch (signum) {
 			case 10: // Show
 				revealer_box.set_reveal_child(true);
-				gtk_layer_set_exclusive_zone(gobj(), config_main.size);
+				gtk_layer_set_exclusive_zone(gobj(), size);
 				set_default_size(width, height);
 				break;
 
@@ -279,7 +279,7 @@ void sysbar::handle_signal(const int &signum) {
 }
 
 extern "C" {
-	sysbar *sysbar_create(const config_bar &cfg) {
+	sysbar *sysbar_create(const std::map<std::string, std::map<std::string, std::string>> &cfg) {
 		return new sysbar(cfg);
 	}
 	void sysbar_signal(sysbar *window, int signal) {

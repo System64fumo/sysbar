@@ -12,23 +12,18 @@ module_backlight::module_backlight(sysbar *window, const bool &icon_on_start) : 
 	volume_brightness[1] = "display-brightness-medium-symbolic";
 	volume_brightness[2] = "display-brightness-high-symbolic";
 
-	#ifdef CONFIG_FILE
-	if (config->available) {
-		std::string cfg_bl_path = config->data["backlight"]["path"];
-		if (!cfg_bl_path.empty())
-			backlight_path = cfg_bl_path;
+	std::string cfg_bl_path = win->config_main["backlight"]["path"];
+	if (!cfg_bl_path.empty())
+		backlight_path = cfg_bl_path;
 
-		std::string cfg_icon = config->data["backlight"]["show-icon"];
-		if (cfg_icon != "true") {
-			image_icon.hide();
-			label_info.set_margin_end(config_main.size / 3);
-		}
-
-		std::string cfg_label = config->data["backlight"]["show-label"];
-		if (cfg_label != "true")
-			label_info.hide();
+	if (win->config_main["backlight"]["show-icon"] != "true") {
+		image_icon.hide();
+		label_info.set_margin_end(win->size / 3);
 	}
-	#endif
+
+	if (win->config_main["backlight"]["show-label"] != "true")
+		label_info.hide();
+
 
 	// Setup
 	get_backlight_path(backlight_path);

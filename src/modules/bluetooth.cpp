@@ -74,11 +74,11 @@ void module_bluetooth::extract_data(const Glib::VariantBase& variant_base) {
 	auto data_map = variant.get();
 
 	for (const auto& [object_path, interface_map] : data_map) {
-		if (config_main.verbose)
+		if (win->verbose)
 			std::printf("Object Path: %s\n", object_path.c_str());
 
 		for (const auto& [interface_name, property_map] : interface_map) {
-			if (config_main.verbose)
+			if (win->verbose)
 				std::printf("  Interface: %s\n", interface_name.c_str());
 
 			if (interface_name.find("org.bluez.Adapter") == 0) {
@@ -123,7 +123,7 @@ void module_bluetooth::extract_data(const Glib::VariantBase& variant_base) {
 				devices.push_back(dev);
 			}
 
-			if (config_main.verbose)
+			if (win->verbose)
 				for (const auto& [property_name, value] : property_map) {
 					std::printf("    Property: %s = %s\n", property_name.c_str(), value.print().c_str());
 				}

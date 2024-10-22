@@ -28,19 +28,17 @@ void sysbar::setup_overlay_widgets() {
 	int default_size_start = 350;
 	int default_size_end = 350;
 
-	#ifdef CONFIG_FILE
-	if (config->available) {
-		std::string cfg_sidepanel_start_size = config->data["main"]["sidepanel-start-size"];
-		if (!cfg_sidepanel_start_size.empty())
-			default_size_start = std::stoi(cfg_sidepanel_start_size);
 
-		std::string cfg_sidepanel_end_size = config->data["main"]["sidepanel-end-size"];
-		if (!cfg_sidepanel_end_size.empty())
-			default_size_end = std::stoi(cfg_sidepanel_start_size);
-	}
-	#endif
+	std::string cfg_sidepanel_start_size = config_main["main"]["sidepanel-start-size"];
+	if (!cfg_sidepanel_start_size.empty())
+		default_size_start = std::stoi(cfg_sidepanel_start_size);
 
-	int size = (config_main.position % 2) ? monitor_geometry.height : monitor_geometry.width;
+	std::string cfg_sidepanel_end_size = config_main["main"]["sidepanel-end-size"];
+	if (!cfg_sidepanel_end_size.empty())
+		default_size_end = std::stoi(cfg_sidepanel_start_size);
+
+
+	int size = (position % 2) ? monitor_geometry.height : monitor_geometry.width;
 
 	grid_widgets_start.get_style_context()->add_class("grid_widgets_start");
 	grid_widgets_end.get_style_context()->add_class("grid_widgets_end");
@@ -52,13 +50,13 @@ void sysbar::setup_overlay_widgets() {
 	scrolled_Window_start->set_kinetic_scrolling(false);
 	scrolled_Window_end->set_kinetic_scrolling(false);
 
-	if (config_main.position == 0) {
+	if (position == 0) {
 		scrolled_Window_start->set_valign(Gtk::Align::START);
 		scrolled_Window_end->set_valign(Gtk::Align::START);
 		grid_widgets_start.set_valign(Gtk::Align::START);
 		grid_widgets_end.set_valign(Gtk::Align::START);
 	}
-	else if (config_main.position == 1) {
+	else if (position == 1) {
 		scrolled_Window_start->set_valign(Gtk::Align::START);
 		scrolled_Window_end->set_valign(Gtk::Align::END);
 		scrolled_Window_start->set_halign(Gtk::Align::END);
@@ -66,13 +64,13 @@ void sysbar::setup_overlay_widgets() {
 		grid_widgets_start.set_halign(Gtk::Align::END);
 		grid_widgets_end.set_halign(Gtk::Align::END);
 	}
-	else if (config_main.position == 2) {
+	else if (position == 2) {
 		scrolled_Window_start->set_valign(Gtk::Align::END);
 		scrolled_Window_end->set_valign(Gtk::Align::END);
 		grid_widgets_start.set_valign(Gtk::Align::END);
 		grid_widgets_end.set_valign(Gtk::Align::END);
 	}
-	else if (config_main.position == 3) {
+	else if (position == 3) {
 		scrolled_Window_start->set_valign(Gtk::Align::START);
 		scrolled_Window_end->set_valign(Gtk::Align::END);
 		grid_widgets_start.set_valign(Gtk::Align::START);
@@ -82,7 +80,7 @@ void sysbar::setup_overlay_widgets() {
 	}
 
 	// Common
-	bool vertical_layout = config_main.position % 2;
+	bool vertical_layout = position % 2;
 	if (vertical_layout) { // Vertical
 		if (size / 2 > default_size_start) {
 			grid_widgets_start.set_size_request(-1, default_size_start);
@@ -188,24 +186,24 @@ void sysbar::on_drag_start(const double &x, const double &y) {
 	scrolled_Window_start->set_valign(Gtk::Align::START);
 	scrolled_Window_end->set_valign(Gtk::Align::START);
 
-	if (config_main.position == 0) {
+	if (position == 0) {
 		scrolled_Window_start->set_valign(Gtk::Align::START);
 		scrolled_Window_end->set_valign(Gtk::Align::START);
 	}
-	else if (config_main.position == 1) {
+	else if (position == 1) {
 		scrolled_Window_start->set_halign(Gtk::Align::END);
 		scrolled_Window_end->set_halign(Gtk::Align::END);
 	}
-	else if (config_main.position == 2) {
+	else if (position == 2) {
 		scrolled_Window_start->set_valign(Gtk::Align::END);
 		scrolled_Window_end->set_valign(Gtk::Align::END);
 	}
-	else if (config_main.position == 3) {
+	else if (position == 3) {
 		scrolled_Window_start->set_halign(Gtk::Align::START);
 		scrolled_Window_end->set_halign(Gtk::Align::START);
 	}
 
-	if (config_main.position % 2) {
+	if (position % 2) {
 		sliding_start_widget = y < monitor_geometry.height / 2;
 		initial_size_start = scrolled_Window_start->get_width();
 		initial_size_end = scrolled_Window_end->get_width();
@@ -217,7 +215,7 @@ void sysbar::on_drag_start(const double &x, const double &y) {
 	}
 
 	if (initial_size_start != 0 || initial_size_end != 0) {
-		if (config_main.position % 2) {
+		if (position % 2) {
 			initial_size_start = grid_widgets_start.get_allocated_width();
 			initial_size_end = grid_widgets_end.get_allocated_width();
 		}
@@ -237,13 +235,13 @@ void sysbar::on_drag_update(const double &x, const double &y) {
 	double initial_size = sliding_start_widget ? initial_size_start : initial_size_end;
 	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? scrolled_Window_start : scrolled_Window_end;
 
-	if (config_main.position == 0)
+	if (position == 0)
 		drag_height = y + initial_size;
-	else if (config_main.position == 1)
+	else if (position == 1)
 		drag_width = -x + initial_size; // This is buggy (As usual)
-	else if (config_main.position == 2)
+	else if (position == 2)
 		drag_height = -y + initial_size; // So is this
-	else if (config_main.position == 3)
+	else if (position == 3)
 		drag_width = x + initial_size;
 
 	// This clamp ensures the values are not bellow 0
@@ -263,13 +261,13 @@ void sysbar::on_drag_stop(const double &x, const double &y) {
 	double size_threshold = sliding_start_widget ? grid_widgets_start.get_allocated_height() : grid_widgets_end.get_allocated_height();;
 	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? scrolled_Window_start : scrolled_Window_end;
 
-	if (config_main.position == 0)
+	if (position == 0)
 		size = y + initial_size;
-	else if (config_main.position == 1)
+	else if (position == 1)
 		size = -x + initial_size;
-	else if (config_main.position == 2)
+	else if (position == 2)
 		size = -y + initial_size;
-	else if (config_main.position == 3)
+	else if (position == 3)
 		size = x + initial_size;
 
 	// Ensure size is not negative
@@ -279,7 +277,7 @@ void sysbar::on_drag_stop(const double &x, const double &y) {
 	if (!((passed_threshold && gesture_touch) || (size == 0 && !gesture_touch)))
 		scrolled_Window->hide();
 
-	if (config_main.position % 2)
+	if (position % 2)
 		scrolled_Window->set_halign(Gtk::Align::FILL);
 	else
 		scrolled_Window->set_valign(Gtk::Align::FILL);

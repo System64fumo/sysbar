@@ -60,72 +60,47 @@ int main(int argc, char* argv[]) {
 	for (const auto& [key, nested_map] : config_usr)
 		config[key] = nested_map;
 
-	// TODO: This is stupid and needs to be replaced
-	// File based config loader should reside inside the program itself not the launcher
-	if (cfg_sys || cfg_sys_local || cfg_usr) {
-		std::string cfg_position = config["main"]["position"];
-		if (!cfg_position.empty())
-			config_main.position = std::stoi(cfg_position);
-
-		std::string cfg_size = config["main"]["size"];
-		if (!cfg_size.empty())
-			config_main.size = std::stoi(cfg_size);
-
-		std::string cfg_verbose = config["main"]["verbose"];
-		if (!cfg_verbose.empty())
-			config_main.verbose = (cfg_verbose == "true");
-
-		std::string cfg_main_monitor = config["main"]["main-monitor"];
-		if (!cfg_main_monitor.empty())
-			config_main.main_monitor = std::stoi(cfg_main_monitor);
-
-		std::string cfg_m_start = config["main"]["m_start"];
-		if (!cfg_m_start.empty())
-			config_main.m_start = cfg_m_start;
-
-		std::string cfg_m_center = config["main"]["m_center"];
-		if (!cfg_m_center.empty())
-			config_main.m_center = cfg_m_center;
-
-		std::string cfg_m_end = config["main"]["m_end"];
-		if (!cfg_m_end.empty())
-			config_main.m_end = cfg_m_end;
-	}
-	else {
+	// Sanity check
+	if (!(cfg_sys || cfg_sys_local || cfg_usr)) {
 		std::fprintf(stderr, "No config available, Something ain't right here.");
+		return 1;
 	}
 	#endif
+
+	 // TODO: Consider using -- arguments
+	 // TODO: Add support for literally every config via runtime
+	 // TODO: Add more help options
 
 	 // Read launch arguments
 	#ifdef CONFIG_RUNTIME
 	while (true) {
-		switch(getopt(argc, argv, "p:ds:c:e:S:dVm:dvh")) {
+		switch(getopt(argc, argv, "psceSVmdvh")) {
 			case 'p':
-				config_main.position = std::stoi(optarg);
+				config["main"]["position"] = optarg;
 				continue;
 
 			case 's':
-				config_main.m_start = optarg;
+				config["main"]["m_start"] = optarg;
 				continue;
 
 			case 'c':
-				config_main.m_center = optarg;
+				config["main"]["m_center"] = optarg;
 				continue;
 
 			case 'e':
-				config_main.m_end = optarg;
+				config["main"]["m_end"] = optarg;
 				continue;
 
 			case 'S':
-				config_main.size = std::stoi(optarg);
+				config["main"]["size"] = optarg;
 				continue;
 
 			case 'V':
-				config_main.verbose = true;
+				config["main"]["verbose"] = "true";
 				continue;
 
 			case 'm':
-				config_main.main_monitor = std::stoi(optarg);
+				config["main"]["main_monitor"] = optarg;
 				continue;
 
 			case 'v':
@@ -162,7 +137,7 @@ int main(int argc, char* argv[]) {
 	app->hold();
 
 	load_libsysbar();
-	win = sysbar_create_ptr(config_main);
+	win = sysbar_create_ptr(config);
 
 	// Catch signals
 	signal(SIGUSR1, handle_signal);

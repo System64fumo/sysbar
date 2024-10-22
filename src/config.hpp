@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 
 // Build time configuration		Description
 #define CONFIG_RUNTIME			// Allow the use of runtime arguments
@@ -21,13 +20,5 @@
 #define MODULE_CELLULAR			// Include the cellular module
 #define FEATURE_WIRELESS		// Support for wireless networks
 
-// Default config
-struct config_bar {
-	int position = 0;
-	int size = 40;
-	bool verbose = false;
-	int main_monitor = 0;
-	std::string m_start = "clock,weather,tray";
-	std::string m_center = "hyprland";
-	std::string m_end = "volume,network,notification";
-};
+// TODO: Re-Add a fallback/user defined config
+// Either that or add a check that requires one of the config options

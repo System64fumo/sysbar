@@ -9,13 +9,10 @@ module_volume::module_volume(sysbar *window, const bool &icon_on_start) : module
 	volume_icons[2] = "audio-volume-high-symbolic";
 	label_info.hide();
 
-	#ifdef CONFIG_FILE
-	if (config->available) {
-		std::string cfg_label = config->data["volume"]["show-label"];
-		if (cfg_label == "true")
-			label_info.show();
-	}
-	#endif
+
+	if (win->config_main["volume"]["show-label"] == "true")
+		label_info.show();
+
 
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_volume::update_info));
 

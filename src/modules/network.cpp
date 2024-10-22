@@ -11,13 +11,8 @@
 module_network::module_network(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_network");
 
-	#ifdef CONFIG_FILE
-	if (config->available) {
-		std::string cfg_label = config->data["network"]["show-label"];
-		if (cfg_label != "true")
-			label_info.hide();
-	}
-	#endif
+	if (win->config_main["network"]["show-label"] != "true")
+		label_info.hide();
 
 	// Set up networking stuff
 	if (!setup_netlink())
@@ -67,7 +62,7 @@ void module_network::update_info() {
 		return;
 	}
 
-	if (config_main.verbose)
+	if (win->verbose)
 		std::printf("Default interface is %s\n", default_if->interface.c_str());
 
 	if (default_if->type == "Ethernet") {
@@ -208,7 +203,7 @@ void module_network::process_message(struct nlmsghdr *nlh) {
 			}
 
 			// Create a new interface if needed
-			if (config_main.verbose)
+			if (win->verbose)
 				std::printf("%s has been added to the list\n", if_name);
 
 			network_adapter adapter;
