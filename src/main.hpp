@@ -1,6 +1,7 @@
 #pragma once
 #include "config.hpp"
 #include <map>
+#include <string>
 
 class sysbar {};
 sysbar* win;
