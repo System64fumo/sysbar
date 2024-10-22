@@ -4,15 +4,14 @@
 
 #include <playerctl.h>
 #include <glibmm/dispatcher.h>
-#include <gtkmm/progressbar.h>
 #include <gtkmm/button.h>
 
 class module_mpris : public module {
 	public:
-		module_mpris(sysbar *window, const bool &icon_on_start = true);
+		module_mpris(sysbar*, const bool&);
 
 		Glib::Dispatcher dispatcher_callback;
-		PlayerctlPlayer *player = nullptr;
+		PlayerctlPlayer* player;
 		Glib::RefPtr<Gdk::Pixbuf> album_pixbuf;
 
 		int status = 0;
@@ -25,14 +24,12 @@ class module_mpris : public module {
 		void update_info();
 
 	private:
-
 		Gtk::Box box_player;
 		Gtk::Box box_right;
 		Gtk::Image image_album_art;
 		Gtk::Label label_title;
 		Gtk::Label label_album;
 		Gtk::Label label_artist;
-		Gtk::ProgressBar progressbar_playback;
 
 		Gtk::Box box_controls;
 		Gtk::Button button_previous;

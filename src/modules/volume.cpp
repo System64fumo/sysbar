@@ -2,7 +2,7 @@
 
 #include <thread>
 
-module_volume::module_volume(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
+module_volume::module_volume(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_volume");
 	volume_icons[0] = "audio-volume-low-symbolic";
 	volume_icons[1] = "audio-volume-medium-symbolic";
@@ -12,7 +12,6 @@ module_volume::module_volume(sysbar *window, const bool &icon_on_start) : module
 
 	if (win->config_main["volume"]["show-label"] == "true")
 		label_info.show();
-
 
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_volume::update_info));
 
@@ -27,9 +26,7 @@ module_volume::module_volume(sysbar *window, const bool &icon_on_start) : module
 }
 
 void module_volume::setup_widget() {
-	Gtk::Box *box_widget = Gtk::make_managed<Gtk::Box>();
-
-	box_widget->get_style_context()->add_class("widget_volume");
+	box_widget.get_style_context()->add_class("widget_volume");
 
 	image_widget_icon.set_pixel_size(24);
 
@@ -37,9 +34,9 @@ void module_volume::setup_widget() {
 	scale_volume.set_range(0, 100);
 	scale_volume.set_sensitive(false); // Setting volume is currently unsupported
 
-	box_widget->append(image_widget_icon);
-	box_widget->append(scale_volume);
-	win->grid_widgets_end.attach(*box_widget, 0, 4, 4, 1);
+	box_widget.append(image_widget_icon);
+	box_widget.append(scale_volume);
+	win->grid_widgets_end.attach(box_widget, 0, 4, 4, 1);
 }
 
 void module_volume::update_info() {

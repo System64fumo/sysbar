@@ -8,7 +8,7 @@
 #include <filesystem>
 #include <fstream>
 
-module_network::module_network(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
+module_network::module_network(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), default_if_index(0) {
 	get_style_context()->add_class("module_network");
 
 	if (win->config_main["network"]["show-label"] != "true")
@@ -118,7 +118,7 @@ bool module_network::setup_netlink() {
 	return true;
 }
 
-void module_network::request_dump(const int &type) {
+void module_network::request_dump(const int& type) {
 	struct nlmsghdr nlh;
 	struct rtgenmsg rtg;
 
@@ -145,9 +145,9 @@ void module_network::request_dump(const int &type) {
 	sendmsg(nl_socket, &msg, 0);
 }
 
-void module_network::process_message(struct nlmsghdr *nlh) {
-	struct ifaddrmsg *ifa = (struct ifaddrmsg *)NLMSG_DATA(nlh);
-	struct rtattr *rth = IFA_RTA(ifa);
+void module_network::process_message(struct nlmsghdr* nlh) {
+	struct ifaddrmsg* ifa = (struct ifaddrmsg*)NLMSG_DATA(nlh);
+	struct rtattr* rth = IFA_RTA(ifa);
 	int rtl = IFA_PAYLOAD(nlh);
 	char if_name[IF_NAMESIZE];
 	char if_addr[INET_ADDRSTRLEN];
@@ -196,7 +196,9 @@ void module_network::process_message(struct nlmsghdr *nlh) {
 		if (rth->rta_type == IFA_LOCAL) {
 
 			/// Find the interface if it already exists
-			auto it = std::find_if(adapters.begin(), adapters.end(), [if_index](const network_adapter& s) { return s.index == if_index; });
+			auto it = std::find_if(adapters.begin(), adapters.end(), [if_index](const network_adapter& s) {
+				return s.index == if_index;
+			});
 			if (it != adapters.end()) {
 				it->ipv4 = if_addr;
 				continue;

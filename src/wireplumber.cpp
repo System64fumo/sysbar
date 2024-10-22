@@ -1,13 +1,13 @@
 #include "wireplumber.hpp"
 
-bool syshud_wireplumber::isValidNodeId(uint32_t id) {
+bool syshud_wireplumber::is_valid_node_id(uint32_t id) {
 	return id > 0 && id < G_MAXUINT32;
 }
 
-void syshud_wireplumber::onMixerChanged(syshud_wireplumber* self, uint32_t id) {
+void syshud_wireplumber::on_mixer_changed(syshud_wireplumber* self, uint32_t id) {
 	GVariant* variant = nullptr;
 
-	if (!isValidNodeId(id))
+	if (!is_valid_node_id(id))
 		return;
 
 	g_autoptr(WpNode) node = static_cast<WpNode*>(wp_object_manager_lookup(
@@ -40,11 +40,11 @@ void syshud_wireplumber::onMixerChanged(syshud_wireplumber* self, uint32_t id) {
 	}
 }
 
-void syshud_wireplumber::onDefaultNodesApiChanged(syshud_wireplumber* self) {
+void syshud_wireplumber::on_default_nodes_api_changed(syshud_wireplumber* self) {
 	g_signal_emit_by_name(self->def_nodes_api, "get-default-node", "Audio/Sink", &self->output_id);
 	g_signal_emit_by_name(self->def_nodes_api, "get-default-node", "Audio/Source", &self->input_id);
 
-	if (!isValidNodeId(self->output_id) || !isValidNodeId(self->input_id))
+	if (!is_valid_node_id(self->output_id) || !is_valid_node_id(self->input_id))
 		return;
 
 	g_autoptr(WpNode) output_node = static_cast<WpNode*>(
@@ -57,12 +57,9 @@ void syshud_wireplumber::onDefaultNodesApiChanged(syshud_wireplumber* self) {
 
 	self->output_name = wp_pipewire_object_get_property(WP_PIPEWIRE_OBJECT(output_node), "node.name");
 	self->input_name = wp_pipewire_object_get_property(WP_PIPEWIRE_OBJECT(input_node), "node.name");
-
-	std::printf("Output: %s, ID: %d\n", self->output_name, self->output_id);
-	std::printf("Input: %s, ID: %d\n", self->input_name, self->input_id);
 }
 
-void syshud_wireplumber::onPluginActivated(WpObject* p, GAsyncResult* res, syshud_wireplumber* self) {
+void syshud_wireplumber::on_plugin_activated(WpObject* p, GAsyncResult* res, syshud_wireplumber* self) {
 	if (wp_object_activate_finish(p, res, nullptr) == 0)
 		return;
 
@@ -76,11 +73,11 @@ void syshud_wireplumber::activatePlugins() {
 		WpPlugin* plugin = static_cast<WpPlugin*>(g_ptr_array_index(apis, i));
 		pending_plugins++;
 		wp_object_activate(WP_OBJECT(plugin), WP_PLUGIN_FEATURE_ENABLED, nullptr,
-			(GAsyncReadyCallback)onPluginActivated, this);
+			(GAsyncReadyCallback)on_plugin_activated, this);
 	}
 }
 
-void syshud_wireplumber::onMixerApiLoaded(WpObject* p, GAsyncResult* res, syshud_wireplumber* self) {
+void syshud_wireplumber::on_mixer_api_loaded(WpObject* p, GAsyncResult* res, syshud_wireplumber* self) {
 	if (!wp_core_load_component_finish(self->core, res, nullptr))
 		return;
 
@@ -93,17 +90,17 @@ void syshud_wireplumber::onMixerApiLoaded(WpObject* p, GAsyncResult* res, syshud
 	self->activatePlugins();
 }
 
-void syshud_wireplumber::onDefaultNodesApiLoaded(WpObject* p, GAsyncResult* res, syshud_wireplumber* self) {
+void syshud_wireplumber::on_default_nodes_api_loaded(WpObject* p, GAsyncResult* res, syshud_wireplumber* self) {
 	if (!wp_core_load_component_finish(self->core, res, nullptr))
 		return;
 
 	g_ptr_array_add(self->apis, wp_plugin_find(self->core, "default-nodes-api"));
 
 	wp_core_load_component(self->core, "libwireplumber-module-mixer-api", "module", nullptr,
-							"mixer-api", nullptr, (GAsyncReadyCallback)onMixerApiLoaded, self);
+							"mixer-api", nullptr, (GAsyncReadyCallback)on_mixer_api_loaded, self);
 }
 
-void syshud_wireplumber::onObjectManagerInstalled(syshud_wireplumber* self) {
+void syshud_wireplumber::on_object_manager_installed(syshud_wireplumber* self) {
 	self->def_nodes_api = wp_plugin_find(self->core, "default-nodes-api");
 	if (self->def_nodes_api == nullptr)
 		return;
@@ -115,13 +112,13 @@ void syshud_wireplumber::onObjectManagerInstalled(syshud_wireplumber* self) {
 	g_signal_emit_by_name(self->def_nodes_api, "get-default-node", "Audio/Sink", &self->output_id);
 	g_signal_emit_by_name(self->def_nodes_api, "get-default-node", "Audio/Source", &self->input_id);
 
-	onMixerChanged(self, self->output_id);
+	on_mixer_changed(self, self->output_id);
 
-	g_signal_connect_swapped(self->mixer_api, "changed", (GCallback)onMixerChanged, self);
-	g_signal_connect_swapped(self->def_nodes_api, "changed", (GCallback)onDefaultNodesApiChanged,
+	g_signal_connect_swapped(self->mixer_api, "changed", (GCallback)on_mixer_changed, self);
+	g_signal_connect_swapped(self->def_nodes_api, "changed", (GCallback)on_default_nodes_api_changed,
 							 self);
 
-	onDefaultNodesApiChanged(self);
+	on_default_nodes_api_changed(self);
 }
 
 syshud_wireplumber::syshud_wireplumber(Glib::Dispatcher* input_callback, Glib::Dispatcher* output_callback) {
@@ -143,7 +140,7 @@ syshud_wireplumber::syshud_wireplumber(Glib::Dispatcher* input_callback, Glib::D
 	g_signal_connect_swapped(
 		om,
 		"installed",
-		(GCallback)onObjectManagerInstalled,
+		(GCallback)on_object_manager_installed,
 		this);
 
 	wp_object_manager_add_interest(
@@ -169,7 +166,7 @@ syshud_wireplumber::syshud_wireplumber(Glib::Dispatcher* input_callback, Glib::D
 		nullptr,
 		"default-nodes-api",
 		nullptr,
-		(GAsyncReadyCallback)onDefaultNodesApiLoaded,
+		(GAsyncReadyCallback)on_default_nodes_api_loaded,
 		this);
 }
 

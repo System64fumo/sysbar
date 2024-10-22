@@ -5,7 +5,7 @@
 #include <sys/inotify.h>
 #include <thread>
 
-module_backlight::module_backlight(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
+module_backlight::module_backlight(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_backlight");
 	image_icon.set_from_icon_name("brightness-display-symbolic");
 	volume_brightness[0] = "display-brightness-low-symbolic";
@@ -90,7 +90,7 @@ void module_backlight::setup_widget() {
 	win->grid_widgets_end.attach(*box_widget, 0, 3, 4, 1);
 }
 
-void module_backlight::get_backlight_path(std::string custom_backlight_path) {
+void module_backlight::get_backlight_path(const std::string& custom_backlight_path) {
 	if (custom_backlight_path != "") {
 		backlight_path = custom_backlight_path;
 		return;

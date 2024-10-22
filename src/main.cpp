@@ -74,21 +74,21 @@ int main(int argc, char* argv[]) {
 	 // Read launch arguments
 	#ifdef CONFIG_RUNTIME
 	while (true) {
-		switch(getopt(argc, argv, "psceSVmdvh")) {
+		switch(getopt(argc, argv, "p:s:c:e:S:Vm:d:vh")) {
 			case 'p':
 				config["main"]["position"] = optarg;
 				continue;
 
 			case 's':
-				config["main"]["m_start"] = optarg;
+				config["main"]["modules-start"] = optarg;
 				continue;
 
 			case 'c':
-				config["main"]["m_center"] = optarg;
+				config["main"]["modules-center"] = optarg;
 				continue;
 
 			case 'e':
-				config["main"]["m_end"] = optarg;
+				config["main"]["modules-end"] = optarg;
 				continue;
 
 			case 'S':
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
 				continue;
 
 			case 'm':
-				config["main"]["main_monitor"] = optarg;
+				config["main"]["main-monitor"] = optarg;
 				continue;
 
 			case 'v':

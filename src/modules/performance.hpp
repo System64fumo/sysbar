@@ -8,15 +8,15 @@ struct cpu_stats {
 
 class module_performance : public module {
 	public:
-		module_performance(sysbar *window, const bool &icon_on_start = true);
+		module_performance(sysbar*, const bool&);
 
 	private:
-		int precision = 0;
-		int interval = 1000;
+		int precision;
+		int interval;
 		cpu_stats prev_stats;
 		bool update_info();
 		cpu_stats get_cpu_stats();
-		double calculate_cpu_load(const cpu_stats &prev, const cpu_stats &curr);
+		double calculate_cpu_load(const cpu_stats&, const cpu_stats&);
 };
 
 #endif

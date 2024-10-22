@@ -48,11 +48,11 @@ int wireless_manager::convert_signal_strength(const int& signal_strength_dbm) {
 		return std::round((signal_strength_dbm - min_dbm) * 100.0 / (max_dbm - min_dbm));
 }
 
-int wireless_manager::nl_socket_modify_cb(struct nl_msg *msg, void *arg) {
-	wireless_manager *manager = static_cast<wireless_manager*>(arg);
-	struct nlattr *tb[NL80211_ATTR_MAX + 1];
-	struct nlattr *bss[NL80211_BSS_MAX + 1];
-	auto *gnlh = static_cast<genlmsghdr*>(nlmsg_data(nlmsg_hdr(msg)));
+int wireless_manager::nl_socket_modify_cb(struct nl_msg* msg, void* arg) {
+	wireless_manager* manager = static_cast<wireless_manager*>(arg);
+	struct nlattr* tb[NL80211_ATTR_MAX + 1];
+	struct nlattr* bss[NL80211_BSS_MAX + 1];
+	auto* gnlh = static_cast<genlmsghdr*>(nlmsg_data(nlmsg_hdr(msg)));
 
 	nla_parse(tb, NL80211_ATTR_MAX, (struct nlattr*)genlmsg_attrdata(gnlh, 0), genlmsg_attrlen(gnlh, 0), nullptr);
 
@@ -64,7 +64,7 @@ int wireless_manager::nl_socket_modify_cb(struct nl_msg *msg, void *arg) {
 	nla_parse_nested(bss, NL80211_BSS_MAX, tb[NL80211_ATTR_BSS], nullptr);
 
 	if (bss[NL80211_BSS_BSSID]) {
-		auto ies = static_cast<char *>(nla_data(bss[NL80211_BSS_INFORMATION_ELEMENTS]));
+		auto ies = static_cast<char*>(nla_data(bss[NL80211_BSS_INFORMATION_ELEMENTS]));
 		auto ies_len = nla_len(bss[NL80211_BSS_INFORMATION_ELEMENTS]);
 		int hdr_len = 2;
 
@@ -102,7 +102,7 @@ int wireless_manager::nl_socket_modify_cb(struct nl_msg *msg, void *arg) {
 }
 
 wireless_manager::wireless_info* wireless_manager::get_wireless_info(const std::string& interface_name) {
-	auto *msg = nlmsg_alloc();
+	auto* msg = nlmsg_alloc();
 	genlmsg_put(msg, 0, 0, state.nl80211_id, 0, NLM_F_DUMP, NL80211_CMD_GET_SCAN, 0);
 
 	int if_index = if_nametoindex(interface_name.c_str());

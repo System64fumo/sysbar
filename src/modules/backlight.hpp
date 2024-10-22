@@ -9,7 +9,7 @@
 
 class module_backlight : public module {
 	public:
-		module_backlight(sysbar *window, const bool &icon_on_start = true);
+		module_backlight(sysbar*, const bool&);
 
 	private:
 		std::ofstream brightness_file;
@@ -28,7 +28,7 @@ class module_backlight : public module {
 
 		void update_info();
 		void on_scale_brightness_change();
-		void get_backlight_path(std::string custom_backlight_path);
+		void get_backlight_path(const std::string&);
 		int get_brightness();
 		void setup_widget();
 };

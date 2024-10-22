@@ -3,7 +3,7 @@
 #include <gtkmm/calendar.h>
 #include <ctime>
 
-module_clock::module_clock(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
+module_clock::module_clock(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_clock");
 	image_icon.set_from_icon_name("preferences-system-time-symbolic");
 

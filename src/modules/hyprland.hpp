@@ -7,12 +7,12 @@
 
 class module_hyprland : public module {
 	public:
-		module_hyprland(sysbar *window, const bool &icon_on_start = true);
+		module_hyprland(sysbar*, const bool&);
 
 	private:
-		int character_limit = 128;
 		Glib::Dispatcher dispatcher;
 
+		int character_limit;
 		std::queue<std::string> data_queue;
 		std::mutex mutex;
 

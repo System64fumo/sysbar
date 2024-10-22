@@ -12,11 +12,11 @@
 class sysbar : public Gtk::Window {
 
 	public:
-		sysbar(const std::map<std::string, std::map<std::string, std::string>> &cfg);
-		void handle_signal(const int &signum);
+		sysbar(const std::map<std::string, std::map<std::string, std::string>>&);
+		void handle_signal(const int&);
 
 		std::map<std::string, std::map<std::string, std::string>> config_main;
-		Gtk::Box *box_controls = nullptr;
+		Gtk::Box* box_controls = nullptr;
 		Gtk::Grid grid_widgets_start;
 		Gtk::Grid grid_widgets_end;
 
@@ -34,31 +34,30 @@ class sysbar : public Gtk::Window {
 		Gtk::Box box_end;
 
 		Gtk::Window overlay_window;
-		Gtk::ScrolledWindow *scrolled_Window_start;
-		Gtk::ScrolledWindow *scrolled_Window_end;
+		Gtk::ScrolledWindow scrolled_Window_start;
+		Gtk::ScrolledWindow scrolled_Window_end;
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag;
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_start;
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_end;
 
-		GdkMonitor *monitor;
+		GdkMonitor* monitor;
 		GdkRectangle monitor_geometry;
 		double initial_size_start, initial_size_end;
 		int width, height;
 		bool sliding_start_widget;
 		bool gesture_touch;
 
-		void load_modules(const std::string &modules, Gtk::Box &box);
-		void setup_controls();
+		void load_modules(const std::string&, Gtk::Box&);
 		void setup_overlay();
 		void setup_overlay_widgets();
 		void setup_gestures();
 
-		void on_drag_start(const double &x, const double &y);
-		void on_drag_update(const double &x, const double &y);
-		void on_drag_stop(const double &x, const double &y);
+		void on_drag_start(const double&, const double&);
+		void on_drag_update(const double&, const double&);
+		void on_drag_stop(const double&, const double&);
 };
 
 extern "C" {
-	sysbar *sysbar_create(const std::map<std::string, std::map<std::string, std::string>> &cfg);
-	void sysbar_signal(sysbar *window, int signal);
+	sysbar* sysbar_create(const std::map<std::string, std::map<std::string, std::string>>&);
+	void sysbar_signal(sysbar*, int);
 }

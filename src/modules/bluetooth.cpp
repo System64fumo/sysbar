@@ -131,7 +131,7 @@ void module_bluetooth::extract_data(const Glib::VariantBase& variant_base) {
 	}
 }
 
-void module_bluetooth::update_info(std::string property) {
+void module_bluetooth::update_info(const std::string& property) {
 	if (property == "PowerState") {
 		std::string icon;
 		if (default_adapter.powered)
