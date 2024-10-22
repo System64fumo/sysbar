@@ -49,6 +49,17 @@ bool module_weather::update_info() {
 		return true;
 	}
 
+	// Sanity check
+	Json::Value root;
+	Json::CharReaderBuilder builder;
+	std::string errs;
+
+	if (!Json::parseFromStream(builder, file, &root, &errs)) {
+		image_icon.set_from_icon_name("weather-none-available-symbolic");
+		std::fprintf(stderr, "The weather file does not seem to be valid\n");
+		return false;
+	}
+
 	// Reset the file pointer and load the data
 	file.seekg(0, std::ios::beg);
 	file >> json_data;
