@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
-module_hyprland::module_hyprland(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
+module_hyprland::module_hyprland(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), character_limit(128) {
 	get_style_context()->add_class("module_hyprland");
 	image_icon.hide();
 	label_info.set_margin_end(win->size / 3);

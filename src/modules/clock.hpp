@@ -4,7 +4,7 @@
 
 class module_clock : public module {
 	public:
-		module_clock(sysbar *window, const bool &icon_on_start = true);
+		module_clock(sysbar*, const bool&);
 
 	private:
 		int interval = 1000;

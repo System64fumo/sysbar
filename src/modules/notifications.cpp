@@ -41,11 +41,10 @@ const auto introspection_data = Gio::DBus::NodeInfo::create_for_xml(
 	"	</interface>"
 	"</node>")->lookup_interface();
 
-module_notifications::module_notifications(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
+module_notifications::module_notifications(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), notif_count(0) {
 	get_style_context()->add_class("module_notifications");
 	image_icon.set_from_icon_name("notification-symbolic");
 	label_info.hide();
-
 
 	std::string cfg_command = win->config_main["notification"]["command"];
 	if (!cfg_command.empty())
@@ -60,10 +59,9 @@ bool module_notifications::update_info() {
 }
 
 void module_notifications::setup_widget() {
-	box_notifications = Gtk::make_managed<Gtk::Box>();
-	box_notifications->set_orientation(Gtk::Orientation::VERTICAL);
+	box_notifications.set_orientation(Gtk::Orientation::VERTICAL);
 
-	win->grid_widgets_end.attach(*box_notifications, 0, 5, 4, 4);
+	win->grid_widgets_end.attach(box_notifications, 0, 5, 4, 4);
 
 	// TODO: Support other orientations
 	popover_alert.get_style_context()->add_class("popover_notifications");
@@ -96,11 +94,11 @@ void module_notifications::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connect
 }
 
 void module_notifications::on_interface_method_call(
-	const Glib::RefPtr<Gio::DBus::Connection> &connection,
-	const Glib::ustring &sender, const Glib::ustring &object_path,
-	const Glib::ustring &interface_name, const Glib::ustring &method_name,
-	const Glib::VariantContainerBase &parameters,
-	const Glib::RefPtr<Gio::DBus::MethodInvocation> &invocation) {
+	const Glib::RefPtr<Gio::DBus::Connection>& connection,
+	const Glib::ustring &sender, const Glib::ustring& object_path,
+	const Glib::ustring &interface_name, const Glib::ustring& method_name,
+	const Glib::VariantContainerBase& parameters,
+	const Glib::RefPtr<Gio::DBus::MethodInvocation>& invocation) {
 
 	if (method_name == "GetServerInformation") {
 		static const auto info =
@@ -121,7 +119,7 @@ void module_notifications::on_interface_method_call(
 			for (auto n : notifications) {
 				if (n->notif_id == notif->replaces_id) {
 					// TODO: Alert notifications don't get replaced yet
-					box_notifications->remove(*n);
+					box_notifications.remove(*n);
 					notif->notif_id = notif->replaces_id;
 				}
 			}
@@ -131,8 +129,8 @@ void module_notifications::on_interface_method_call(
 			Glib::Variant<guint32>::create(notif->notif_id));
 
 		notif->signal_clicked().connect([&, notif]() {
-			box_notifications->remove(*notif);
-			if (box_notifications->get_children().size() == 0)
+			box_notifications.remove(*notif);
+			if (box_notifications.get_children().size() == 0)
 				image_icon.set_from_icon_name("notification-symbolic");
 
 		});
@@ -140,7 +138,7 @@ void module_notifications::on_interface_method_call(
 		notif_alert->signal_clicked().connect([&, notif_alert]() {
 			for (auto n : notifications) {
 				if (n->notif_id == notif_alert->notif_id)
-					box_notifications->remove(*n);
+					box_notifications.remove(*n);
 			}
 
 			notif_alert->timeout_connection.disconnect();
@@ -153,7 +151,7 @@ void module_notifications::on_interface_method_call(
 			}
 		});
 
-		box_notifications->prepend(*notif);
+		box_notifications.prepend(*notif);
 		flowbox_alert.prepend(*notif_alert);
 
 		notif_alert->timeout_connection = Glib::signal_timeout().connect([&, notif_alert]() {
@@ -172,7 +170,7 @@ void module_notifications::on_interface_method_call(
 	}
 }
 
-notification::notification(std::vector<notification*> notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters, const std::string command) {
+notification::notification(std::vector<notification*> notifications, const Glib::ustring& sender, const Glib::VariantContainerBase& parameters, const std::string& command) {
 	get_style_context()->add_class("notification");
 	if (!parameters.is_of_type(Glib::VariantType("(susssasa{sv}i)")))
 		return;
@@ -265,12 +263,12 @@ notification::notification(std::vector<notification*> notifications, const Glib:
 
 	if (!command.empty()) {
 		std::thread([command]() {
-			system(command.c_str());
+			(void)system(command.c_str());
 		}).detach();
 	}
 }
 
-void notification::handle_hint(Glib::ustring key, const Glib::VariantBase &value) {
+void notification::handle_hint(const Glib::ustring& key, const Glib::VariantBase& value) {
 	if (key == "icon_data") {
 		auto container = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(value);
 		int width = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(0)).get();

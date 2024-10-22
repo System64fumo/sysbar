@@ -2,7 +2,7 @@
 
 #include <giomm/dbusconnection.h>
 
-module_battery::module_battery(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
+module_battery::module_battery(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_battery");
 	image_icon.set_from_icon_name("battery-missing-symbolic"); // Fallback
 	label_info.set_text("0"); // Fallback
@@ -37,7 +37,7 @@ void module_battery::on_properties_changed(
 	}
 }
 
-void module_battery::update_info(const std::string &property) {
+void module_battery::update_info(const std::string& property) {
 	// TODO: Check for more stuff
 
 	if (property ==  "IconName") {

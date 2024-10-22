@@ -1,6 +1,7 @@
 #pragma once
 #include "../module.hpp"
 #ifdef MODULE_CONTROLS
+
 #include <gtkmm/flowbox.h>
 #include <gtkmm/button.h>
 
@@ -13,7 +14,7 @@ class control : public Gtk::Box {
 
 class module_controls : public module {
 	public:
-		module_controls(sysbar *window, const bool &icon_on_start = true);
+		module_controls(sysbar*, const bool&);
 		Gtk::FlowBox flowbox_controls;
 };
 

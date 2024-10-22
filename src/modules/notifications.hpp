@@ -9,10 +9,12 @@
 
 class notification : public Gtk::Button {
 	public:
-		notification(std::vector<notification*> notifications, const Glib::ustring &sender, const Glib::VariantContainerBase &parameters, const std::string);
+		notification(std::vector<notification*> notifications, const Glib::ustring&, const Glib::VariantContainerBase&, const std::string&);
+
+		sigc::connection timeout_connection;
+
 		guint32 notif_id;
 		guint32 replaces_id;
-		sigc::connection timeout_connection;
 
 	private:
 		Gtk::Box box_main;
@@ -23,26 +25,27 @@ class notification : public Gtk::Button {
 		Glib::ustring body;
 		Glib::RefPtr<Gdk::Pixbuf> image_data;
 
-		void handle_hint(Glib::ustring, const Glib::VariantBase&);
+		void handle_hint(const Glib::ustring&, const Glib::VariantBase&);
 };
 
 class module_notifications : public module {
 	public:
-		module_notifications(sysbar *window, const bool &icon_on_start = true);
-		int notif_count = 0;
+		module_notifications(sysbar*, const bool&);
+
+		int notif_count;
 		std::vector<notification*> notifications;
 
 	private:
-		std::string command;
-		Gtk::Box *box_notifications;
+		Gtk::Box box_notifications;
 		Gtk::Popover popover_alert;
 		Gtk::FlowBox flowbox_alert;
 		Gtk::ScrolledWindow scrolledwindow_alert;
 		sigc::connection timeout_connection;
-
-		guint object_id;
 		Glib::RefPtr<Gio::DBus::Connection> daemon_connection;
 		const Gio::DBus::InterfaceVTable interface_vtable{sigc::mem_fun(*this, &module_notifications::on_interface_method_call)};
+
+		std::string command;
+		guint object_id;
 
 		bool update_info();
 		void setup_widget();

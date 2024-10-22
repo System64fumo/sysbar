@@ -19,7 +19,7 @@ std::string cleanup_string(const std::string &str) {
 }
 
 // Placeholder functions
-void handle_toplevel_title(void *data, zwlr_foreign_toplevel_handle_v1* handle, const char *title) {
+void handle_toplevel_title(void* data, zwlr_foreign_toplevel_handle_v1* handle, const char* title) {
 	auto toplevel_entry = static_cast<taskbar_item*>(data);
 	toplevel_entry->handle = handle;
 
@@ -34,7 +34,7 @@ void handle_toplevel_title(void *data, zwlr_foreign_toplevel_handle_v1* handle, 
 	toplevel_entry->toplevel_label.set_text(text);
 }
 
-void handle_toplevel_app_id(void *data, zwlr_foreign_toplevel_handle_v1*, const char *app_id) {
+void handle_toplevel_app_id(void* data, zwlr_foreign_toplevel_handle_v1*, const char* app_id) {
 	auto toplevel_entry = static_cast<taskbar_item*>(data);
 	Glib::RefPtr<Gio::AppInfo> app_info;
 
@@ -56,16 +56,16 @@ void handle_toplevel_app_id(void *data, zwlr_foreign_toplevel_handle_v1*, const 
 		toplevel_entry->image_icon.set(app_info->get_icon());
 }
 
-void handle_toplevel_output_enter(void *data, zwlr_foreign_toplevel_handle_v1*, wl_output *output) {}
+void handle_toplevel_output_enter(void* data, zwlr_foreign_toplevel_handle_v1*, wl_output* output) {}
 
-void handle_toplevel_output_leave(void *data, zwlr_foreign_toplevel_handle_v1*, wl_output *output) {}
+void handle_toplevel_output_leave(void* data, zwlr_foreign_toplevel_handle_v1*, wl_output* output) {}
 
-void handle_toplevel_state(void *data, zwlr_foreign_toplevel_handle_v1*, wl_array *state) {
+void handle_toplevel_state(void* data, zwlr_foreign_toplevel_handle_v1*, wl_array* state) {
 	auto toplevel_entry = static_cast<Gtk::Box*>(data);
 	auto flowbox_child = static_cast<Gtk::FlowBoxChild*>(toplevel_entry->get_parent());
 	auto flowbox = static_cast<Gtk::FlowBox*>(flowbox_child->get_parent());
 
-	uint32_t *state_array = (uint32_t *)state->data;
+	uint32_t* state_array = (uint32_t* )state->data;
 	size_t count = state->size / sizeof(uint32_t);
 
 	for (size_t i = 0; i < count; ++i) {
@@ -83,9 +83,9 @@ void handle_toplevel_state(void *data, zwlr_foreign_toplevel_handle_v1*, wl_arra
 	}
 }
 
-void handle_toplevel_done(void *data, zwlr_foreign_toplevel_handle_v1*) {}
+void handle_toplevel_done(void* data, zwlr_foreign_toplevel_handle_v1*) {}
 
-void handle_toplevel_closed(void *data, zwlr_foreign_toplevel_handle_v1* handle) {
+void handle_toplevel_closed(void* data, zwlr_foreign_toplevel_handle_v1* handle) {
 	auto toplevel_entry = static_cast<taskbar_item*>(data);
 	auto flowbox_child = static_cast<Gtk::FlowBoxChild*>(toplevel_entry->get_parent());
 	auto flowbox = static_cast<Gtk::FlowBox*>(flowbox_child->get_parent());
@@ -95,7 +95,7 @@ void handle_toplevel_closed(void *data, zwlr_foreign_toplevel_handle_v1* handle)
 	// Future me will find out!
 }
 
-void handle_toplevel_parent(void *data, zwlr_foreign_toplevel_handle_v1* handle, zwlr_foreign_toplevel_handle_v1* parent) {}
+void handle_toplevel_parent(void* data, zwlr_foreign_toplevel_handle_v1* handle, zwlr_foreign_toplevel_handle_v1* parent) {}
 
 zwlr_foreign_toplevel_handle_v1_listener toplevel_handle_v1_impl = {
 	.title = handle_toplevel_title,
@@ -108,11 +108,11 @@ zwlr_foreign_toplevel_handle_v1_listener toplevel_handle_v1_impl = {
 	.parent = handle_toplevel_parent
 };
 
-void handle_manager_toplevel(void *data, zwlr_foreign_toplevel_manager_v1 *manager,
-	zwlr_foreign_toplevel_handle_v1 *toplevel) {
+void handle_manager_toplevel(void* data, zwlr_foreign_toplevel_manager_v1* manager,
+	zwlr_foreign_toplevel_handle_v1* toplevel) {
 	auto self = static_cast<module_taskbar*>(data);
 
-	taskbar_item *toplevel_entry = Gtk::make_managed<taskbar_item>(self->flowbox_main, self->cfg);
+	taskbar_item* toplevel_entry = Gtk::make_managed<taskbar_item>(self->flowbox_main, self->cfg);
 	
 	zwlr_foreign_toplevel_handle_v1_add_listener(toplevel,
 		&toplevel_handle_v1_impl, toplevel_entry);
@@ -124,8 +124,8 @@ zwlr_foreign_toplevel_manager_v1_listener toplevel_manager_v1_impl = {
 	.toplevel = handle_manager_toplevel,
 };
 
-void registry_handler(void *data, struct wl_registry *registry,
-							 uint32_t id, const char *interface, uint32_t version) {
+void registry_handler(void* data, struct wl_registry* registry,
+							 uint32_t id, const char* interface, uint32_t version) {
 
 	auto self = static_cast<module_taskbar*>(data);
 	if (strcmp(interface, zwlr_foreign_toplevel_manager_v1_interface.name) == 0) {
@@ -142,7 +142,7 @@ wl_registry_listener registry_listener = {
 	&registry_handler
 };
 
-module_taskbar::module_taskbar(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
+module_taskbar::module_taskbar(sysbar* window, const bool &icon_on_start) : module(window, icon_on_start) {
 	// Undo normal widget stuff
 	get_style_context()->remove_class("module");
 	set_cursor(Gdk::Cursor::create("default"));
@@ -206,7 +206,7 @@ void module_taskbar::setup_proto() {
 	wl_display_roundtrip(display);
 }
 
-taskbar_item::taskbar_item(const Gtk::FlowBox& container, const module_taskbar::config_tb &cfg) {
+taskbar_item::taskbar_item(const Gtk::FlowBox& container, const module_taskbar::config_tb& cfg) {
 	text_length = cfg.text_length;
 	image_icon.set_pixel_size(cfg.icon_size);
 

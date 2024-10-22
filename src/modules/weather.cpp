@@ -6,7 +6,7 @@
 #include <ctime>
 #include <thread>
 
-module_weather::module_weather(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
+module_weather::module_weather(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_weather");
 	image_icon.set_from_icon_name("content-loading-symbolic");
 	label_info.hide();
@@ -31,7 +31,7 @@ bool module_weather::update_info() {
 	// You know.. Juuuust in case it blocks ui updataes
 
 	std::string home_dir = getenv("HOME");
-	weather_file = home_dir + "/.cache/sysbar-weather.json";
+	weather_file = std::move(home_dir) + "/.cache/sysbar-weather.json";
 
 	std::ifstream file(weather_file, std::ios::ate);
 
@@ -50,13 +50,14 @@ bool module_weather::update_info() {
 	}
 
 	// Sanity check
+	file.seekg(0);
 	Json::Value root;
 	Json::CharReaderBuilder builder;
 	std::string errs;
 
 	if (!Json::parseFromStream(builder, file, &root, &errs)) {
 		image_icon.set_from_icon_name("weather-none-available-symbolic");
-		std::fprintf(stderr, "The weather file does not seem to be valid\n");
+		std::fprintf(stderr, "The weather file does not seem to be valid: %s\n", errs.c_str());
 		return false;
 	}
 
@@ -103,7 +104,6 @@ bool module_weather::update_info() {
 	else
 		image_icon.set_from_icon_name("weather-none-available-symbolic");
 
-	// TODO: For some reason this flickers?
 	set_tooltip_text(weather_info_current.weatherDesc);
 
 	return true;
@@ -137,7 +137,7 @@ void module_weather::download_file() {
 	}
 }
 
-void module_weather::get_weather_data(const std::string &date, const std::string &time) {
+void module_weather::get_weather_data(const std::string& date, const std::string& time) {
 	Json::Value weatherArray = json_data["weather"];
 
 	// Iterate over each date in the weather array

@@ -1,25 +1,25 @@
 #include "window.hpp"
 
-#include "modules/clock.hpp"
-#include "modules/weather.hpp"
-#include "modules/tray.hpp"
-#include "modules/hyprland.hpp"
-#include "modules/volume.hpp"
-#include "modules/network.hpp"
+#include "modules/backlight.hpp"
 #include "modules/battery.hpp"
+#include "modules/bluetooth.hpp"
+#include "modules/cellular.hpp"
+#include "modules/clock.hpp"
+#include "modules/controls.hpp"
+#include "modules/hyprland.hpp"
+#include "modules/mpris.hpp"
+#include "modules/network.hpp"
 #include "modules/notifications.hpp"
 #include "modules/performance.hpp"
 #include "modules/taskbar.hpp"
-#include "modules/backlight.hpp"
-#include "modules/mpris.hpp"
-#include "modules/bluetooth.hpp"
-#include "modules/controls.hpp"
-#include "modules/cellular.hpp"
+#include "modules/tray.hpp"
+#include "modules/volume.hpp"
+#include "modules/weather.hpp"
 
 #include <gtk4-layer-shell.h>
 #include <filesystem>
 
-sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>> &cfg) {
+sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& cfg) {
 	config_main = cfg;
 
 	// Only load commonly used non string configs
@@ -28,8 +28,8 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>> &
 	verbose = config_main["main"]["verbose"] == "true";
 
 	// Get main monitor
-	GdkDisplay *display = gdk_display_get_default();
-	GListModel *monitors = gdk_display_get_monitors(display);
+	GdkDisplay* display = gdk_display_get_default();
+	GListModel* monitors = gdk_display_get_monitors(display);
 
 	int monitorCount = g_list_model_get_n_items(monitors);
 
@@ -124,34 +124,13 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>> &
 	setup_overlay_widgets();
 	setup_gestures();
 
-	// Setup the controls widget
-	#ifdef MODULE_CONTROLS
-	setup_controls();
-	#endif
-
 	// Load modules
-	load_modules(config_main["main"]["m_start"], box_start);
-	load_modules(config_main["main"]["m_center"], box_center);
-	load_modules(config_main["main"]["m_end"], box_end);
+	load_modules(config_main["main"]["modules-start"], box_start);
+	load_modules(config_main["main"]["modules-center"], box_center);
+	load_modules(config_main["main"]["modules-end"], box_end);
 }
 
-#ifdef MODULE_CONTROLS
-void sysbar::setup_controls() {
-	if (config_main["main"]["m_start"].find("controls") != std::string::npos) {
-		box_controls = Gtk::make_managed<module_controls>(this, false);
-		box_start.append(*box_controls);
-	}
-	else if (config_main["main"]["m_center"].find("controls") != std::string::npos) {
-		std::fprintf(stderr, "Controls widget cannot be put in the center.\n");
-	}
-	else if (config_main["main"]["m_end"].find("controls") != std::string::npos) {
-		box_controls = Gtk::make_managed<module_controls>(this, false);
-		box_end.append(*box_controls);
-	}
-}
-#endif
-
-void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
+void sysbar::load_modules(const std::string& modules, Gtk::Box& box) {
 	std::istringstream iss(modules);
 	std::string module_name;
 
@@ -160,7 +139,7 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 	bool icon_on_start = (&box == &box_start);
 
 	while (std::getline(iss, module_name, ',')) {
-		module *my_module;
+		module* new_module;
 
 		if (verbose)
 			std::printf("Loading module: %s\n", module_name.c_str());
@@ -170,77 +149,79 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 
 		#ifdef MODULE_CLOCK
 		else if (module_name == "clock")
-			my_module = Gtk::make_managed<module_clock>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_clock>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_WEATHER
 		else if (module_name == "weather")
-			my_module = Gtk::make_managed<module_weather>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_weather>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_TRAY
 		else if (module_name == "tray")
-			my_module = Gtk::make_managed<module_tray>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_tray>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_HYPRLAND
 		else if (module_name == "hyprland")
-			my_module = Gtk::make_managed<module_hyprland>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_hyprland>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_VOLUME
 		else if (module_name == "volume")
-			my_module = Gtk::make_managed<module_volume>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_volume>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_NETWORK
 		else if (module_name == "network")
-			my_module = Gtk::make_managed<module_network>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_network>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_BATTERY
 		else if (module_name == "battery")
-			my_module = Gtk::make_managed<module_battery>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_battery>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_NOTIFICATION
 		else if (module_name == "notification")
-			my_module = Gtk::make_managed<module_notifications>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_notifications>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_PERFORMANCE
 		else if (module_name == "performance")
-			my_module = Gtk::make_managed<module_performance>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_performance>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_TASKBAR
 		else if (module_name == "taskbar")
-			my_module = Gtk::make_managed<module_taskbar>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_taskbar>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_BACKLIGHT
 		else if (module_name == "backlight")
-			my_module = Gtk::make_managed<module_backlight>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_backlight>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_MPRIS
 		else if (module_name == "mpris")
-			my_module = Gtk::make_managed<module_mpris>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_mpris>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_BLUETOOTH
 		else if (module_name == "bluetooth")
-			my_module = Gtk::make_managed<module_bluetooth>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_bluetooth>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_CELLULAR
 		else if (module_name == "cellular")
-			my_module = Gtk::make_managed<module_cellular>(this, icon_on_start);
+			new_module = Gtk::make_managed<module_cellular>(this, icon_on_start);
 		#endif
 
 		#ifdef MODULE_CONTROLS
-		else if (module_name == "controls")
+		else if (module_name == "controls" && &box != &box_center) {
+			box_controls = Gtk::make_managed<module_controls>(this, icon_on_start);
 			continue;
+		}
 		#endif
 
 		else {
@@ -248,11 +229,11 @@ void sysbar::load_modules(const std::string &modules, Gtk::Box &box) {
 			return;
 		}
 
-		box.append(*my_module);
+		box.append(*new_module);
 	}
 }
 
-void sysbar::handle_signal(const int &signum) {
+void sysbar::handle_signal(const int& signum) {
 	Glib::signal_idle().connect([this, signum]() {
 		switch (signum) {
 			case 10: // Show
@@ -279,10 +260,10 @@ void sysbar::handle_signal(const int &signum) {
 }
 
 extern "C" {
-	sysbar *sysbar_create(const std::map<std::string, std::map<std::string, std::string>> &cfg) {
+	sysbar* sysbar_create(const std::map<std::string, std::map<std::string, std::string>>& cfg) {
 		return new sysbar(cfg);
 	}
-	void sysbar_signal(sysbar *window, int signal) {
+	void sysbar_signal(sysbar* window, int signal) {
 		window->handle_signal(signal);
 	}
 }

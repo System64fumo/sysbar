@@ -1,6 +1,7 @@
 #pragma once
 #include "config.hpp"
 #ifdef MODULE_NETWORK
+
 #include <string>
 
 class wireless_manager {
@@ -15,7 +16,7 @@ class wireless_manager {
 			double frequency;
 		};
 
-		wireless_info* get_wireless_info(const std::string& interface_name);
+		wireless_info* get_wireless_info(const std::string&);
 
 	private:
 		struct nl80211_state {
@@ -26,7 +27,7 @@ class wireless_manager {
 		nl80211_state state;
 		wireless_info info;
 
-		int convert_signal_strength(const int& signal_strength_dbm);
-		static int nl_socket_modify_cb(struct nl_msg *msg, void *arg);
+		int convert_signal_strength(const int&);
+		static int nl_socket_modify_cb(struct nl_msg*, void*);
 };
 #endif

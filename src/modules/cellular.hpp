@@ -30,21 +30,21 @@ enum MMModemAccessTechnology {
 
 class module_cellular : public module {
 	public:
-		module_cellular(sysbar *window, const bool &icon_on_start = false);
+		module_cellular(sysbar*, const bool&);
 
 	private:
+		Glib::RefPtr<Gio::DBus::Proxy> proxy;
+
 		uint32_t signal;
 
-		Glib::RefPtr<Gio::DBus::Proxy> proxy;
 		void setup();
 		void on_properties_changed(
-			const Glib::ustring& sender_name,
-			const Glib::ustring& signal_name,
-			const Glib::VariantContainerBase& parameters);
-
+			const Glib::ustring&,
+			const Glib::ustring&,
+			const Glib::VariantContainerBase&);
 		void update_info();
-		void extract_data(const Glib::VariantBase& variant_base);
-		std::string tech_to_icon(const int& tech);
+		void extract_data(const Glib::VariantBase&);
+		std::string tech_to_icon(const int&);
 };
 
 #endif

@@ -9,7 +9,7 @@
 
 class module_taskbar : public module {
 	public:
-		module_taskbar(sysbar *window, const bool &icon_on_start = true);
+		module_taskbar(sysbar*, const bool&);
 
 		struct config_tb {
 			int text_length = 14;
@@ -29,12 +29,13 @@ class module_taskbar : public module {
 
 class taskbar_item : public Gtk::Box {
 	public:
-		taskbar_item(const Gtk::FlowBox&, const module_taskbar::config_tb &cfg);
-		uint text_length;
+		taskbar_item(const Gtk::FlowBox&, const module_taskbar::config_tb&);
 
 		Gtk::Label toplevel_label;
 		Gtk::Image image_icon;
 		zwlr_foreign_toplevel_handle_v1* handle;
+
+		uint text_length;
 };
 
 #endif

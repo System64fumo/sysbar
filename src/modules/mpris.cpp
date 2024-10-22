@@ -6,7 +6,7 @@
 #include <thread>
 
 static void playback_status(PlayerctlPlayer *player, PlayerctlPlaybackStatus status, gpointer user_data) {
-	module_mpris *self = static_cast<module_mpris*>(user_data);
+	module_mpris* self = static_cast<module_mpris*>(user_data);
 	self->status = status;
 	self->dispatcher_callback.emit();
 }
@@ -17,8 +17,8 @@ size_t write_data(void* ptr, size_t size, size_t nmemb, std::vector<unsigned cha
 	return size * nmemb;
 }
 
-static void metadata(PlayerctlPlayer *player, GVariant *metadata, gpointer user_data) {
-	module_mpris *self = static_cast<module_mpris*>(user_data);
+static void metadata(PlayerctlPlayer* player, GVariant* metadata, gpointer user_data) {
+	module_mpris* self = static_cast<module_mpris*>(user_data);
 
 	// Initial cleanup
 	self->artist.clear();
@@ -94,7 +94,7 @@ static void metadata(PlayerctlPlayer *player, GVariant *metadata, gpointer user_
 }
 
 static void player_appeared(PlayerctlPlayerManager* manager, PlayerctlPlayerName* player_name, gpointer user_data) {
-	module_mpris *self = static_cast<module_mpris*>(user_data);
+	module_mpris* self = static_cast<module_mpris*>(user_data);
 	self->player = playerctl_player_new_from_name(player_name, nullptr);
 
 	g_object_get(self->player, "playback-status", &self->status, nullptr);
@@ -106,11 +106,11 @@ static void player_appeared(PlayerctlPlayerManager* manager, PlayerctlPlayerName
 }
 
 static void player_vanished(PlayerctlPlayerManager* manager, PlayerctlPlayerName* player_name, gpointer user_data) {
-	module_mpris *self = static_cast<module_mpris*>(user_data);
+	module_mpris* self = static_cast<module_mpris*>(user_data);
 	self->player = nullptr;
 
 	// Itterate over all players
-	GList *players = playerctl_list_players(nullptr);
+	GList* players = playerctl_list_players(nullptr);
 	for (auto plr = players; plr != nullptr; plr = plr->next) {
 		auto plr_name = static_cast<PlayerctlPlayerName*>(plr->data);
 		player_appeared(nullptr, plr_name, self);
@@ -118,7 +118,7 @@ static void player_vanished(PlayerctlPlayerManager* manager, PlayerctlPlayerName
 	}
 }
 
-module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
+module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start), player(nullptr) {
 	get_style_context()->add_class("module_mpris");
 
 	if (win->config_main["mpris"]["show-icon"] != "true")
@@ -162,9 +162,7 @@ void module_mpris::update_info() {
 	else
 		image_album_art.set_from_icon_name("process-working-symbolic");
 
-	// TODO: Playback status can be tracked using a timer by getting..
-	// the "length" property every second if the player is playing
-	//progressbar_playback.set_fraction(0.5);
+	// TODO: Add a progress slider
 }
 
 void module_mpris::setup_widget() {
@@ -227,6 +225,4 @@ void module_mpris::setup_widget() {
 	box_controls.append(button_previous);
 	box_controls.append(button_play_pause);
 	box_controls.append(button_next);
-	
-	//box_right.append(progressbar_playback);
 }

@@ -43,36 +43,34 @@ void sysbar::setup_overlay_widgets() {
 	grid_widgets_start.get_style_context()->add_class("grid_widgets_start");
 	grid_widgets_end.get_style_context()->add_class("grid_widgets_end");
 
-	scrolled_Window_start = Gtk::make_managed<Gtk::ScrolledWindow>();
-	scrolled_Window_end = Gtk::make_managed<Gtk::ScrolledWindow>();
-	scrolled_Window_start->set_child(grid_widgets_start);
-	scrolled_Window_end->set_child(grid_widgets_end);
-	scrolled_Window_start->set_kinetic_scrolling(false);
-	scrolled_Window_end->set_kinetic_scrolling(false);
+	scrolled_Window_start.set_child(grid_widgets_start);
+	scrolled_Window_end.set_child(grid_widgets_end);
+	scrolled_Window_start.set_kinetic_scrolling(false);
+	scrolled_Window_end.set_kinetic_scrolling(false);
 
 	if (position == 0) {
-		scrolled_Window_start->set_valign(Gtk::Align::START);
-		scrolled_Window_end->set_valign(Gtk::Align::START);
+		scrolled_Window_start.set_valign(Gtk::Align::START);
+		scrolled_Window_end.set_valign(Gtk::Align::START);
 		grid_widgets_start.set_valign(Gtk::Align::START);
 		grid_widgets_end.set_valign(Gtk::Align::START);
 	}
 	else if (position == 1) {
-		scrolled_Window_start->set_valign(Gtk::Align::START);
-		scrolled_Window_end->set_valign(Gtk::Align::END);
-		scrolled_Window_start->set_halign(Gtk::Align::END);
-		scrolled_Window_end->set_halign(Gtk::Align::END);
+		scrolled_Window_start.set_valign(Gtk::Align::START);
+		scrolled_Window_end.set_valign(Gtk::Align::END);
+		scrolled_Window_start.set_halign(Gtk::Align::END);
+		scrolled_Window_end.set_halign(Gtk::Align::END);
 		grid_widgets_start.set_halign(Gtk::Align::END);
 		grid_widgets_end.set_halign(Gtk::Align::END);
 	}
 	else if (position == 2) {
-		scrolled_Window_start->set_valign(Gtk::Align::END);
-		scrolled_Window_end->set_valign(Gtk::Align::END);
+		scrolled_Window_start.set_valign(Gtk::Align::END);
+		scrolled_Window_end.set_valign(Gtk::Align::END);
 		grid_widgets_start.set_valign(Gtk::Align::END);
 		grid_widgets_end.set_valign(Gtk::Align::END);
 	}
 	else if (position == 3) {
-		scrolled_Window_start->set_valign(Gtk::Align::START);
-		scrolled_Window_end->set_valign(Gtk::Align::END);
+		scrolled_Window_start.set_valign(Gtk::Align::START);
+		scrolled_Window_end.set_valign(Gtk::Align::END);
 		grid_widgets_start.set_valign(Gtk::Align::START);
 		grid_widgets_end.set_valign(Gtk::Align::START);
 		grid_widgets_start.set_halign(Gtk::Align::START);
@@ -84,61 +82,61 @@ void sysbar::setup_overlay_widgets() {
 	if (vertical_layout) { // Vertical
 		if (size / 2 > default_size_start) {
 			grid_widgets_start.set_size_request(-1, default_size_start);
-			scrolled_Window_start->set_halign(Gtk::Align::START);
+			scrolled_Window_start.set_halign(Gtk::Align::START);
 		}
 		else
-			scrolled_Window_start->set_hexpand(true);
+			scrolled_Window_start.set_hexpand(true);
 
 		if (size / 2 > default_size_end) {
 			grid_widgets_end.set_size_request(-1, default_size_end);
-			scrolled_Window_end->set_halign(Gtk::Align::END);
+			scrolled_Window_end.set_halign(Gtk::Align::END);
 		}
 		else
-			scrolled_Window_end->set_hexpand(true);
+			scrolled_Window_end.set_hexpand(true);
 
 		box_overlay.set_orientation(Gtk::Orientation::VERTICAL);
 	}
 	else { // Horizontal
 		if (size / 2 > default_size_start) {
 			grid_widgets_start.set_size_request(default_size_start, -1);
-			scrolled_Window_start->set_halign(Gtk::Align::START);
+			scrolled_Window_start.set_halign(Gtk::Align::START);
 		}
 		else {
-			scrolled_Window_start->set_hexpand(true);
-			scrolled_Window_start->set_halign(Gtk::Align::FILL);
+			scrolled_Window_start.set_hexpand(true);
+			scrolled_Window_start.set_halign(Gtk::Align::FILL);
 		}
 
 		if (size / 2 > default_size_end) {
 			grid_widgets_end.set_size_request(default_size_end, -1);
-			scrolled_Window_end->set_halign(Gtk::Align::END);
+			scrolled_Window_end.set_halign(Gtk::Align::END);
 		}
 		else {
-			scrolled_Window_end->set_hexpand(true);
-			scrolled_Window_end->set_halign(Gtk::Align::FILL);
+			scrolled_Window_end.set_hexpand(true);
+			scrolled_Window_end.set_halign(Gtk::Align::FILL);
 		}
 
 		box_overlay.set_orientation(Gtk::Orientation::HORIZONTAL);
 	}
 
-	scrolled_Window_start->set_policy(
+	scrolled_Window_start.set_policy(
 		vertical_layout ? Gtk::PolicyType::EXTERNAL : Gtk::PolicyType::NEVER,
 		!vertical_layout ? Gtk::PolicyType::EXTERNAL : Gtk::PolicyType::NEVER);
-	scrolled_Window_end->set_policy(
+	scrolled_Window_end.set_policy(
 		vertical_layout ? Gtk::PolicyType::EXTERNAL : Gtk::PolicyType::NEVER,
 		!vertical_layout ? Gtk::PolicyType::EXTERNAL : Gtk::PolicyType::NEVER);
 
-	scrolled_Window_start->set_visible(false);
-	scrolled_Window_end->set_visible(false);
+	scrolled_Window_start.set_visible(false);
+	scrolled_Window_end.set_visible(false);
 
-	box_overlay.append(*scrolled_Window_start);
-	box_overlay.append(*scrolled_Window_end);
+	box_overlay.append(scrolled_Window_start);
+	box_overlay.append(scrolled_Window_end);
 }
 
 // TODO: The whole gesture system needs a rework
 // This is a horrible mess..
 void sysbar::setup_gestures() {
 	gesture_drag = Gtk::GestureDrag::create();
-	gesture_drag->signal_drag_begin().connect([&](const double &x, const double &y) {
+	gesture_drag->signal_drag_begin().connect([&](const double& x, const double& y) {
 		gesture_touch = gesture_drag->get_current_event()->get_pointer_emulated();
 		on_drag_start(x, y);
 
@@ -150,7 +148,7 @@ void sysbar::setup_gestures() {
 	add_controller(gesture_drag);
 
 	gesture_drag_start = Gtk::GestureDrag::create();
-	gesture_drag_start->signal_drag_begin().connect([&](const double &x, const double &y) {
+	gesture_drag_start->signal_drag_begin().connect([&](const double& x, const double& y) {
 		gesture_touch = gesture_drag_start->get_current_event()->get_pointer_emulated();
 		if (!gesture_touch) {
 			gesture_drag_start->reset();
@@ -162,10 +160,10 @@ void sysbar::setup_gestures() {
 	});
 	gesture_drag_start->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
 	gesture_drag_start->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
-	scrolled_Window_start->add_controller(gesture_drag_start);
+	scrolled_Window_start.add_controller(gesture_drag_start);
 
 	gesture_drag_end = Gtk::GestureDrag::create();
-	gesture_drag_end->signal_drag_begin().connect([&](const double &x, const double &y) {
+	gesture_drag_end->signal_drag_begin().connect([&](const double& x, const double& y) {
 		gesture_touch = gesture_drag_end->get_current_event()->get_pointer_emulated();
 		if (!gesture_touch) {
 			gesture_drag_end->reset();
@@ -177,41 +175,41 @@ void sysbar::setup_gestures() {
 	});
 	gesture_drag_end->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
 	gesture_drag_end->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
-	scrolled_Window_end->add_controller(gesture_drag_end);
+	scrolled_Window_end.add_controller(gesture_drag_end);
 }
 
-void sysbar::on_drag_start(const double &x, const double &y) {
+void sysbar::on_drag_start(const double& x, const double& y) {
 	overlay_window.show();
 
-	scrolled_Window_start->set_valign(Gtk::Align::START);
-	scrolled_Window_end->set_valign(Gtk::Align::START);
+	scrolled_Window_start.set_valign(Gtk::Align::START);
+	scrolled_Window_end.set_valign(Gtk::Align::START);
 
 	if (position == 0) {
-		scrolled_Window_start->set_valign(Gtk::Align::START);
-		scrolled_Window_end->set_valign(Gtk::Align::START);
+		scrolled_Window_start.set_valign(Gtk::Align::START);
+		scrolled_Window_end.set_valign(Gtk::Align::START);
 	}
 	else if (position == 1) {
-		scrolled_Window_start->set_halign(Gtk::Align::END);
-		scrolled_Window_end->set_halign(Gtk::Align::END);
+		scrolled_Window_start.set_halign(Gtk::Align::END);
+		scrolled_Window_end.set_halign(Gtk::Align::END);
 	}
 	else if (position == 2) {
-		scrolled_Window_start->set_valign(Gtk::Align::END);
-		scrolled_Window_end->set_valign(Gtk::Align::END);
+		scrolled_Window_start.set_valign(Gtk::Align::END);
+		scrolled_Window_end.set_valign(Gtk::Align::END);
 	}
 	else if (position == 3) {
-		scrolled_Window_start->set_halign(Gtk::Align::START);
-		scrolled_Window_end->set_halign(Gtk::Align::START);
+		scrolled_Window_start.set_halign(Gtk::Align::START);
+		scrolled_Window_end.set_halign(Gtk::Align::START);
 	}
 
 	if (position % 2) {
 		sliding_start_widget = y < monitor_geometry.height / 2;
-		initial_size_start = scrolled_Window_start->get_width();
-		initial_size_end = scrolled_Window_end->get_width();
+		initial_size_start = scrolled_Window_start.get_width();
+		initial_size_end = scrolled_Window_end.get_width();
 	}
 	else {
 		sliding_start_widget = x < monitor_geometry.width / 2;
-		initial_size_start = scrolled_Window_start->get_height();
-		initial_size_end = scrolled_Window_end->get_height();
+		initial_size_start = scrolled_Window_start.get_height();
+		initial_size_end = scrolled_Window_end.get_height();
 	}
 
 	if (initial_size_start != 0 || initial_size_end != 0) {
@@ -225,15 +223,15 @@ void sysbar::on_drag_start(const double &x, const double &y) {
 		}
 	}
 
-	scrolled_Window_start->set_visible(sliding_start_widget);
-	scrolled_Window_end->set_visible(!sliding_start_widget);
+	scrolled_Window_start.set_visible(sliding_start_widget);
+	scrolled_Window_end.set_visible(!sliding_start_widget);
 }
 
-void sysbar::on_drag_update(const double &x, const double &y) {
+void sysbar::on_drag_update(const double& x, const double& y) {
 	double drag_width = -1;
 	double drag_height = -1;
 	double initial_size = sliding_start_widget ? initial_size_start : initial_size_end;
-	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? scrolled_Window_start : scrolled_Window_end;
+	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? &scrolled_Window_start : &scrolled_Window_end;
 
 	if (position == 0)
 		drag_height = y + initial_size;
@@ -255,11 +253,11 @@ void sysbar::on_drag_update(const double &x, const double &y) {
 	scrolled_Window->set_size_request(drag_width, drag_height);
 }
 
-void sysbar::on_drag_stop(const double &x, const double &y) {
+void sysbar::on_drag_stop(const double& x, const double& y) {
 	double size = 0;
 	double initial_size = sliding_start_widget ? initial_size_start : initial_size_end;
 	double size_threshold = sliding_start_widget ? grid_widgets_start.get_allocated_height() : grid_widgets_end.get_allocated_height();;
-	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? scrolled_Window_start : scrolled_Window_end;
+	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? &scrolled_Window_start : &scrolled_Window_end;
 
 	if (position == 0)
 		size = y + initial_size;
@@ -284,6 +282,6 @@ void sysbar::on_drag_stop(const double &x, const double &y) {
 
 	scrolled_Window->set_size_request(-1, -1);
 
-	if (!scrolled_Window_start->get_visible() && !scrolled_Window_end->get_visible())
+	if (!scrolled_Window_start.get_visible() && !scrolled_Window_end.get_visible())
 		overlay_window.hide();
 }

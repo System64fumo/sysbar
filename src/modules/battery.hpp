@@ -6,17 +6,16 @@
 
 class module_battery : public module {
 	public:
-		module_battery(sysbar *window, const bool &icon_on_start = false);
+		module_battery(sysbar*, const bool&);
 
 	private:
-		bool show_percentage = false;
 		Glib::RefPtr<Gio::DBus::Proxy> proxy;
 
 		void setup();
 		void on_properties_changed(
-			const Gio::DBus::Proxy::MapChangedProperties &properties,
-			const std::vector<Glib::ustring> &invalidated);
-		void update_info(const std::string &property);
+			const Gio::DBus::Proxy::MapChangedProperties&,
+			const std::vector<Glib::ustring>&);
+		void update_info(const std::string&);
 };
 
 #endif

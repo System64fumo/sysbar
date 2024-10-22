@@ -6,7 +6,7 @@
 
 class module_weather : public module {
 	public:
-		module_weather(sysbar *window, const bool &icon_on_start = true);
+		module_weather(sysbar*, const bool&);
 
 	private:
 		struct weather_info {
@@ -25,7 +25,7 @@ class module_weather : public module {
 
 		bool update_info();
 		void download_file();
-		void get_weather_data(const std::string &date, const std::string &time);
+		void get_weather_data(const std::string&, const std::string&);
 };
 
 #endif

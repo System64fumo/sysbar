@@ -27,21 +27,24 @@ struct adapter {
 
 class module_bluetooth : public module {
 	public:
-		module_bluetooth(sysbar *window, const bool &icon_on_start = true);
+		module_bluetooth(sysbar*, const bool&);
 
 	private:
 		Glib::RefPtr<Gio::DBus::Proxy> prop_proxy;
+
 		std::vector<adapter> adapters;
 		std::vector<device> devices;
 		adapter default_adapter;
+
 		#ifdef MODULE_CONTROLS
 		control* control_bluetooth;
 		void setup_control();
 		#endif
+
 		void on_properties_changed(
-			const Glib::ustring& sender_name,
-			const Glib::ustring& signal_name,
-			const Glib::VariantContainerBase& parameters);
-		void extract_data(const Glib::VariantBase& variant_base);
-		void update_info(std::string property);
+			const Glib::ustring&,
+			const Glib::ustring&,
+			const Glib::VariantContainerBase&);
+		void extract_data(const Glib::VariantBase&);
+		void update_info(const std::string&);
 };

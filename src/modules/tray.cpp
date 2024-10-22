@@ -4,7 +4,7 @@
 #include <filesystem>
 
 // Tray module
-module_tray::module_tray(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
+module_tray::module_tray(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_tray");
 	label_info.hide();
 
@@ -43,7 +43,7 @@ module_tray::module_tray(sysbar *window, const bool &icon_on_start) : module(win
 	add_controller(gesture_click);
 }
 
-void module_tray::on_clicked(const int &n_press, const double &x, const double &y) {
+void module_tray::on_clicked(const int& n_press, const double& x, const double& y) {
 	// TODO: Change icon order when the icon is not at the start
 	// Also use top/down arrows for vertical bars
 	if (revealer_box.get_reveal_child()) {
@@ -66,7 +66,7 @@ void module_tray::on_clicked(const int &n_press, const double &x, const double &
 }
 
 // Tray watcher
-tray_watcher::tray_watcher(Gtk::Box *box) : watcher_id(0) {
+tray_watcher::tray_watcher(Gtk::Box* box) : hosts_counter(0), watcher_id(0) {
 	box_container = box;
 	auto pid = std::to_string(getpid());
 	auto host_id = "org.kde.StatusNotifierHost-" + pid + "-" + std::to_string(++hosts_counter);
@@ -150,7 +150,7 @@ void tray_watcher::on_interface_get_property(Glib::VariantBase& property,
 	}
 }
 
-void tray_watcher::on_name_appeared(const DBusConnection &conn, const Glib::ustring &name, const Glib::ustring &owner) {
+void tray_watcher::on_name_appeared(const DBusConnection& conn, const Glib::ustring& name, const Glib::ustring& owner) {
 	Gio::DBus::Proxy::create(conn, "org.kde.StatusNotifierWatcher", "/StatusNotifierWatcher", "org.kde.StatusNotifierWatcher",
 		[this, host_name = name](const Glib::RefPtr<Gio::AsyncResult> &result) {
 			watcher_proxy = Gio::DBus::Proxy::create_finish(result);
@@ -212,7 +212,7 @@ void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustrin
 }
 
 // Tray item
-tray_item::tray_item(const Glib::ustring &service) {
+tray_item::tray_item(const Glib::ustring& service) {
 	get_style_context()->add_class("tray_item");
 	const auto slash_ind = service.find('/');
 	dbus_name = service.substr(0, slash_ind);
@@ -226,9 +226,9 @@ tray_item::tray_item(const Glib::ustring &service) {
 		[this](const Glib::RefPtr<Gio::AsyncResult> &result) {
 			item_proxy = Gio::DBus::Proxy::create_for_bus_finish(result);
 
-			item_proxy->signal_signal().connect([this](const Glib::ustring &sender,
-													const Glib::ustring &signal,
-													const Glib::VariantContainerBase &params) {
+			item_proxy->signal_signal().connect([this](const Glib::ustring&,
+													const Glib::ustring& signal,
+													const Glib::VariantContainerBase&) {
 				if (signal.size() >= 3) {
 					std::string_view property(signal.c_str() + 3, signal.size() - 3);
 					update_properties();
@@ -293,7 +293,7 @@ static Glib::RefPtr<Gdk::Pixbuf> extract_pixbuf(std::vector<std::tuple<gint32, g
 	);
 }
 
-void tray_item::build_menu(const Glib::VariantBase &layout) {
+void tray_item::build_menu(const Glib::VariantBase& layout) {
 	auto layout_tuple = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(layout);
 
 	// This mess has to get cleaned up one day..
@@ -320,7 +320,7 @@ void tray_item::build_menu(const Glib::VariantBase &layout) {
 			type = type.substr(1, type.size() - 2);
 
 			if (type == "separator") {
-				Gtk::FlowBoxChild *child = Gtk::make_managed<Gtk::FlowBoxChild>();
+				Gtk::FlowBoxChild* child = Gtk::make_managed<Gtk::FlowBoxChild>();
 				child->set_child(*Gtk::make_managed<Gtk::Separator>());
 				child->set_sensitive(false);
 				flowbox_context.append(*child);
@@ -380,12 +380,12 @@ void tray_item::update_properties() {
 	build_menu(result_tuple.get_child(1));
 }
 
-void tray_item::on_right_clicked(const int &n_press, const double &x, const double &y) {
+void tray_item::on_right_clicked(const int& n_press, const double& x, const double& y) {
 	popover_context.popup();
 }
 
-void tray_item::on_menu_item_click(Gtk::FlowBoxChild *child) {
-	Gtk::Label *label = dynamic_cast<Gtk::Label*>(child->get_child());
+void tray_item::on_menu_item_click(Gtk::FlowBoxChild* child) {
+	Gtk::Label* label = dynamic_cast<Gtk::Label*>(child->get_child());
 
 	auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SESSION);
 
