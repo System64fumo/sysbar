@@ -8,17 +8,15 @@
 module_hyprland::module_hyprland(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_hyprland");
 	image_icon.hide();
-	label_info.set_margin_end(config_main.size / 3);
+	label_info.set_margin_end(win->size / 3);
 
-	#ifdef CONFIG_FILE
-	if (config->available) {
-		std::string cfg_char_limit = config->data["hyprland"]["character-limit"];
-		if (!cfg_char_limit.empty())
-			character_limit = std::stoi(cfg_char_limit);
-	}
-	#endif
 
-	if (config_main.position %2 == 0) {
+	std::string cfg_char_limit = win->config_main["hyprland"]["character-limit"];
+	if (!cfg_char_limit.empty())
+		character_limit = std::stoi(cfg_char_limit);
+
+
+	if (win->position %2 == 0) {
 		dispatcher.connect(sigc::mem_fun(*this, &module_hyprland::update_info));
 		std::thread socket_thread(&module_hyprland::socket_listener, this);
 		socket_thread.detach();

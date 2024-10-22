@@ -7,21 +7,17 @@ module_clock::module_clock(sysbar *window, const bool &icon_on_start) : module(w
 	get_style_context()->add_class("module_clock");
 	image_icon.set_from_icon_name("preferences-system-time-symbolic");
 
-	#ifdef CONFIG_FILE
-	if (config->available) {
-		std::string cfg_label_format = config->data["clock"]["label-format"];
-		if (!cfg_label_format.empty())
-			tooltip_format = cfg_label_format;
+	std::string cfg_label_format = win->config_main["clock"]["label-format"];
+	if (!cfg_label_format.empty())
+		tooltip_format = cfg_label_format;
 
-		std::string cfg_tooltip_format = config->data["clock"]["tooltip-format"];
-		if (!cfg_tooltip_format.empty())
-			tooltip_format = cfg_tooltip_format;
+	std::string cfg_tooltip_format = win->config_main["clock"]["tooltip-format"];
+	if (!cfg_tooltip_format.empty())
+		tooltip_format = cfg_tooltip_format;
 
-		std::string cfg_interval = config->data["clock"]["interval"];
-		if (!cfg_interval.empty())
-			interval = std::stoi(cfg_interval);
-	}
-	#endif
+	std::string cfg_interval = win->config_main["clock"]["interval"];
+	if (!cfg_interval.empty())
+		interval = std::stoi(cfg_interval);
 
 	update_info();
 	Glib::signal_timeout().connect(sigc::mem_fun(*this, &module_clock::update_info), interval);

@@ -46,13 +46,10 @@ module_notifications::module_notifications(sysbar *window, const bool &icon_on_s
 	image_icon.set_from_icon_name("notification-symbolic");
 	label_info.hide();
 
-	#ifdef CONFIG_FILE
-	if (config->available) {
-		std::string cfg_command = config->data["notification"]["command"];
-		if (!cfg_command.empty())
-			command = cfg_command;
-	}
-	#endif
+
+	std::string cfg_command = win->config_main["notification"]["command"];
+	if (!cfg_command.empty())
+		command = cfg_command;
 
 	setup_widget();
 	setup_daemon();

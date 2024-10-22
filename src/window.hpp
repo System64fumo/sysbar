@@ -1,5 +1,4 @@
 #pragma once
-#include "config_parser.hpp"
 #include "config.hpp"
 #include "css.hpp"
 
@@ -13,19 +12,20 @@
 class sysbar : public Gtk::Window {
 
 	public:
-		sysbar(const config_bar &cfg);
+		sysbar(const std::map<std::string, std::map<std::string, std::string>> &cfg);
 		void handle_signal(const int &signum);
 
-		config_bar config_main;
+		std::map<std::string, std::map<std::string, std::string>> config_main;
 		Gtk::Box *box_controls = nullptr;
 		Gtk::Grid grid_widgets_start;
 		Gtk::Grid grid_widgets_end;
 
-	private:
-		#ifdef CONFIG_FILE
-		config_parser *config;
-		#endif
+		// Main config
+		int position;
+		int size;
+		bool verbose;
 
+	private:
 		Gtk::Revealer revealer_box;
 		Gtk::CenterBox centerbox_main;
 		Gtk::Box box_overlay;
@@ -59,6 +59,6 @@ class sysbar : public Gtk::Window {
 };
 
 extern "C" {
-	sysbar *sysbar_create(const config_bar &cfg);
+	sysbar *sysbar_create(const std::map<std::string, std::map<std::string, std::string>> &cfg);
 	void sysbar_signal(sysbar *window, int signal);
 }

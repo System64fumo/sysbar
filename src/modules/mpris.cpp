@@ -121,17 +121,12 @@ static void player_vanished(PlayerctlPlayerManager* manager, PlayerctlPlayerName
 module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_mpris");
 
-	#ifdef CONFIG_FILE
-	if (config->available) {
-		std::string cfg_icon = config->data["mpris"]["show-icon"];
-		if (cfg_icon != "true")
-			image_icon.hide();
+	if (win->config_main["mpris"]["show-icon"] != "true")
+		image_icon.hide();
 
-		std::string cfg_label = config->data["mpris"]["show-label"];
-		if (cfg_label != "true")
-			label_info.hide();
-	}
-	#endif
+	if (win->config_main["mpris"]["show-label"] != "true")
+		label_info.hide();
+
 
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_mpris::update_info));
 

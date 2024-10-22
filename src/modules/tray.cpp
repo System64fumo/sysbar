@@ -17,7 +17,7 @@ module_tray::module_tray(sysbar *window, const bool &icon_on_start) : module(win
 	Gtk::RevealerTransitionType transition_type = Gtk::RevealerTransitionType::SLIDE_LEFT;
 
 	// Set orientation
-	if (config_main.position % 2) {
+	if (win->position % 2) {
 		image_icon.set_from_icon_name("arrow-down");
 		transition_type = Gtk::RevealerTransitionType::SLIDE_DOWN;
 		box_container.set_orientation(Gtk::Orientation::VERTICAL);
@@ -47,14 +47,14 @@ void module_tray::on_clicked(const int &n_press, const double &x, const double &
 	// TODO: Change icon order when the icon is not at the start
 	// Also use top/down arrows for vertical bars
 	if (revealer_box.get_reveal_child()) {
-		if (config_main.position % 2)
+		if (win->position % 2)
 			image_icon.set_from_icon_name("arrow-down");
 		else
 		image_icon.set_from_icon_name("arrow-right");
 		revealer_box.set_reveal_child(false);
 	}
 	else {
-		if (config_main.position % 2)
+		if (win->position % 2)
 			image_icon.set_from_icon_name("arrow-up");
 		else
 		image_icon.set_from_icon_name("arrow-left");
