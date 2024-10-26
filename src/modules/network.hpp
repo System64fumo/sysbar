@@ -2,6 +2,7 @@
 #include "../module.hpp"
 #ifdef MODULE_NETWORK
 #include "../wireless_network.hpp"
+#include "controls.hpp"
 
 struct network_adapter {
 	std::string interface;
@@ -19,6 +20,11 @@ class module_network : public module {
 		Glib::Dispatcher dispatcher;
 		#ifdef FEATURE_WIRELESS
 		wireless_manager manager;
+		#endif
+
+		#ifdef MODULE_CONTROLS
+		control* control_network;
+		void setup_control();
 		#endif
 
 		int nl_socket;

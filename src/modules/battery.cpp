@@ -11,6 +11,7 @@ module_battery::module_battery(sysbar* window, const bool& icon_on_start) : modu
 		label_info.hide();
 
 	setup();
+	setup_control();
 }
 
 void module_battery::setup() {
@@ -52,3 +53,18 @@ void module_battery::update_info(const std::string& property) {
 		label_info.set_text(std::to_string((int)charge.get()));
 	}
 }
+
+#ifdef MODULE_CONTROLS
+void module_battery::setup_control() {
+	if (!win->box_controls)
+		return;
+
+	auto container = static_cast<module_controls*>(win->box_controls);
+	control_battery = Gtk::make_managed<control>("battery-level-100-symbolic", true);
+	container->flowbox_controls.append(*control_battery);
+
+	// TODO: Clicking on the main button should trigger low power mode
+	// Additionaly controls for battery management (For devices that support it)-
+	// should be added.
+}
+#endif

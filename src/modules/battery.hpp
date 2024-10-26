@@ -1,6 +1,7 @@
 #pragma once
 #include "../module.hpp"
 #ifdef MODULE_BATTERY
+#include "controls.hpp"
 
 #include <giomm/dbusproxy.h>
 
@@ -10,6 +11,11 @@ class module_battery : public module {
 
 	private:
 		Glib::RefPtr<Gio::DBus::Proxy> proxy;
+
+		#ifdef MODULE_CONTROLS
+		control* control_battery;
+		void setup_control();
+		#endif
 
 		void setup();
 		void on_properties_changed(
