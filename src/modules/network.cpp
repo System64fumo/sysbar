@@ -26,6 +26,10 @@ module_network::module_network(sysbar* window, const bool& icon_on_start) : modu
 		update_info();
 		return true;
 	}, 10000);
+
+	#ifdef MODULE_CONTROLS
+	setup_control();
+	#endif
 }
 
 module_network::~module_network() {
@@ -217,3 +221,14 @@ void module_network::process_message(struct nlmsghdr* nlh) {
 		}
 	}
 }
+
+#ifdef MODULE_CONTROLS
+void module_network::setup_control() {
+	if (!win->box_controls)
+		return;
+
+	auto container = static_cast<module_controls*>(win->box_controls);
+	control_network = Gtk::make_managed<control>("network-wireless-symbolic", true);
+	container->flowbox_controls.append(*control_network);
+}
+#endif
