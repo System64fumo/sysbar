@@ -32,14 +32,18 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 	GdkDisplay* display = gdk_display_get_default();
 	GListModel* monitors = gdk_display_get_monitors(display);
 
-	int monitorCount = g_list_model_get_n_items(monitors);
+	for (guint i = 0; i < g_list_model_get_n_items(monitors); ++i) {
+		monitor = static_cast<GdkMonitor*>(g_list_model_get_item(monitors, i));
+		const gchar* monitor_name = gdk_monitor_get_connector(monitor);
 
-	if (std::stoi(config_main["main"]["main-monitor"]) < 0)
-		config_main["main"]["main-monitor"] = "0";
-	else if (std::stoi(config_main["main"]["main-monitor"]) >= monitorCount)
-		config_main["main"]["main-monitor"] = std::to_string(monitorCount - 1);
+		if (verbose)
+			std::printf("Monitor: %s\n", monitor_name);
 
-	monitor = GDK_MONITOR(g_list_model_get_item(monitors, std::stoi(config_main["main"]["main-monitor"])));
+		if (config_main["main"]["main-monitor"] == monitor_name)
+			break;
+		else
+			monitor = GDK_MONITOR(g_list_model_get_item(monitors, 0));
+	}
 
 	gdk_monitor_get_geometry(monitor, &monitor_geometry);
 
@@ -61,33 +65,33 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 		case 0:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_DOWN;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_BOTTOM, false);
-			width = -1;
-			height = size;
+			bar_width = -1;
+			bar_height = size;
 			break;
 		case 1:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_LEFT;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_LEFT, false);
-			width = size;
-			height = -1;
+			bar_width = size;
+			bar_height = -1;
 			break;
 		case 2:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_UP;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_TOP, false);
-			width = -1;
-			height = size;
+			bar_width = -1;
+			bar_height = size;
 			break;
 		case 3:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_RIGHT;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_RIGHT, false);
-			width = size;
-			height = -1;
+			bar_width = size;
+			bar_height = -1;
 			break;
 	}
 
 	// Initialize
 	set_name("sysbar");
 	set_hide_on_close(true);
-	set_default_size(width, height);
+	set_default_size(bar_width, bar_height);
 	set_child(revealer_box);
 	revealer_box.set_child(centerbox_main);
 	revealer_box.set_transition_type(transition_type);
@@ -243,7 +247,7 @@ void sysbar::handle_signal(const int& signum) {
 			case 10: // Show
 				revealer_box.set_reveal_child(true);
 				gtk_layer_set_exclusive_zone(gobj(), size);
-				set_default_size(width, height);
+				set_default_size(bar_width, bar_height);
 				break;
 
 			case 12: // Hide
