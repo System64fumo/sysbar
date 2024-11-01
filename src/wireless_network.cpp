@@ -1,9 +1,6 @@
 #include "wireless_network.hpp"
 #ifdef FEATURE_WIRELESS
-#include <sstream>
 #include <cmath>
-#include <cstdint>
-#include <iomanip>
 #include <net/if.h>
 #include <linux/nl80211.h>
 #include <netlink/genl/genl.h>

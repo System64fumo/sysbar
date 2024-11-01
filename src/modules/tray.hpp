@@ -2,20 +2,11 @@
 #include "../module.hpp"
 #ifdef MODULE_TRAY
 
-#include <giomm/dbusconnection.h>
 #include <giomm/dbusproxy.h>
 #include <giomm/dbuswatchname.h>
 #include <giomm/dbusownname.h>
-#include <gtkmm/box.h>
 #include <gtkmm/flowbox.h>
-#include <gtkmm/image.h>
-#include <gtkmm/revealer.h>
 #include <gtkmm/popover.h>
-
-using DBusConnection = Glib::RefPtr<Gio::DBus::Connection>;
-using DBusProxy = Glib::RefPtr<Gio::DBus::Proxy>;
-using DBusVariant = Glib::VariantBase;
-using DBusSignalHandler = sigc::slot<void(const Glib::ustring&, const Glib::ustring&, const Glib::VariantContainerBase&)>;
 
 class tray_item : public Gtk::Image {
 	public:
@@ -28,14 +19,8 @@ class tray_item : public Gtk::Image {
 		Glib::ustring dbus_name;
 		Glib::ustring dbus_path;
 		Glib::DBusObjectPathString menu_path;
-		DBusProxy item_proxy;
+		Glib::RefPtr<Gio::DBus::Proxy> item_proxy;
 		Glib::RefPtr<Gtk::GestureClick> gesture_right_click;
-
-		template<typename T> T get_item_property(const Glib::ustring& name, const T &default_value = {}) const {
-			Glib::VariantBase variant;
-			item_proxy->get_cached_property(variant, name);
-			return variant && variant.is_of_type(Glib::Variant<T>::variant_type()) ? Glib::VariantBase::cast_dynamic<Glib::Variant<T>>(variant).get() : default_value;
-		}
 
 		void on_right_clicked(const int&, const double&, const double&);
 		void on_menu_item_click(Gtk::FlowBoxChild*);
@@ -53,8 +38,8 @@ class tray_watcher {
 		int hosts_counter;
 
 		guint watcher_id;
-		DBusConnection watcher_connection;
-		DBusProxy watcher_proxy;
+		Glib::RefPtr<Gio::DBus::Connection> watcher_connection;
+		Glib::RefPtr<Gio::DBus::Proxy> watcher_proxy;
 
 		const Gio::DBus::InterfaceVTable interface_table =
 			Gio::DBus::InterfaceVTable(
@@ -72,10 +57,10 @@ class tray_watcher {
 			const Glib::ustring&, const Glib::ustring&,
 			const Glib::ustring&, const Glib::ustring&);
 
-		void on_bus_acquired_host(const DBusConnection&, const Glib::ustring&);
-		void on_bus_acquired_watcher(const DBusConnection&, const Glib::ustring&);
-		void on_name_appeared(const DBusConnection&, const Glib::ustring &name, const Glib::ustring&);
-		void on_name_vanished(const DBusConnection&, const Glib::ustring&);
+		void on_bus_acquired_host(const Glib::RefPtr<Gio::DBus::Connection>&, const Glib::ustring&);
+		void on_bus_acquired_watcher(const Glib::RefPtr<Gio::DBus::Connection>&, const Glib::ustring&);
+		void on_name_appeared(const Glib::RefPtr<Gio::DBus::Connection>&, const Glib::ustring &name, const Glib::ustring&);
+		void on_name_vanished(const Glib::RefPtr<Gio::DBus::Connection>&, const Glib::ustring&);
 		void handle_signal(const Glib::ustring&, const Glib::ustring&, const Glib::VariantContainerBase&);
 };
 

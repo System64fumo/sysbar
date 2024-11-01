@@ -1,7 +1,7 @@
 #pragma once
 #include "config.hpp"
-#include "css.hpp"
 
+#include <gtkmm/window.h>
 #include <gtkmm/revealer.h>
 #include <gtkmm/centerbox.h>
 #include <gtkmm/scrolledwindow.h>
@@ -10,7 +10,6 @@
 #include <gtkmm/grid.h>
 
 class sysbar : public Gtk::Window {
-
 	public:
 		sysbar(const std::map<std::string, std::map<std::string, std::string>>&);
 		void handle_signal(const int&);
