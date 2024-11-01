@@ -75,13 +75,13 @@ tray_watcher::tray_watcher(Gtk::Box* box) : hosts_counter(0), watcher_id(0) {
 	Gio::DBus::own_name(Gio::DBus::BusType::SESSION, host_id, sigc::mem_fun(*this, &tray_watcher::on_bus_acquired_host));
 }
 
-void tray_watcher::on_bus_acquired_host(const DBusConnection& conn, const Glib::ustring& name) {
+void tray_watcher::on_bus_acquired_host(const Glib::RefPtr<Gio::DBus::Connection>& conn, const Glib::ustring& name) {
 	watcher_id = Gio::DBus::watch_name(conn,"org.kde.StatusNotifierWatcher",
 		sigc::mem_fun(*this, &tray_watcher::on_name_appeared),
 		sigc::mem_fun(*this, &tray_watcher::on_name_vanished));
 }
 
-void tray_watcher::on_bus_acquired_watcher(const DBusConnection& conn, const Glib::ustring& name) {
+void tray_watcher::on_bus_acquired_watcher(const Glib::RefPtr<Gio::DBus::Connection>& conn, const Glib::ustring& name) {
 	const auto introspection_data = Gio::DBus::NodeInfo::create_for_xml(
 	R"(
 	<?xml version="1.0" encoding="UTF-8"?>
@@ -150,7 +150,7 @@ void tray_watcher::on_interface_get_property(Glib::VariantBase& property,
 	}
 }
 
-void tray_watcher::on_name_appeared(const DBusConnection& conn, const Glib::ustring& name, const Glib::ustring& owner) {
+void tray_watcher::on_name_appeared(const Glib::RefPtr<Gio::DBus::Connection>& conn, const Glib::ustring& name, const Glib::ustring& owner) {
 	Gio::DBus::Proxy::create(conn, "org.kde.StatusNotifierWatcher", "/StatusNotifierWatcher", "org.kde.StatusNotifierWatcher",
 		[this, host_name = name](const Glib::RefPtr<Gio::AsyncResult> &result) {
 			watcher_proxy = Gio::DBus::Proxy::create_finish(result);
@@ -170,7 +170,7 @@ void tray_watcher::on_name_appeared(const DBusConnection& conn, const Glib::ustr
 		});
 }
 
-void tray_watcher::on_name_vanished(const DBusConnection& conn, const Glib::ustring& name) {
+void tray_watcher::on_name_vanished(const Glib::RefPtr<Gio::DBus::Connection>& conn, const Glib::ustring& name) {
 	Gio::DBus::unwatch_name(watcher_id);
 }
 
@@ -194,7 +194,7 @@ void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustrin
 		// TODO: Add cleanup code
 		Gio::DBus::watch_name(
 			Gio::DBus::BusType::SESSION,
-			sender, {}, [this, sender] (const DBusConnection &conn, const Glib::ustring &name) {
+			sender, {}, [this, sender] (const Glib::RefPtr<Gio::DBus::Connection> &conn, const Glib::ustring &name) {
 			watcher_connection->emit_signal(
 				"/StatusNotifierWatcher",
 				"org.kde.StatusNotifierWatcher",
@@ -263,54 +263,52 @@ tray_item::~tray_item() {
 	popover_context.unparent();
 }
 
-static Glib::RefPtr<Gdk::Pixbuf> extract_pixbuf(std::vector<std::tuple<gint32, gint32, std::vector<guint8>>> && pixbuf_data) {
-	if (pixbuf_data.empty())
-		return {};
+namespace {
+	const Glib::RefPtr<Gdk::Pixbuf> extract_pixbuf(std::vector<std::tuple<gint32, gint32, std::vector<guint8>>> pixbuf_data) {
+		if (pixbuf_data.empty())
+			return {};
 
-	auto chosen_image = std::max_element(pixbuf_data.begin(), pixbuf_data.end());
-	auto &[width, height, data] = *chosen_image;
+		auto chosen_image = std::max_element(pixbuf_data.begin(), pixbuf_data.end());
+		auto &[width, height, data] = *chosen_image;
 
-	// Convert ARGB to RGBA
-	for (size_t i = 0; i + 3 < data.size(); i += 4) {
-		const auto alpha = data[i];
-		data[i]	 = data[i + 1];
-		data[i + 1] = data[i + 2];
-		data[i + 2] = data[i + 3];
-		data[i + 3] = alpha;
+		// Convert ARGB to RGBA
+		for (size_t i = 0; i + 3 < data.size(); i += 4) {
+			const auto alpha = data[i];
+			data[i]	 = data[i + 1];
+			data[i + 1] = data[i + 2];
+			data[i + 2] = data[i + 3];
+			data[i + 3] = alpha;
+		}
+
+		auto *data_ptr = new auto(std::move(data));
+
+		return Gdk::Pixbuf::create_from_data(
+			data_ptr->data(),
+			Gdk::Colorspace::RGB,
+			true,
+			8,
+			width,
+			height,
+			4 * width,
+			[data_ptr] (auto*) { delete data_ptr; }
+		);
 	}
-
-	auto *data_ptr = new auto(std::move(data));
-
-	return Gdk::Pixbuf::create_from_data(
-		data_ptr->data(),
-		Gdk::Colorspace::RGB,
-		true,
-		8,
-		width,
-		height,
-		4 * width,
-		[data_ptr] (auto*) { delete data_ptr; }
-	);
 }
 
 void tray_item::build_menu(const Glib::VariantBase& layout) {
 	auto layout_tuple = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(layout);
 
 	// This mess has to get cleaned up one day..
-	auto id_variant = layout_tuple.get_child(0);
-	auto properties_variant = layout_tuple.get_child(1);
-	auto children_variant = layout_tuple.get_child(2);
-
-	int id = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(id_variant).get();
-	auto properties_dict = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::ustring, Glib::VariantBase>>>(properties_variant);
-	auto children = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<Glib::VariantBase>>>(children_variant);
+	int id = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(layout_tuple.get_child(0)).get();
+	auto properties_dict = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::ustring, Glib::VariantBase>>>(layout_tuple.get_child(1));
+	auto children = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<Glib::VariantBase>>>(layout_tuple.get_child(2));
 
 	for (const auto& key_value : properties_dict.get()) {
 		if (key_value.first == "label") {
 			std::string label_str = key_value.second.print();
 			label_str = label_str.substr(1, label_str.length() - 2);
 
-			Gtk::Label *label = Gtk::make_managed<Gtk::Label>(label_str);
+			Gtk::Label* label = Gtk::make_managed<Gtk::Label>(label_str);
 			label->set_name(std::to_string(id));
 			label->set_use_underline(true);
 			flowbox_context.append(*label);
@@ -334,25 +332,47 @@ void tray_item::build_menu(const Glib::VariantBase& layout) {
 }
 
 void tray_item::update_properties() {
-	auto label = get_item_property<Glib::ustring>("Title");
-	auto [tooltip_icon_name, tooltip_icon_data, tooltip_title, tooltip_text] = get_item_property<std::tuple<Glib::ustring, std::vector<std::tuple<gint32, gint32, std::vector<guint8>>>, Glib::ustring, Glib::ustring>>("ToolTip");
-	auto icon_theme_path = get_item_property<Glib::ustring>("IconThemePath");
-	Glib::ustring icon_type_name = get_item_property<Glib::ustring>("Status") == "NeedsAttention" ? "AttentionIcon" : "Icon";
-	auto icon_name = get_item_property<Glib::ustring>(icon_type_name + "Name");
-	auto status = get_item_property<Glib::ustring>("Status");
-	menu_path = get_item_property<Glib::DBusObjectPathString>("Menu");
+	Glib::VariantBase variant;
+	item_proxy->get_cached_property(variant, "Title");
+	auto label = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(variant).get();
+
+	item_proxy->get_cached_property(variant, "ToolTip");
+	auto [tooltip_icon_name, tooltip_icon_data, tooltip_title, tooltip_text] = (variant) ?
+		Glib::VariantBase::cast_dynamic<Glib::Variant<std::tuple<Glib::ustring, std::vector<std::tuple<gint32, gint32, std::vector<guint8>>>, Glib::ustring, Glib::ustring>>>(variant).get() :
+		std::make_tuple(Glib::ustring{}, std::vector<std::tuple<gint32, gint32, std::vector<guint8>>>{}, Glib::ustring{}, Glib::ustring{});
+
+	item_proxy->get_cached_property(variant, "IconThemePath");
+	auto icon_theme_path = (variant) ? Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(variant).get() : "";
+
+	item_proxy->get_cached_property(variant, "Status");
+	auto status = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(variant).get();
+	Glib::ustring icon_type_name = status == "NeedsAttention" ? "AttentionIcon" : "Icon";
+
+	item_proxy->get_cached_property(variant, icon_type_name + "Name");
+	auto icon_name =  Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(variant).get();
+
+	item_proxy->get_cached_property(variant, "Menu");
+	menu_path = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::DBusObjectPathString>>(variant).get();
 
 	if (!tooltip_title.empty())
 		set_tooltip_text(tooltip_title);
 	else
 		set_tooltip_text(label);
 
-	std::string icon_path = icon_theme_path + "/" + icon_name + ".png";
+	const std::string icon_path = icon_theme_path + "/" + icon_name + ".png";
 
-	if (std::filesystem::exists(icon_path))
+	if (std::filesystem::exists(icon_path)) {
 		set(icon_path);
-	else
-		set(extract_pixbuf(get_item_property<std::vector<std::tuple<gint32, gint32, std::vector<guint8>>>>(icon_type_name + "Pixmap")));
+	}
+	else {
+		Glib::VariantBase variant;
+		item_proxy->get_cached_property(variant, icon_type_name + "Pixmap");
+
+		if (variant) {
+			auto pixmap = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<std::tuple<gint32, gint32, std::vector<guint8>>>>>(variant).get();
+			set(extract_pixbuf(pixmap));
+		}
+	}
 
 	if (menu_path.empty())
 		return;

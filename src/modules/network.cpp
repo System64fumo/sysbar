@@ -2,7 +2,6 @@
 
 #include <net/if.h>
 #include <linux/rtnetlink.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <thread>
 #include <filesystem>

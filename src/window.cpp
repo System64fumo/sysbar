@@ -17,6 +17,7 @@
 #include "modules/weather.hpp"
 
 #include <gtk4-layer-shell.h>
+#include <gtkmm/cssprovider.h>
 #include <filesystem>
 
 sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& cfg) {
@@ -41,7 +42,6 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 	monitor = GDK_MONITOR(g_list_model_get_item(monitors, std::stoi(config_main["main"]["main-monitor"])));
 
 	gdk_monitor_get_geometry(monitor, &monitor_geometry);
-
 
 	// Initialize layer shell
 	gtk_layer_init_for_window(gobj());
@@ -117,7 +117,11 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 	else
 		style_path = "/usr/local/share/sys64/bar/style.css";
 
-	css_loader css(style_path, this);
+	auto css = Gtk::CssProvider::create();
+	css->load_from_path(style_path);
+	auto style_context = get_style_context();
+	style_context->add_provider_for_display(property_display(), css, GTK_STYLE_PROVIDER_PRIORITY_USER);
+
 
 	// Overlay
 	setup_overlay();
