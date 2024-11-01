@@ -42,7 +42,7 @@ class sysbar : public Gtk::Window {
 		GdkMonitor* monitor;
 		GdkRectangle monitor_geometry;
 		double initial_size_start, initial_size_end;
-		int width, height;
+		int bar_width, bar_height;
 		bool sliding_start_widget;
 		bool gesture_touch;
 

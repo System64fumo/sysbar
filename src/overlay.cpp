@@ -247,8 +247,8 @@ void sysbar::on_drag_update(const double& x, const double& y) {
 	drag_height = std::max(0.0, drag_height);
 
 	// And this ensures we don't go outside of the screen
-	drag_width = std::min((double)monitor_geometry.width - width, drag_width);
-	drag_height = std::min((double)monitor_geometry.height - height, drag_height);
+	drag_width = std::min((double)monitor_geometry.width - bar_width, drag_width);
+	drag_height = std::min((double)monitor_geometry.height - bar_height, drag_height);
 
 	scrolled_Window->set_size_request(drag_width, drag_height);
 }
