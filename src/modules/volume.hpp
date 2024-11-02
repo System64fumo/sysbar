@@ -17,6 +17,7 @@ class module_volume : public module {
 		syshud_wireplumber *sys_wp;
 
 		std::map<int, std::string> volume_icons;
+		std::vector<int> widget_layout = {0, 4, 4, 1};
 
 		void update_info();
 		void setup_widget();

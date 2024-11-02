@@ -19,6 +19,14 @@ module_clock::module_clock(sysbar* window, const bool& icon_on_start) : module(w
 	if (!cfg_interval.empty())
 		interval = std::stoi(cfg_interval);
 
+	std::string cfg_layout = win->config_main["clock"]["widget-layout"];
+	if (!cfg_layout.empty()) {
+		widget_layout.clear();
+		for (char c : cfg_layout) {
+			widget_layout.push_back(c - '0');
+		}
+	}
+
 	update_info();
 	Glib::signal_timeout().connect(sigc::mem_fun(*this, &module_clock::update_info), interval);
 	setup_widget();
@@ -42,5 +50,5 @@ bool module_clock::update_info() {
 void module_clock::setup_widget() {
 	Gtk::Calendar calendar;
 	calendar.set_hexpand(true);
-	win->grid_widgets_start.attach(calendar, 0, 0, 4, 4);
+	win->grid_widgets_start.attach(calendar, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
 }

@@ -127,6 +127,13 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 	if (win->config_main["mpris"]["show-label"] != "true")
 		label_info.hide();
 
+	std::string cfg_layout = win->config_main["mpris"]["widget-layout"];
+	if (!cfg_layout.empty()) {
+		widget_layout.clear();
+		for (char c : cfg_layout) {
+			widget_layout.push_back(c - '0');
+		}
+	}
 
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_mpris::update_info));
 
@@ -166,7 +173,7 @@ void module_mpris::update_info() {
 }
 
 void module_mpris::setup_widget() {
-	win->grid_widgets_end.attach(box_player, 0, 1, 4, 2);
+	win->grid_widgets_end.attach(box_player, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
 
 	box_player.get_style_context()->add_class("widget_mpris");
 	image_album_art.get_style_context()->add_class("image_album_art");

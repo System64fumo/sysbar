@@ -13,6 +13,14 @@ module_volume::module_volume(sysbar* window, const bool& icon_on_start) : module
 	if (win->config_main["volume"]["show-label"] == "true")
 		label_info.show();
 
+	std::string cfg_layout = win->config_main["volume"]["widget-layout"];
+	if (!cfg_layout.empty()) {
+		widget_layout.clear();
+		for (char c : cfg_layout) {
+			widget_layout.push_back(c - '0');
+		}
+	}
+
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_volume::update_info));
 
 	// Why is this even necessary??
@@ -31,12 +39,23 @@ void module_volume::setup_widget() {
 	image_widget_icon.set_pixel_size(24);
 
 	scale_volume.set_hexpand(true);
+	scale_volume.set_vexpand(true);
 	scale_volume.set_range(0, 100);
 	scale_volume.set_sensitive(false); // Setting volume is currently unsupported
 
-	box_widget.append(image_widget_icon);
-	box_widget.append(scale_volume);
-	win->grid_widgets_end.attach(box_widget, 0, 4, 4, 1);
+	if (widget_layout[2] < widget_layout[3]) { // Vertical layout
+		box_widget.set_orientation(Gtk::Orientation::VERTICAL);
+		scale_volume.set_orientation(Gtk::Orientation::VERTICAL);
+		box_widget.append(scale_volume);
+		box_widget.append(image_widget_icon);
+		scale_volume.set_inverted(true);
+	}
+	else { // Horizontal layout
+		box_widget.append(image_widget_icon);
+		box_widget.append(scale_volume);
+	}
+
+	win->grid_widgets_end.attach(box_widget, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
 }
 
 void module_volume::update_info() {
