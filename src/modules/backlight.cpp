@@ -24,6 +24,13 @@ module_backlight::module_backlight(sysbar* window, const bool& icon_on_start) : 
 	if (win->config_main["backlight"]["show-label"] != "true")
 		label_info.hide();
 
+	std::string cfg_layout = win->config_main["backlight"]["widget-layout"];
+	if (!cfg_layout.empty()) {
+		widget_layout.clear();
+		for (char c : cfg_layout) {
+			widget_layout.push_back(c - '0');
+		}
+	}
 
 	// Setup
 	get_backlight_path(backlight_path);
@@ -81,13 +88,26 @@ void module_backlight::setup_widget() {
 	image_widget_icon.set_pixel_size(16);
 
 	scale_backlight.set_hexpand(true);
+	scale_backlight.set_vexpand(true);
 	scale_backlight.set_value(brightness_literal);
 
 	scale_backlight.signal_value_changed().connect(sigc::mem_fun(*this, &module_backlight::on_scale_brightness_change));
 
-	box_widget->append(image_widget_icon);
-	box_widget->append(scale_backlight);
-	win->grid_widgets_end.attach(*box_widget, 0, 3, 4, 1);
+
+
+	if (widget_layout[2] < widget_layout[3]) { // Vertical layout
+		box_widget->set_orientation(Gtk::Orientation::VERTICAL);
+		scale_backlight.set_orientation(Gtk::Orientation::VERTICAL);
+		box_widget->append(scale_backlight);
+		box_widget->append(image_widget_icon);
+		scale_backlight.set_inverted(true);
+	}
+	else { // Horizontal layout
+		box_widget->append(image_widget_icon);
+		box_widget->append(scale_backlight);
+	}
+
+	win->grid_widgets_end.attach(*box_widget, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
 }
 
 void module_backlight::get_backlight_path(const std::string& custom_backlight_path) {

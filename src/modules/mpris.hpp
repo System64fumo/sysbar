@@ -20,10 +20,12 @@ class module_mpris : public module {
 		std::string title = "";
 		std::string length = "";
 		std::string album_art_url = "";
+		std::vector<int> widget_layout = {0, 1, 4, 2};
 
 		void update_info();
 
 	private:
+
 		Gtk::Box box_player;
 		Gtk::Box box_right;
 		Gtk::Image image_album_art;

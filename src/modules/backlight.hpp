@@ -21,6 +21,7 @@ class module_backlight : public module {
 		std::string backlight_path;
 		std::mutex brightness_mutex;
 		std::map<int, std::string> volume_brightness;
+		std::vector<int> widget_layout = {0, 3, 4, 1};
 
 		Gtk::Scale scale_backlight;
 		Gtk::Image image_widget_icon;
