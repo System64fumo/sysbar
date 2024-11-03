@@ -66,9 +66,11 @@ ifeq (, $(shell grep -E '^#define FEATURE_WIRELESS' src/config.hpp))
 	SRCS := $(filter-out src/wireless_network.cpp, $(SRCS))
 endif
 
-OBJS = $(patsubst src/%,$(BUILDDIR)/%,$(patsubst src/modules/%,$(BUILDDIR)/%,$(SRCS:.cpp=.o)))
+VPATH = src src/modules
+OBJS = $(patsubst src/%, $(BUILDDIR)/%, $(patsubst src/modules/%, $(BUILDDIR)/%, $(SRCS:.cpp=.o)))
 
-CXXFLAGS += -Oz -s -Wall -flto -fPIC
+CFLAGS += -Oz -s -flto -fPIC -fomit-frame-pointer
+CXXFLAGS += $(CFLAGS)
 LDFLAGS += -Wl,--as-needed,-z,now,-z,pack-relative-relocs
 
 CXXFLAGS += $(shell pkg-config --cflags $(PKGS))
@@ -107,7 +109,7 @@ $(BINS): src/git_info.hpp $(BUILDDIR)/main.o $(BUILDDIR)/config_parser.o
 	$(BUILDDIR)/main.o \
 	$(BUILDDIR)/config_parser.o \
 	$(CXXFLAGS) \
-	$(shell pkg-config --libs gtkmm-4.0 gtk4-layer-shell-0)
+	-lgtkmm-4.0 -lglibmm-2.68 -lgiomm-2.68 -lgtk4-layer-shell
 
 $(LIBS): $(PROTO_HDRS) $(PROTO_SRCS) $(PROTO_OBJS) $(OBJS)
 	$(call progress, Linking $@)
@@ -119,17 +121,13 @@ $(LIBS): $(PROTO_HDRS) $(PROTO_SRCS) $(PROTO_OBJS) $(OBJS)
 	$(LDFLAGS) \
 	-shared
 
-$(BUILDDIR)/%.o: src/%.cpp
+$(BUILDDIR)/%.o: %.cpp
 	$(call progress, Compiling $@)
 	@$(CXX) -c $< -o $@ $(CXXFLAGS)
 
-$(BUILDDIR)/%.o: src/%.c
+$(BUILDDIR)/%.o: %.c
 	$(call progress, Compiling $@)
 	@$(CC) -c $< -o $@ $(CFLAGS)
-
-$(BUILDDIR)/%.o: src/modules/%.cpp
-	$(call progress, Compiling $@)
-	@$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 $(PROTO_HDRS): src/%.h : proto/%.xml
 	$(call progress, Creating $@)

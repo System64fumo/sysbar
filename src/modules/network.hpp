@@ -4,6 +4,8 @@
 #include "../wireless_network.hpp"
 #include "controls.hpp"
 
+#include <glibmm/dispatcher.h>
+
 struct network_adapter {
 	std::string interface;
 	std::string type;

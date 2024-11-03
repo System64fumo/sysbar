@@ -1,9 +1,9 @@
 #include "module.hpp"
-#include "config.hpp"
 
-module::module(sysbar *window, const bool &icon_on_start) {
-	win = window;
+#include <gtkmm/gestureclick.h>
+#include <glibmm/dispatcher.h>
 
+module::module(sysbar* window, const bool& icon_on_start) : win(window) {
 	// TODO: Read config to see if the icon should appear before or after
 	// the label.
 

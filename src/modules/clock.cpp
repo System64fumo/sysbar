@@ -1,5 +1,6 @@
 #include "clock.hpp"
 
+#include <glibmm/dispatcher.h>
 #include <gtkmm/calendar.h>
 #include <ctime>
 

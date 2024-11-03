@@ -4,19 +4,14 @@
 
 #include <gtkmm/label.h>
 #include <gtkmm/image.h>
-#include <gtkmm/gestureclick.h>
-#include <glibmm/dispatcher.h>
 
 class module : public Gtk::Box {
 	public:
-		module(sysbar *window, const bool &icon_on_start = true);
+		module(sysbar*, const bool& = true);
 		Gtk::Label label_info;
 		Gtk::Image image_icon;
 		sysbar* win;
 
 	private:
-		int position;
-		int size;
-
 		void on_dispatcher();
 };

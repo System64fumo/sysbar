@@ -1,5 +1,6 @@
 #include "performance.hpp"
 
+#include <glibmm/dispatcher.h>
 #include <fstream>
 #include <iomanip>
 

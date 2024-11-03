@@ -1,5 +1,6 @@
 #include "notifications.hpp"
 
+#include <glibmm/dispatcher.h>
 #include <giomm/dbusownname.h>
 #include <thread>
 
