@@ -5,10 +5,10 @@
 // INI parser
 class config_parser {
 	public:
-		config_parser(const std::string &filename);
+		config_parser(const std::string&);
 		std::map<std::string, std::map<std::string, std::string>> data;
 		bool available;
 
 	private:
-		std::string trim(const std::string &str);
+		std::string trim(const std::string&);
 };

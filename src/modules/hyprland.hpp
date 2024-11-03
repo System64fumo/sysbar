@@ -2,6 +2,7 @@
 #include "../module.hpp"
 #ifdef MODULE_HYPRLAND
 
+#include <glibmm/dispatcher.h>
 #include <queue>
 #include <mutex>
 

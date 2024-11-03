@@ -7,6 +7,7 @@
 #include <giomm/dbusownname.h>
 #include <gtkmm/flowbox.h>
 #include <gtkmm/popover.h>
+#include <gtkmm/gestureclick.h>
 
 class tray_item : public Gtk::Image {
 	public:

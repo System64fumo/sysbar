@@ -2,7 +2,7 @@
 #include <fstream>
 #include <sstream>
 
-config_parser::config_parser(const std::string &filename) {
+config_parser::config_parser(const std::string& filename) {
 	std::ifstream file(filename);
 	std::string line;
 	std::string current_section;
@@ -35,11 +35,11 @@ config_parser::config_parser(const std::string &filename) {
 	}
 }
 
-std::string config_parser::trim(const std::string &str) {
-	size_t first = str.find_first_not_of(' ');
+std::string config_parser::trim(const std::string& str) {
+	const size_t first = str.find_first_not_of(' ');
 	if (std::string::npos == first) {
 		return str;
 	}
-	size_t last = str.find_last_not_of(' ');
+	const size_t last = str.find_last_not_of(' ');
 	return str.substr(first, (last - first + 1));
 }

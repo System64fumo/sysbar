@@ -1,5 +1,6 @@
 #include "weather.hpp"
 
+#include <glibmm/dispatcher.h>
 #include <fstream>
 #include <curl/curl.h>
 #include <iomanip>
