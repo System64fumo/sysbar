@@ -41,7 +41,10 @@ void module_volume::setup_widget() {
 	scale_volume.set_hexpand(true);
 	scale_volume.set_vexpand(true);
 	scale_volume.set_range(0, 100);
-	scale_volume.set_sensitive(false); // Setting volume is currently unsupported
+	scale_volume.signal_change_value().connect([&](Gtk::ScrollType scroll_type, double val) {
+		sys_wp->set_volume(true, val);
+		return true;
+	}, true);
 
 	if (widget_layout[2] < widget_layout[3]) { // Vertical layout
 		box_widget.set_orientation(Gtk::Orientation::VERTICAL);
