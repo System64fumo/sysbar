@@ -1,7 +1,8 @@
 #include "clock.hpp"
+#include "../config_parser.hpp"
 
 #include <glibmm/dispatcher.h>
-#include <gtkmm/calendar.h>
+#include <filesystem>
 #include <ctime>
 
 module_clock::module_clock(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
@@ -49,7 +50,61 @@ bool module_clock::update_info() {
 }
 
 void module_clock::setup_widget() {
-	Gtk::Calendar calendar;
 	calendar.set_hexpand(true);
 	win->grid_widgets_start.attach(calendar, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
+
+	std::string events_path;
+	const std::string user_events = std::string(getenv("HOME")) + "/.config/sys64/bar/calendar.conf";
+	const std::string system_events = "/usr/share/sys64/bar/calendar.conf";
+
+	if (std::filesystem::exists(user_events))
+		events_path = user_events;
+	else
+		events_path = system_events;
+
+	config_parser events(events_path);
+	calendar_events = events.data;
+
+	calendar.signal_prev_month().connect(sigc::mem_fun(*this, &module_clock::on_calendar_change));
+	calendar.signal_next_month().connect(sigc::mem_fun(*this, &module_clock::on_calendar_change));
+	calendar.signal_prev_year().connect(sigc::mem_fun(*this, &module_clock::on_calendar_change));
+	calendar.signal_next_year().connect(sigc::mem_fun(*this, &module_clock::on_calendar_change));
+	on_calendar_change();
+}
+
+void module_clock::on_calendar_change() {
+	// TODO: Add event types
+	auto it = calendar_events.find("events");
+	if (it == calendar_events.end())
+		return;
+
+	calendar.clear_marks();
+	for (const auto& [event_date, event_name] : it->second) {
+		module_clock::date_time date = parse_date_time(event_date);
+
+		const bool& same_year = date.year == calendar.get_year() || date.year == 0;
+		const bool& same_month = date.month - 1 == calendar.get_month() || date.month == 0;
+		if (same_year && same_month) {
+			calendar.mark_day(date.day);
+		}
+	}
+}
+
+module_clock::date_time module_clock::parse_date_time(const std::string& date_str) {
+	date_time date;
+
+	std::istringstream ss(date_str);
+	std::string year_str, month_str, day_str;
+	std::getline(ss, year_str, '-');
+	std::getline(ss, month_str, '-');
+	std::getline(ss, day_str, ' ');
+
+	if (year_str != "*")
+		date.year = std::stoi(year_str);
+	if (month_str != "*")
+		date.month = std::stoi(month_str);
+	if (day_str != "*")
+		date.day = std::stoi(day_str);
+
+	return date;
 }

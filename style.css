@@ -89,6 +89,11 @@
 	margin: 10px 10px 0px 10px;
 }
 
+#sysbar_overlay .day-number:checked {
+	box-shadow: 0px -2px inset rgb(255, 0, 100);
+	border-radius: 4px 4px 0px 0px;
+}
+
 #sysbar_overlay .widget_controls {
 }
 
