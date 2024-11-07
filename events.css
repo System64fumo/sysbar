@@ -1,0 +1,26 @@
+#sysbar_overlay .event_christmas calendar > grid {
+	box-shadow: 0px 10px 10px -10px inset black;
+	background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 1px, transparent 1px) 0px 0px;
+	background-color: rgba(20, 20, 23, 1);
+	background-repeat: repeat;
+	background-size: 32px 32px;
+	animation: snow 10s linear infinite;
+	border-bottom: 1px solid @borders;
+}
+
+#sysbar_overlay .event_christmas calendar .day-number {
+	color: rgba(255, 255, 255, 0.85);
+}
+#sysbar_overlay .event_christmas calendar .other-month {
+	color: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes snow {
+	0% {
+		background-position: 5px 5px;
+	}
+
+	100% {
+		background-position: 50px 100px;
+	}
+}

@@ -1,3 +1,5 @@
+@import url('events.css');
+
 #sysbar {
 	background: @theme_bg_color;
 	border-bottom: 1px solid @borders;
@@ -89,6 +91,19 @@
 	margin: 10px 10px 0px 10px;
 }
 
+#sysbar_overlay calendar {
+	border-radius: 10px;
+	border: unset;
+}
+#sysbar_overlay calendar > grid {
+	margin: 0px;
+}
+#sysbar_overlay calendar > header {
+	border-radius: 10px 10px 0px 0px;
+}
+#sysbar_overlay calendar > header {
+	background: alpha(@insensitive_bg_color, 0.5);
+}
 #sysbar_overlay .day-number:checked {
 	box-shadow: 0px -2px inset rgb(255, 0, 100);
 	border-radius: 4px 4px 0px 0px;

@@ -96,7 +96,7 @@ install: $(BINS)
 	@echo "Installing..."
 	@install -D -t $(DESTDIR)$(BINDIR) $(BUILDDIR)/$(BINS)
 	@install -D -t $(DESTDIR)$(LIBDIR) $(BUILDDIR)/$(LIBS)
-	@install -D -t $(DESTDIR)$(DATADIR)/sys64/bar config.conf style.css calendar.conf
+	@install -D -t $(DESTDIR)$(DATADIR)/sys64/bar config.conf style.css events.css calendar.conf
 
 clean:
 	@echo "Cleaning up"
