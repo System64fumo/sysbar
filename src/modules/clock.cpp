@@ -50,8 +50,16 @@ bool module_clock::update_info() {
 }
 
 void module_clock::setup_widget() {
+	Gtk::Box* box_widget = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
+	box_widget->append(calendar);
+	box_widget->append(revealer_events);
 	calendar.set_hexpand(true);
-	win->grid_widgets_start.attach(calendar, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
+	label_event.set_xalign(0);
+	label_event.get_style_context()->add_class("event_label");
+	revealer_events.set_child(label_event);
+	revealer_events.set_transition_type(Gtk::RevealerTransitionType::SLIDE_DOWN);
+	revealer_events.set_transition_duration(500);
+	win->grid_widgets_start.attach(*box_widget, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
 
 	std::string events_path;
 	const std::string user_events = std::string(getenv("HOME")) + "/.config/sys64/bar/calendar.conf";
@@ -65,6 +73,7 @@ void module_clock::setup_widget() {
 	config_parser events(events_path);
 	calendar_events = events.data;
 
+	calendar.signal_day_selected().connect(sigc::mem_fun(*this, &module_clock::check_for_events));
 	calendar.signal_prev_month().connect(sigc::mem_fun(*this, &module_clock::on_calendar_change));
 	calendar.signal_next_month().connect(sigc::mem_fun(*this, &module_clock::on_calendar_change));
 	calendar.signal_prev_year().connect(sigc::mem_fun(*this, &module_clock::on_calendar_change));
@@ -88,6 +97,43 @@ void module_clock::on_calendar_change() {
 			calendar.mark_day(date.day);
 		}
 	}
+
+	check_for_events();
+}
+
+void module_clock::check_for_events() {
+	revealer_events.set_reveal_child(false);
+	if (!event_class.empty()) {
+		win->get_style_context()->remove_class(event_class);
+		win->grid_widgets_start.get_style_context()->remove_class(event_class);
+		win->grid_widgets_end.get_style_context()->remove_class(event_class);
+		event_class = "";
+	}
+
+	if (!calendar.get_day_is_marked(calendar.get_day()))
+		return;
+	auto datetime = calendar.get_date();
+	std::string date_str = datetime.format("%Y-%m-%d");
+	std::string event = calendar_events["events"][date_str];
+	if (event.empty())
+		event = calendar_events["events"]["*" + date_str.substr(4)];
+
+	// What?
+	if (event.empty())
+		return;
+
+	label_event.set_text(event);
+	revealer_events.set_reveal_child(true);
+
+	// TODO: Check if today is the day of the event
+	for (char c : event) {
+		if (std::isalpha(c))
+			event_class.push_back(std::tolower(c));
+	}
+	event_class = "event_" + event_class;
+	win->get_style_context()->add_class(event_class);
+	win->grid_widgets_start.get_style_context()->add_class(event_class);
+	win->grid_widgets_end.get_style_context()->add_class(event_class);
 }
 
 module_clock::date_time module_clock::parse_date_time(const std::string& date_str) {
