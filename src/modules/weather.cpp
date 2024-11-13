@@ -68,14 +68,14 @@ bool module_weather::update_info() {
 	file.close();
 
 	// Get time and date
-	std::time_t t = std::time(nullptr);
+	const std::time_t& t = std::time(nullptr);
 	std::tm* now = std::localtime(&t);
 
 	std::ostringstream date_stream;
 	date_stream << std::put_time(now, "%Y-%m-%d");
 
-	std::string date = date_stream.str();
-	std::string time = std::to_string((now->tm_hour / 3) * 300);
+	const std::string& date = date_stream.str();
+	const std::string& time = std::to_string((now->tm_hour / 3) * 300);
 
 	get_weather_data(date, time);
 
@@ -90,7 +90,7 @@ bool module_weather::update_info() {
 	std::map<std::string, std::string> icon_from_desc = {
 		{"Sunny", "weather-clear-symbolic"},
 		{"Clear", "weather-clear-symbolic"},
-		{"Partly Cloudy", "weather-few-clouds-symbolic"},
+		{"Partly cloudy", "weather-few-clouds-symbolic"},
 		{"Cloudy", "weather-clouds-symbolic"},
 		{"Overcast", "weather-overcast-symbolic"},
 		{"Patchy rain nearby", "weather-showers-scattered-symbolic"},

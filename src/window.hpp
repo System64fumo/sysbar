@@ -15,6 +15,7 @@ class sysbar : public Gtk::Window {
 		void handle_signal(const int&);
 
 		std::map<std::string, std::map<std::string, std::string>> config_main;
+		Glib::RefPtr<Gtk::GestureDrag> gesture_drag;
 		Gtk::Box* box_controls = nullptr;
 		Gtk::Grid grid_widgets_start;
 		Gtk::Grid grid_widgets_end;
@@ -35,7 +36,6 @@ class sysbar : public Gtk::Window {
 		Gtk::Window overlay_window;
 		Gtk::ScrolledWindow scrolled_Window_start;
 		Gtk::ScrolledWindow scrolled_Window_end;
-		Glib::RefPtr<Gtk::GestureDrag> gesture_drag;
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_start;
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_end;
 

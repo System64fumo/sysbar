@@ -112,7 +112,7 @@ void handle_manager_toplevel(void* data, zwlr_foreign_toplevel_manager_v1* manag
 	zwlr_foreign_toplevel_handle_v1* toplevel) {
 	auto self = static_cast<module_taskbar*>(data);
 
-	taskbar_item* toplevel_entry = Gtk::make_managed<taskbar_item>(self->flowbox_main, self->cfg);
+	taskbar_item* toplevel_entry = Gtk::make_managed<taskbar_item>(self, self->cfg);
 	
 	zwlr_foreign_toplevel_handle_v1_add_listener(toplevel,
 		&toplevel_handle_v1_impl, toplevel_entry);
@@ -206,10 +206,22 @@ void module_taskbar::setup_proto() {
 	wl_display_roundtrip(display);
 }
 
-taskbar_item::taskbar_item(const Gtk::FlowBox& container, const module_taskbar::config_tb& cfg) {
+taskbar_item::taskbar_item(module_taskbar* self, const module_taskbar::config_tb& cfg) {
 	text_length = cfg.text_length;
 	image_icon.set_pixel_size(cfg.icon_size);
+	auto gesture_drag = Gtk::GestureDrag::create();
 
+	// There's probably a better way of doing this
+	gesture_drag->signal_drag_begin().connect([&, self](const double& x, const double& y) {
+		self->win->gesture_drag->set_propagation_phase(Gtk::PropagationPhase::NONE);
+	});
+	gesture_drag->signal_drag_update().connect([&](const double& x, const double& y) {
+	});
+	gesture_drag->signal_drag_end().connect([&, self](const double& x, const double& y) {
+		self->win->gesture_drag->set_propagation_phase(Gtk::PropagationPhase::BUBBLE);
+	});
+
+	add_controller(gesture_drag);
 	append(image_icon);
 	append(toplevel_label);
 
@@ -219,7 +231,7 @@ taskbar_item::taskbar_item(const Gtk::FlowBox& container, const module_taskbar::
 	if (!cfg.show_label)
 		return;
 
-	if (container.get_min_children_per_line() == 25)
+	if (self->flowbox_main.get_min_children_per_line() == 25)
 		set_size_request(100, -1);
 	else
 		set_size_request(-1, 100);
