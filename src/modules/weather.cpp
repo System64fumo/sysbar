@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <ctime>
 #include <thread>
+#include <algorithm>
 
 module_weather::module_weather(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_weather");
@@ -88,15 +89,15 @@ bool module_weather::update_info() {
 
 	// Add more cases, Snow, Storms, ect ect
 	std::map<std::string, std::string> icon_from_desc = {
-		{"Sunny", "weather-clear-symbolic"},
-		{"Clear", "weather-clear-symbolic"},
-		{"Partly cloudy", "weather-few-clouds-symbolic"},
-		{"Cloudy", "weather-clouds-symbolic"},
-		{"Overcast", "weather-overcast-symbolic"},
-		{"Patchy rain nearby", "weather-showers-scattered-symbolic"},
-		{"Patchy rain possible", "weather-showers-scattered-symbolic"},
-		{"Patchy light rain", "weather-showers-scattered-symbolic"},
-		{"Light rain", "weather-showers-scattered-symbolic"},
+		{"sunny", "weather-clear-symbolic"},
+		{"clear", "weather-clear-symbolic"},
+		{"partly cloudy", "weather-few-clouds-symbolic"},
+		{"cloudy", "weather-clouds-symbolic"},
+		{"overcast", "weather-overcast-symbolic"},
+		{"patchy rain nearby", "weather-showers-scattered-symbolic"},
+		{"patchy rain possible", "weather-showers-scattered-symbolic"},
+		{"patchy light rain", "weather-showers-scattered-symbolic"},
+		{"light rain", "weather-showers-scattered-symbolic"},
 	};
 
 	// Set icon according to weather description
@@ -155,6 +156,11 @@ void module_weather::get_weather_data(const std::string& date, const std::string
 					weather_info_current.temp_F = hourly["tempF"].asString();
 					weather_info_current.humidity = hourly["humidity"].asString();
 					weather_info_current.weatherDesc = hourly["weatherDesc"][0]["value"].asString();
+					std::transform(weather_info_current.weatherDesc.begin(),
+						weather_info_current.weatherDesc.end(),
+						weather_info_current.weatherDesc.begin(),
+						[](unsigned char c) { return std::tolower(c); });
+
 					 // For whatever reason, sometimes the last character is a space
 					if (weather_info_current.weatherDesc.back() == ' ')
 						weather_info_current.weatherDesc.pop_back();
