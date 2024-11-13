@@ -71,4 +71,5 @@ void module_volume::update_info() {
 	// Widget
 	image_widget_icon.set_from_icon_name(image_icon.get_icon_name());
 	scale_volume.set_value(sys_wp->volume);
+	set_tooltip_text(std::to_string(sys_wp->volume) + "%");
 }

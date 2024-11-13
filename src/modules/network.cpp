@@ -96,6 +96,8 @@ void module_network::update_info() {
 	#endif
 	else
 		image_icon.set_from_icon_name("network-error-symbolic");
+
+	set_tooltip_text("Adapter: " + default_if->interface + "\nAddress: " + default_if->ipv4);
 }
 
 bool module_network::setup_netlink() {

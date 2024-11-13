@@ -45,6 +45,7 @@ const auto introspection_data = Gio::DBus::NodeInfo::create_for_xml(
 module_notifications::module_notifications(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), notif_count(0) {
 	get_style_context()->add_class("module_notifications");
 	image_icon.set_from_icon_name("notification-symbolic");
+	set_tooltip_text("No new notifications\n");
 	label_info.hide();
 
 	std::string cfg_command = win->config_main["notification"]["command"];
@@ -133,7 +134,7 @@ void module_notifications::on_interface_method_call(
 			box_notifications.remove(*notif);
 			if (box_notifications.get_children().size() == 0)
 				image_icon.set_from_icon_name("notification-symbolic");
-
+				set_tooltip_text("No new notifications\n");
 		});
 
 		notif_alert->signal_clicked().connect([&, notif_alert]() {
@@ -149,11 +150,13 @@ void module_notifications::on_interface_method_call(
 				image_icon.set_from_icon_name("notification-symbolic");
 				timeout_connection.disconnect();
 				popover_alert.popdown();
+				set_tooltip_text("No new notifications\n");
 			}
 		});
 
 		box_notifications.prepend(*notif);
 		flowbox_alert.prepend(*notif_alert);
+		set_tooltip_text(std::to_string(flowbox_alert.get_children().size()) + " unread notifications\n");
 
 		notif_alert->timeout_connection = Glib::signal_timeout().connect([&, notif_alert]() {
 			flowbox_alert.remove(*notif_alert);

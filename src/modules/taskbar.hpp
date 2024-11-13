@@ -29,7 +29,7 @@ class module_taskbar : public module {
 
 class taskbar_item : public Gtk::Box {
 	public:
-		taskbar_item(const Gtk::FlowBox&, const module_taskbar::config_tb&);
+		taskbar_item(module_taskbar*, const module_taskbar::config_tb&);
 
 		Gtk::Label toplevel_label;
 		Gtk::Image image_icon;
