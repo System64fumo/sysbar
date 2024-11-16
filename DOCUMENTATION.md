@@ -60,7 +60,7 @@ Sidebars can be accessed by either clicking or tapping and dragging on either en
 # Configuration
 Sysbar offers compile time and runtime configuration options.<br>
 Undesired features can be disabled by ommiting them from `src/config.hpp`<br>
-The config system is INI based and can be configured by editing `~/.config/sys/bar/config.conf`<br>
+The config system is INI based and can be configured by editing `~/.config/sys64/bar/config.conf`<br>
 
 <details closed>
   <summary>Runtime file based config</summary>
