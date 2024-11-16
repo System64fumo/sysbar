@@ -102,6 +102,11 @@ clean:
 	@echo "Cleaning up"
 	@rm -r $(BUILDDIR) src/git_info.hpp $(PROTO_HDRS) $(PROTO_SRCS)
 
+uninstall:
+	@echo "Uninstalling..."
+	@rm -f $(DESTDIR)$(BINDIR)/$(BINS)
+	@rm -f $(DESTDIR)$(LIBDIR)/$(LIBS)
+
 $(BINS): src/git_info.hpp $(BUILDDIR)/main.o $(BUILDDIR)/config_parser.o
 	$(call progress, Linking $@)
 	@$(CXX) -o \
