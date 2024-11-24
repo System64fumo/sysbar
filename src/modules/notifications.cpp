@@ -108,6 +108,11 @@ void module_notifications::on_interface_method_call(
 				{"sysbar", "funky.sys64", "0.9.0", "1.0"});
 			invocation->return_value(info);
 	}
+	else if (method_name == "GetCapabilities") {
+		static const auto value = Glib::Variant<std::tuple<std::vector<Glib::ustring>>>::create(
+			{{"action-icons", "actions", "body", "body-hyperlinks", "body-markup", "body-images", "persistance"}});
+		invocation->return_value(value);
+	}
 	else if (method_name == "Notify") {
 		image_icon.set_from_icon_name("notification-new-symbolic");
 
