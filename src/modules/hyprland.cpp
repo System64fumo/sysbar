@@ -4,8 +4,9 @@
 #include <thread>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <algorithm>
 
-module_hyprland::module_hyprland(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), character_limit(128) {
+module_hyprland::module_hyprland(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), new_workspace(0), character_limit(128) {
 	get_style_context()->add_class("module_hyprland");
 	image_icon.hide();
 	label_info.set_margin_end(win->size / 3);
@@ -28,6 +29,19 @@ void module_hyprland::update_info() {
 	std::string data = data_queue.front();
 	data_queue.pop();
 
+	//std::printf("Data: %s\n", data.c_str());
+
+	// Create new workspace
+	if (data.find("createworkspace>>") != std::string::npos) {
+		new_workspace = std::stoi(data.substr(17,data.find(',') - 12));
+	}
+
+	// Delete workspace
+	if (data.find("destroyworkspace>>") != std::string::npos) {
+		std::string workspace_id = data.substr(18,data.find(',') - 12);
+		// TODO: Add delete code
+	}
+
 	if (data.find("activewindow>>") != std::string::npos) {
 		std::string active_window_data = data.substr(14);
 		int pos = active_window_data.find(',');
@@ -39,6 +53,44 @@ void module_hyprland::update_info() {
 			active_window_title = active_window_title.substr(0, character_limit + 3) + "...";
 
 		label_info.set_text(active_window_title);
+	}
+	else if (data.find("focusedmon>>") != std::string::npos) {
+		std::string focused_monitor = data.substr(12,data.find(',') - 12);
+		int focused_workspace = std::stoi(data.substr(data.find(',') + 1));
+		auto mon_it = std::find_if(monitors.begin(), monitors.end(), [focused_monitor](const monitor& mon) {
+			return mon.name == focused_monitor;
+		});
+		if (mon_it == monitors.end()) {
+			monitor mon;
+			mon.name = focused_monitor;
+			mon.active = true;
+			monitors.push_back(mon);
+
+			workspace ws;
+			ws.id = focused_workspace;
+			ws.active = false;
+			ws.fullscreen = false;
+			mon.workspaces.push_back(ws);
+		}
+
+		for (monitor mon : monitors) {
+			mon.active = false;
+			if (mon.name != focused_monitor)
+				continue;
+
+			// Create a new workspace if needed
+			if (new_workspace != 0) {
+				workspace ws;
+				ws.id = new_workspace;
+				ws.active = false;
+				ws.fullscreen = false;
+				mon.workspaces.push_back(ws);
+				new_workspace = 0;
+			}
+
+			for (workspace ws : mon.workspaces)
+				ws.active = (ws.id == focused_workspace);
+		}
 	}
 }
 
