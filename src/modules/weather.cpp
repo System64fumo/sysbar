@@ -98,6 +98,7 @@ bool module_weather::update_info() {
 		{"patchy rain possible", "weather-showers-scattered-symbolic"},
 		{"patchy light rain", "weather-showers-scattered-symbolic"},
 		{"light rain", "weather-showers-scattered-symbolic"},
+		{"light rain shower", "weather-showers-scattered-symbolic"},
 	};
 
 	// Set icon according to weather description
