@@ -236,7 +236,7 @@ void sysbar::load_modules(const std::string& modules, Gtk::Box& box) {
 
 		else {
 			std::fprintf(stderr, "Unknown module: %s\n", module_name.c_str());
-			return;
+			continue;
 		}
 
 		box.append(*new_module);
