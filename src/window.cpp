@@ -7,6 +7,7 @@
 #include "modules/clock.hpp"
 #include "modules/controls.hpp"
 #include "modules/hyprland.hpp"
+#include "modules/menu.hpp"
 #include "modules/mpris.hpp"
 #include "modules/network.hpp"
 #include "modules/notifications.hpp"
@@ -232,6 +233,11 @@ void sysbar::load_modules(const std::string& modules, Gtk::Box& box) {
 			box_controls = Gtk::make_managed<module_controls>(this, icon_on_start);
 			continue;
 		}
+		#endif
+
+		#ifdef MODULE_MENU
+		else if (module_name == "menu") 
+			new_module = Gtk::make_managed<module_menu>(this, icon_on_start);
 		#endif
 
 		else {

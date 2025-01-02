@@ -18,6 +18,7 @@
 #define MODULE_BLUETOOTH		// Include the bluetooth module
 #define MODULE_CONTROLS			// Include the controls module (technically widget only)
 #define MODULE_CELLULAR			// Include the cellular module
+#define MODULE_MENU				// Include the menu module
 #define FEATURE_WIRELESS		// Support for wireless networks
 
 // TODO: Re-Add a fallback/user defined config
