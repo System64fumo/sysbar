@@ -44,6 +44,9 @@ Sidebars can be accessed by either clicking or tapping and dragging on either en
   * Module: Show backlight level
   * Widget: Show and set backlight brightness levels
 
+* menu
+  * Module: Shows a simple button to open or close an app launcher
+
 * mpris
   * Module: Show currently playing song
   * Widget: Same as the above but with controls and album art

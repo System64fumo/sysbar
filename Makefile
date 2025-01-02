@@ -62,6 +62,9 @@ endif
 ifneq (, $(shell grep -E '^#define MODULE_CELLULAR' src/config.hpp))
 	SRCS += src/modules/cellular.cpp
 endif
+ifneq (, $(shell grep -E '^#define MODULE_MENU' src/config.hpp))
+	SRCS += src/modules/menu.cpp
+endif
 ifeq (, $(shell grep -E '^#define FEATURE_WIRELESS' src/config.hpp))
 	SRCS := $(filter-out src/wireless_network.cpp, $(SRCS))
 endif
