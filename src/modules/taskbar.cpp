@@ -39,6 +39,7 @@ void handle_toplevel_app_id(void* data, zwlr_foreign_toplevel_handle_v1*, const 
 	Glib::RefPtr<Gio::AppInfo> app_info;
 
 	std::string appid = cleanup_string(app_id);
+	toplevel_entry->set_tooltip_markup(appid);
 	for (auto app : app_list) {
 		std::string app_name = cleanup_string(app->get_name());
 		std::string app_executable = cleanup_string(app->get_executable());
