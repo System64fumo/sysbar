@@ -227,8 +227,11 @@ taskbar_item::taskbar_item(module_taskbar* self, const module_taskbar::config_tb
 	image_icon.set_visible(cfg.show_icon);
 	toplevel_label.set_visible(cfg.show_label);
 
-	if (!cfg.show_label)
+	if (!cfg.show_label) {
+		image_icon.set_hexpand(true);
+		image_icon.set_vexpand(true);
 		return;
+	}
 
 	if (self->flowbox_main.get_min_children_per_line() == 25)
 		set_size_request(100, -1);
