@@ -181,8 +181,7 @@ module_taskbar::module_taskbar(sysbar* window, const bool &icon_on_start) : modu
 	box_container.append(flowbox_main);
 
 	scrolledwindow.set_child(box_container);
-	scrolledwindow.set_vexpand(true);
-	scrolledwindow.set_hexpand(true);
+	scrolledwindow.set_policy(Gtk::PolicyType::NEVER,Gtk::PolicyType::NEVER);
 	append(scrolledwindow);
 
 	// Cleanup applist
