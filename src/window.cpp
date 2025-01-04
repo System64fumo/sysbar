@@ -27,6 +27,7 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 	// Only load commonly used non string configs
 	position = std::stoi(config_main["main"]["position"]);
 	size = std::stoi(config_main["main"]["size"]);
+	layer = std::stoi(config_main["main"]["layer"]);
 	verbose = config_main["main"]["verbose"] == "true";
 
 	// Get main monitor
@@ -51,8 +52,9 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 	// Initialize layer shell
 	gtk_layer_init_for_window(gobj());
 	gtk_layer_set_namespace(gobj(), "sysbar");
-	gtk_layer_set_layer(gobj(), GTK_LAYER_SHELL_LAYER_TOP);
-	gtk_layer_set_exclusive_zone(gobj(), size);
+	gtk_layer_set_layer(gobj(), static_cast<GtkLayerShellLayer>(layer));
+	if (config_main["main"]["exclusive"] == "true")
+		gtk_layer_set_exclusive_zone(gobj(), size);
 	gtk_layer_set_monitor(gobj(), monitor);
 
 	gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_TOP, true);

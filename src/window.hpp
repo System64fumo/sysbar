@@ -23,6 +23,7 @@ class sysbar : public Gtk::Window {
 		// Main config
 		int position;
 		int size;
+		int layer;
 		bool verbose;
 
 	private:
