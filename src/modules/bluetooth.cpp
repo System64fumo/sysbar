@@ -1,8 +1,16 @@
 #include "bluetooth.hpp"
+#include <fstream>
+#include <filesystem>
 
 module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_bluetooth");
 	label_info.hide();
+
+	if (!test()) {
+		// TODO: Consider adding error codes or error messages, This is too vague.
+		std::printf("Bluetooth: Some errors were found, disabling..\n");
+		return;
+	}
 
 	auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM);
 
@@ -39,6 +47,43 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 	setup_control();
 	#endif
 	update_info("PowerState");
+}
+
+bool module_bluetooth::test() {
+	bool bluetoothd_running = false;
+	bool adapter_available = false;
+
+	// Check if bluetooth service is running
+	DIR* dir = opendir("/proc");
+	struct dirent* entry;
+	while ((entry = readdir(dir)) != nullptr) {
+		if (entry->d_type == DT_DIR && std::all_of(entry->d_name, entry->d_name + strlen(entry->d_name), ::isdigit)) {
+			std::string pid = entry->d_name;
+			std::string comm_file = "/proc/" + pid + "/comm";
+
+			std::ifstream comm_stream(comm_file);
+			if (comm_stream.is_open()) {
+				std::string comm;
+				comm_stream >> comm;
+
+				if (comm == "bluetoothd") {
+					bluetoothd_running = true;
+					break;
+				}
+
+			}
+		}
+	}
+	closedir(dir);
+
+	// Check if an adapter is available
+	std::filesystem::path bluetooth_path("/sys/class/bluetooth/");
+	for (const auto& entry : std::filesystem::directory_iterator(bluetooth_path)) {
+		if (std::filesystem::is_directory(entry.status()))
+			adapter_available = true;
+	}
+
+	return bluetoothd_running && adapter_available;
 }
 
 void module_bluetooth::on_properties_changed(
