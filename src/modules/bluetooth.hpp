@@ -28,6 +28,7 @@ struct adapter {
 class module_bluetooth : public module {
 	public:
 		module_bluetooth(sysbar*, const bool&);
+		bool test();
 
 	private:
 		Glib::RefPtr<Gio::DBus::Proxy> prop_proxy;
