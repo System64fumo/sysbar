@@ -8,6 +8,7 @@
 #include <gtkmm/gesturedrag.h>
 #include <gtkmm/box.h>
 #include <gtkmm/grid.h>
+#include <glibmm/dispatcher.h>
 
 class sysbar : public Gtk::Window {
 	public:
@@ -15,6 +16,7 @@ class sysbar : public Gtk::Window {
 		void handle_signal(const int&);
 
 		std::map<std::string, std::map<std::string, std::string>> config_main;
+		Glib::Dispatcher dispatcher_overlay_change;
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag;
 		Gtk::Box* box_controls = nullptr;
 		Gtk::Grid grid_widgets_start;

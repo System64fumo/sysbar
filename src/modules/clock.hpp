@@ -30,6 +30,7 @@ class module_clock : public module {
 		bool update_info();
 		void setup_widget();
 		void on_calendar_change();
+		void on_overlay_change();
 		void check_for_events();
 		date_time parse_date_time(const std::string& date_str);
 };
