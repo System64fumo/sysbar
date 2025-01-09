@@ -31,6 +31,7 @@ module_clock::module_clock(sysbar* window, const bool& icon_on_start) : module(w
 
 	update_info();
 	Glib::signal_timeout().connect(sigc::mem_fun(*this, &module_clock::update_info), interval);
+	window->dispatcher_overlay_change.connect(sigc::mem_fun(*this, &module_clock::on_overlay_change));
 	setup_widget();
 }
 
@@ -153,4 +154,9 @@ module_clock::date_time module_clock::parse_date_time(const std::string& date_st
 		date.day = std::stoi(day_str);
 
 	return date;
+}
+
+void module_clock::on_overlay_change() {
+	// Focus calendar to current day when the overlay is shown
+	calendar.select_day(Glib::DateTime::create_now_local());
 }
