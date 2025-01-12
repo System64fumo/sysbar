@@ -34,6 +34,9 @@ module_backlight::module_backlight(sysbar* window, const bool& icon_on_start) : 
 
 	// Setup
 	get_backlight_path(backlight_path);
+	if (backlight_path.empty()) // TODO: Maybe replace this with a test function?
+		return;
+
 	brightness = get_brightness();
 	update_info();
 	setup_widget();
