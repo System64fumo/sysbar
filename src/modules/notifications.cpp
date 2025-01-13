@@ -63,6 +63,7 @@ bool module_notifications::update_info() {
 void module_notifications::setup_widget() {
 	box_notifications.set_orientation(Gtk::Orientation::VERTICAL);
 
+	// TODO: Use a scrolled window to limit the max amount of visible notifications
 	win->grid_widgets_end.attach(box_notifications, 0, 5, 4, 4);
 
 	// TODO: Support other orientations
@@ -136,6 +137,7 @@ void module_notifications::on_interface_method_call(
 			Glib::Variant<guint32>::create(notif->notif_id));
 
 		notif->signal_clicked().connect([&, notif]() {
+			// TODO: Make this switch focus to the program that sent the notification
 			box_notifications.remove(*notif);
 			if (box_notifications.get_children().size() == 0)
 				image_icon.set_from_icon_name("notification-symbolic");
@@ -143,6 +145,7 @@ void module_notifications::on_interface_method_call(
 		});
 
 		notif_alert->signal_clicked().connect([&, notif_alert]() {
+			// TODO: Make this switch focus to the program that sent the notification
 			for (auto n : notifications) {
 				if (n->notif_id == notif_alert->notif_id)
 					box_notifications.remove(*n);
@@ -257,11 +260,15 @@ notification::notification(std::vector<notification*> notifications, const Glib:
 	label_body.set_max_width_chars(0);
 	label_body.set_halign(Gtk::Align::START);
 	label_body.set_wrap(true);
-	label_body.set_ellipsize(Pango::EllipsizeMode::END);
 	label_body.set_wrap_mode(Pango::WrapMode::WORD_CHAR);
 	label_body.set_lines(3);
 	label_body.set_margin_start(5);
 	label_body.set_hexpand(true);
+
+	// TODO: Add button to expand (Aka change these 2 values)
+	label_body.set_single_line_mode(true);
+	label_body.set_ellipsize(Pango::EllipsizeMode::END);
+
 	box_notification.append(label_body);
 
 	box_main.append(box_notification);
