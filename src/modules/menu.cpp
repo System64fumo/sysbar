@@ -5,10 +5,15 @@ module_menu::module_menu(sysbar* window, const bool& icon_on_start) : module(win
 	get_style_context()->add_class("module_menu");
 
 	// TODO: Add option to set other icons maybe even images?
-	image_icon.set_from_icon_name("start-here");
+	if (win->config_main["menu"]["show-icon"] == "true")
+		image_icon.set_from_icon_name(win->config_main["menu"]["icon-name"]);
+	else
+		image_icon.hide();
 
-	// TODO: Add option to set text
-	label_info.hide();
+	if (win->config_main["menu"]["show-label"] == "true")
+		label_info.set_text(win->config_main["menu"]["label-text"]);
+	else
+		label_info.hide();
 
 	// Custom on_clicked handle
 	gesture_click = Gtk::GestureClick::create();
