@@ -70,6 +70,7 @@ class module_tray : public module {
 		module_tray(sysbar *window, const bool &icon_on_start = true);
 
 	private:
+		const bool& icon_on_start;
 		Gtk::Revealer revealer_box;
 		Gtk::Box box_container;
 
