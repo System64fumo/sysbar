@@ -4,7 +4,7 @@
 #include <filesystem>
 
 // Tray module
-module_tray::module_tray(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
+module_tray::module_tray(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), icon_on_start(icon_on_start) {
 	get_style_context()->add_class("module_tray");
 	label_info.hide();
 
@@ -14,16 +14,17 @@ module_tray::module_tray(sysbar* window, const bool& icon_on_start) : module(win
 	// TODO: Add an option to set the revealer's transition duration
 	// TODO: Set custom transition types based on bar position or icon_on_start
 
-	Gtk::RevealerTransitionType transition_type = Gtk::RevealerTransitionType::SLIDE_LEFT;
+	Gtk::RevealerTransitionType transition_type;
 
 	// Set orientation
 	if (win->position % 2) {
-		image_icon.set_from_icon_name("arrow-down");
-		transition_type = Gtk::RevealerTransitionType::SLIDE_DOWN;
+		image_icon.set_from_icon_name(icon_on_start ? "arrow-down" : "arrow-up");
+		transition_type = icon_on_start ? Gtk::RevealerTransitionType::SLIDE_DOWN : Gtk::RevealerTransitionType::SLIDE_UP;
 		box_container.set_orientation(Gtk::Orientation::VERTICAL);
 	}
 	else {
-		image_icon.set_from_icon_name("arrow-right");
+		image_icon.set_from_icon_name(icon_on_start ? "arrow-right" : "arrow-left");
+		transition_type = icon_on_start ? Gtk::RevealerTransitionType::SLIDE_RIGHT : Gtk::RevealerTransitionType::SLIDE_LEFT;
 	}
 
 	revealer_box.set_child(box_container);
@@ -44,22 +45,11 @@ module_tray::module_tray(sysbar* window, const bool& icon_on_start) : module(win
 }
 
 void module_tray::on_clicked(const int& n_press, const double& x, const double& y) {
-	// TODO: Change icon order when the icon is not at the start
-	// Also use top/down arrows for vertical bars
-	if (revealer_box.get_reveal_child()) {
-		if (win->position % 2)
-			image_icon.set_from_icon_name("arrow-down");
-		else
-		image_icon.set_from_icon_name("arrow-right");
-		revealer_box.set_reveal_child(false);
-	}
-	else {
-		if (win->position % 2)
-			image_icon.set_from_icon_name("arrow-up");
-		else
-		image_icon.set_from_icon_name("arrow-left");
-		revealer_box.set_reveal_child(true);
-	}
+	revealer_box.set_reveal_child(!revealer_box.get_reveal_child());
+	if (win->position % 2)
+		image_icon.set_from_icon_name(icon_on_start == revealer_box.get_reveal_child() ? "arrow-down" : "arrow-up");
+	else
+		image_icon.set_from_icon_name(icon_on_start == revealer_box.get_reveal_child() ? "arrow-right" : "arrow-left");
 
 	// Prevent gestures bellow from triggering
 	gesture_click->reset();
