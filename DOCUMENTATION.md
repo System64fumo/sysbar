@@ -115,6 +115,12 @@ The config system is INI based and can be configured by editing `~/.config/sys64
 | show-label           | true                        | Show brightness level as text                      |
 | widget-layout        | 0341                        | [XYWH (Single digit values to position the widget)](https://gnome.pages.gitlab.gnome.org/gtkmm/classGtk_1_1Grid.html#a2f3d5ceb9a1c2f491b541aa56ebdc1e8)  |
 |&nbsp;                |                             |                                                    |
+| [menu]               |                             | Menu module configuration                          |
+| show-icon            | true                        | Show the icon                                      |
+| show-label           | false                       | Show the label                                     |
+| icon-name            | start-here                  | Icon name from your GTK icon theme                 |
+| label-text           | Applications                | Text to show on the menu button                    |
+|&nbsp;                |                             |                                                    |
 | [taskbar]            |                             | Taskbar module configuration                       |
 | text-length          | 14                          | Window title length                                |
 | icon-size            | 32                          | Size of the icons                                  |
