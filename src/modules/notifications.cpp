@@ -125,12 +125,11 @@ void module_notifications::on_interface_method_call(
 		image_icon.set_from_icon_name("notification-new-symbolic");
 
 		// TODO: This is worse
-		notification *notif = Gtk::make_managed<notification>(notifications, sender, parameters, command);
+		notification *notif = Gtk::make_managed<notification>(box_notifications, sender, parameters, command);
 
-		// Pretty sure a memory leak happens here
-		// TODO: Fix said memory leak
 		if (notif->replaces_id != 0) {
-			for (auto n : notifications) {
+			for (auto n_child : box_notifications.get_children()) {
+				auto n = static_cast<notification*>(n_child);
 				if (n->notif_id == notif->replaces_id) {
 					// TODO: Alert notifications don't get replaced yet
 					box_notifications.remove(*n);
@@ -151,10 +150,11 @@ void module_notifications::on_interface_method_call(
 		});
 
 		if (!win->overlay_window.is_visible()) {
-			notification *notif_alert = Gtk::make_managed<notification>(notifications, sender, parameters, "");
+			notification *notif_alert = Gtk::make_managed<notification>(box_notifications, sender, parameters, "");
 			notif_alert->signal_clicked().connect([&, notif_alert]() {
 				// TODO: Make this switch focus to the program that sent the notification
-				for (auto n : notifications) {
+				for (auto n_child : box_notifications.get_children()) {
+					auto n = static_cast<notification*>(n_child);
 					if (n->notif_id == notif_alert->notif_id)
 						box_notifications.remove(*n);
 				}
@@ -182,7 +182,6 @@ void module_notifications::on_interface_method_call(
 		set_tooltip_text(std::to_string(flowbox_alert.get_children().size()) + " unread notifications\n");
 
 		invocation->return_value(id_var);
-		notifications.push_back(notif);
 
 		timeout_connection.disconnect();
 		timeout_connection = Glib::signal_timeout().connect([&]() {
@@ -192,7 +191,7 @@ void module_notifications::on_interface_method_call(
 	}
 }
 
-notification::notification(std::vector<notification*> notifications, const Glib::ustring& sender, const Glib::VariantContainerBase& parameters, const std::string& command) {
+notification::notification(const Gtk::Box& box_notifications, const Glib::ustring& sender, const Glib::VariantContainerBase& parameters, const std::string& command) {
 	get_style_context()->add_class("notification");
 	if (!parameters.is_of_type(Glib::VariantType("(susssasa{sv}i)")))
 		return;
@@ -205,7 +204,7 @@ notification::notification(std::vector<notification*> notifications, const Glib:
 
 	iter.next_value(child);
 	replaces_id = Glib::VariantBase::cast_dynamic<Glib::Variant<guint32>>(child).get();
-	notif_id = notifications.size() + 1;
+	notif_id = box_notifications.get_children().size() + 1;
 
 	iter.next_value(child);
 	app_icon = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(child).get();
