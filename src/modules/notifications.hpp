@@ -9,7 +9,7 @@
 
 class notification : public Gtk::Button {
 	public:
-		notification(std::vector<notification*> notifications, const Glib::ustring&, const Glib::VariantContainerBase&, const std::string&);
+		notification(const Gtk::Box&, const Glib::ustring&, const Glib::VariantContainerBase&, const std::string&);
 
 		sigc::connection timeout_connection;
 
@@ -33,10 +33,9 @@ class module_notifications : public module {
 		module_notifications(sysbar*, const bool&);
 
 		int notif_count;
-		std::vector<notification*> notifications;
+		Gtk::Box box_notifications;
 
 	private:
-		Gtk::Box box_notifications;
 		Gtk::Popover popover_alert;
 		Gtk::FlowBox flowbox_alert;
 		Gtk::ScrolledWindow scrolledwindow_alert;
