@@ -137,7 +137,6 @@ void sysbar::setup_overlay_widgets() {
 void sysbar::setup_gestures() {
 	gesture_drag = Gtk::GestureDrag::create();
 	gesture_drag->signal_drag_begin().connect([&](const double& x, const double& y) {
-		dispatcher_overlay_change.emit();
 		gesture_touch = gesture_drag->get_current_event()->get_pointer_emulated();
 		on_drag_start(x, y);
 
@@ -165,7 +164,6 @@ void sysbar::setup_gestures() {
 
 	gesture_drag_end = Gtk::GestureDrag::create();
 	gesture_drag_end->signal_drag_begin().connect([&](const double& x, const double& y) {
-		dispatcher_overlay_change.emit();
 		gesture_touch = gesture_drag_end->get_current_event()->get_pointer_emulated();
 		if (!gesture_touch) {
 			gesture_drag_end->reset();

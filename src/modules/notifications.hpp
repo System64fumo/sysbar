@@ -49,6 +49,7 @@ class module_notifications : public module {
 
 		bool update_info();
 		void setup_widget();
+		void on_overlay_change();
 		void setup_daemon();
 		void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connection, const Glib::ustring &name);
 		void on_interface_method_call(
