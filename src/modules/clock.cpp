@@ -31,7 +31,7 @@ module_clock::module_clock(sysbar* window, const bool& icon_on_start) : module(w
 
 	update_info();
 	Glib::signal_timeout().connect(sigc::mem_fun(*this, &module_clock::update_info), interval);
-	window->dispatcher_overlay_change.connect(sigc::mem_fun(*this, &module_clock::on_overlay_change));
+	window->overlay_window.signal_show().connect(sigc::mem_fun(*this, &module_clock::on_overlay_change));
 	setup_widget();
 }
 

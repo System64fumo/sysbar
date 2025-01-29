@@ -76,6 +76,13 @@ void module_notifications::setup_widget() {
 	scrolledwindow_alert.set_child(flowbox_alert);
 	scrolledwindow_alert.set_propagate_natural_height(true);
 	flowbox_alert.set_max_children_per_line(1);
+
+	win->overlay_window.signal_show().connect(sigc::mem_fun(*this, &module_notifications::on_overlay_change));
+}
+
+
+void module_notifications::on_overlay_change() {
+	popover_alert.popdown();
 }
 
 void module_notifications::setup_daemon() {
@@ -119,7 +126,6 @@ void module_notifications::on_interface_method_call(
 
 		// TODO: This is worse
 		notification *notif = Gtk::make_managed<notification>(notifications, sender, parameters, command);
-		notification *notif_alert = Gtk::make_managed<notification>(notifications, sender, parameters, "");
 
 		// Pretty sure a memory leak happens here
 		// TODO: Fix said memory leak
@@ -144,36 +150,40 @@ void module_notifications::on_interface_method_call(
 				set_tooltip_text("No new notifications\n");
 		});
 
-		notif_alert->signal_clicked().connect([&, notif_alert]() {
-			// TODO: Make this switch focus to the program that sent the notification
-			for (auto n : notifications) {
-				if (n->notif_id == notif_alert->notif_id)
-					box_notifications.remove(*n);
-			}
+		if (!win->overlay_window.is_visible()) {
+			notification *notif_alert = Gtk::make_managed<notification>(notifications, sender, parameters, "");
+			notif_alert->signal_clicked().connect([&, notif_alert]() {
+				// TODO: Make this switch focus to the program that sent the notification
+				for (auto n : notifications) {
+					if (n->notif_id == notif_alert->notif_id)
+						box_notifications.remove(*n);
+				}
 
-			notif_alert->timeout_connection.disconnect();
-			flowbox_alert.remove(*notif_alert);
+				notif_alert->timeout_connection.disconnect();
+				flowbox_alert.remove(*notif_alert);
 
-			if (flowbox_alert.get_children().size() == 0) {
-				image_icon.set_from_icon_name("notification-symbolic");
-				timeout_connection.disconnect();
-				popover_alert.popdown();
-				set_tooltip_text("No new notifications\n");
-			}
-		});
+				if (flowbox_alert.get_children().size() == 0) {
+					image_icon.set_from_icon_name("notification-symbolic");
+					timeout_connection.disconnect();
+					popover_alert.popdown();
+					set_tooltip_text("No new notifications\n");
+				}
+			});
+			flowbox_alert.prepend(*notif_alert);
+
+			notif_alert->timeout_connection = Glib::signal_timeout().connect([&, notif_alert]() {
+				flowbox_alert.remove(*notif_alert);
+				return false;
+			}, 5000);
+			popover_alert.popup();
+		}
 
 		box_notifications.prepend(*notif);
-		flowbox_alert.prepend(*notif_alert);
 		set_tooltip_text(std::to_string(flowbox_alert.get_children().size()) + " unread notifications\n");
-
-		notif_alert->timeout_connection = Glib::signal_timeout().connect([&, notif_alert]() {
-			flowbox_alert.remove(*notif_alert);
-			return false;
-		}, 5000);
 
 		invocation->return_value(id_var);
 		notifications.push_back(notif);
-		popover_alert.popup();
+
 		timeout_connection.disconnect();
 		timeout_connection = Glib::signal_timeout().connect([&]() {
 			popover_alert.popdown();
