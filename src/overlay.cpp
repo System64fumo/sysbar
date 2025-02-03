@@ -43,14 +43,20 @@ void sysbar::setup_overlay_widgets() {
 	grid_widgets_start.get_style_context()->add_class("grid_widgets_start");
 	grid_widgets_end.get_style_context()->add_class("grid_widgets_end");
 
-	scrolled_Window_start.set_child(grid_widgets_start);
-	scrolled_Window_end.set_child(grid_widgets_end);
+	scrolled_Window_start.set_child(box_widgets_start);
+	box_widgets_start.append(grid_widgets_start);
+	grid_widgets_start.set_vexpand_set();
+	scrolled_Window_end.set_child(box_widgets_end);
+	box_widgets_end.append(grid_widgets_end);
+	grid_widgets_end.set_vexpand_set();
 	scrolled_Window_start.set_kinetic_scrolling(false);
 	scrolled_Window_end.set_kinetic_scrolling(false);
 
 	if (position == 0) {
 		scrolled_Window_start.set_valign(Gtk::Align::START);
 		scrolled_Window_end.set_valign(Gtk::Align::START);
+		box_widgets_start.set_orientation(Gtk::Orientation::VERTICAL);
+		box_widgets_end.set_orientation(Gtk::Orientation::VERTICAL);
 		grid_widgets_start.set_valign(Gtk::Align::START);
 		grid_widgets_end.set_valign(Gtk::Align::START);
 	}
@@ -65,6 +71,8 @@ void sysbar::setup_overlay_widgets() {
 	else if (position == 2) {
 		scrolled_Window_start.set_valign(Gtk::Align::END);
 		scrolled_Window_end.set_valign(Gtk::Align::END);
+		box_widgets_start.set_orientation(Gtk::Orientation::VERTICAL);
+		box_widgets_end.set_orientation(Gtk::Orientation::VERTICAL);
 		grid_widgets_start.set_valign(Gtk::Align::END);
 		grid_widgets_end.set_valign(Gtk::Align::END);
 	}
