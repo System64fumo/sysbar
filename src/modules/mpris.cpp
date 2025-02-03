@@ -39,7 +39,10 @@ static void metadata(PlayerctlPlayer* player, GVariant* metadata, gpointer user_
 		g_free(album);
 	}
 	if (auto title = playerctl_player_get_title(player, nullptr)) {
-		self->title = title;
+		if (title[0] == '\0')
+			self->title = "Not playing";
+		else
+			self->title = title;
 		g_free(title);
 	}
 	if (auto length = playerctl_player_print_metadata_prop(player, "mpris:length", nullptr)) {
@@ -187,6 +190,7 @@ void module_mpris::setup_widget() {
 	label_title.get_style_context()->add_class("label_title");
 	label_title.set_ellipsize(Pango::EllipsizeMode::END);
 	label_title.set_max_width_chars(0);
+	label_title.set_text("Not playing");
 	box_right.append(label_title);
 
 	label_artist.get_style_context()->add_class("label_artist");
