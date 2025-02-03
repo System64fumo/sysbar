@@ -9,6 +9,7 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 	if (!test()) {
 		// TODO: Consider adding error codes or error messages, This is too vague.
 		std::printf("Bluetooth: Some errors were found, disabling..\n");
+		image_icon.hide();
 		return;
 	}
 
