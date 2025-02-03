@@ -34,6 +34,7 @@ class module_notifications : public module {
 
 		int notif_count;
 		Gtk::Box box_notifications;
+		Gtk::ScrolledWindow scrolledwindow_notifications;
 
 	private:
 		Gtk::Popover popover_alert;

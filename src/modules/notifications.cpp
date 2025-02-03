@@ -63,8 +63,14 @@ bool module_notifications::update_info() {
 void module_notifications::setup_widget() {
 	box_notifications.set_orientation(Gtk::Orientation::VERTICAL);
 
-	// TODO: Use a scrolled window to limit the max amount of visible notifications
-	win->grid_widgets_end.attach(box_notifications, 0, 5, 4, 4);
+	scrolledwindow_notifications.set_child(box_notifications);
+	scrolledwindow_notifications.set_vexpand();
+	scrolledwindow_notifications.set_propagate_natural_height();
+
+	if (win->position / 2)
+		win->box_widgets_end.prepend(scrolledwindow_notifications);
+	else
+		win->box_widgets_end.append(scrolledwindow_notifications);
 
 	// TODO: Support other orientations
 	popover_alert.get_style_context()->add_class("popover_notifications");
