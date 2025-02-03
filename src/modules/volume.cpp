@@ -23,12 +23,7 @@ module_volume::module_volume(sysbar* window, const bool& icon_on_start) : module
 
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_volume::update_info));
 
-	// Why is this even necessary??
-	// Why does audio not work if not initialized from another thread?
-	std::thread([&]() {
-		usleep(100 * 1000); // WHY!
-		sys_wp = new syshud_wireplumber(nullptr, &dispatcher_callback);
-	}).detach();
+	sys_wp = new syshud_wireplumber(nullptr, &dispatcher_callback);
 
 	setup_widget();
 }
