@@ -1,3 +1,4 @@
+.vscode
 build/
 src/git_info.hpp
 src/wlr-foreign-toplevel-management-unstable-v1.c
