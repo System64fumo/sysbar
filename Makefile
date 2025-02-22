@@ -72,7 +72,6 @@ endif
 VPATH = src src/modules
 OBJS = $(patsubst src/%, $(BUILDDIR)/%, $(patsubst src/modules/%, $(BUILDDIR)/%, $(SRCS:.cpp=.o)))
 
-CFLAGS += -Oz -s -flto -fPIC -fomit-frame-pointer
 CXXFLAGS += $(CFLAGS)
 LDFLAGS += -Wl,--as-needed,-z,now,-z,pack-relative-relocs
 
@@ -93,7 +92,13 @@ define progress
 	@printf "[$(JOBS_DONE)/$(shell echo $(JOB_COUNT) | wc -w)] %s %s\n" $(1) $(2)
 endef
 
-all: $(BINS) $(LIBS)
+all: release
+
+release: CFLAGS += -Oz -s -flto -fPIC -fomit-frame-pointer -Wl,--gc-sections -ffunction-sections -fdata-sections -ffast-math
+release: $(BINS) $(LIBS)
+
+debug: CFLAGS += -O0 -g -Wall -fPIC -DDEBUG
+debug: $(BINS) $(LIBS)
 
 install: $(BINS)
 	@echo "Installing..."
