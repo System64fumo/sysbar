@@ -22,8 +22,8 @@ module_volume::module_volume(sysbar* window, const bool& icon_on_start) : module
 	}
 
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_volume::update_info));
-
-	sys_wp = new syshud_wireplumber(nullptr, &dispatcher_callback);
+	dispatcher_load.connect(sigc::mem_fun(*this, &module_volume::load_wireplumber));
+	dispatcher_load.emit();
 
 	setup_widget();
 }
@@ -67,4 +67,8 @@ void module_volume::update_info() {
 	image_widget_icon.set_from_icon_name(image_icon.get_icon_name());
 	scale_volume.set_value(sys_wp->volume);
 	set_tooltip_text(std::to_string(sys_wp->volume) + "%");
+}
+
+void module_volume::load_wireplumber() {
+	sys_wp = new syshud_wireplumber(nullptr, &dispatcher_callback);
 }

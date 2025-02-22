@@ -11,6 +11,7 @@ class module_volume : public module {
 
 	private:
 		Glib::Dispatcher dispatcher_callback;
+		Glib::Dispatcher dispatcher_load;
 		Gtk::Scale scale_volume;
 		Gtk::Image image_widget_icon;
 		Gtk::Box box_widget;
@@ -21,6 +22,7 @@ class module_volume : public module {
 
 		void update_info();
 		void setup_widget();
+		void load_wireplumber();
 };
 
 #endif
