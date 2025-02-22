@@ -4,6 +4,7 @@
 
 #include <giomm/dbusconnection.h>
 #include <gtkmm/button.h>
+#include <gtkmm/label.h>
 #include <gtkmm/popover.h>
 #include <gtkmm/flowbox.h>
 
@@ -37,6 +38,9 @@ class module_notifications : public module {
 		Gtk::ScrolledWindow scrolledwindow_notifications;
 
 	private:
+		Gtk::Box box_header;
+		Gtk::Label label_notif_count;
+		Gtk::Button button_clear;
 		Gtk::Popover popover_alert;
 		Gtk::FlowBox flowbox_alert;
 		Gtk::ScrolledWindow scrolledwindow_alert;
