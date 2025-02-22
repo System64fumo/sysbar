@@ -67,10 +67,30 @@ void module_notifications::setup_widget() {
 	scrolledwindow_notifications.set_vexpand();
 	scrolledwindow_notifications.set_propagate_natural_height();
 
-	if (win->position / 2)
+	if (win->position / 2) {
+		win->box_widgets_end.prepend(box_header);
 		win->box_widgets_end.prepend(scrolledwindow_notifications);
-	else
+	}
+	else {
+		win->box_widgets_end.append(box_header);
 		win->box_widgets_end.append(scrolledwindow_notifications);
+	}
+
+	box_header.set_visible(false);
+	box_header.append(label_notif_count);
+	label_notif_count.set_halign(Gtk::Align::START);
+	label_notif_count.set_hexpand(true);
+
+	box_header.append(button_clear);
+	button_clear.set_halign(Gtk::Align::END);
+	button_clear.set_image_from_icon_name("application-exit-symbolic");
+	button_clear.signal_clicked().connect([&]() {
+		for (auto n_child : box_notifications.get_children()) {
+			auto n = static_cast<notification*>(n_child);
+				box_notifications.remove(*n);
+		}
+		box_header.set_visible(false);
+	});
 
 	// TODO: Support other orientations
 	popover_alert.get_style_context()->add_class("popover_notifications");
@@ -128,6 +148,7 @@ void module_notifications::on_interface_method_call(
 		invocation->return_value(value);
 	}
 	else if (method_name == "Notify") {
+		box_header.set_visible(true);
 		image_icon.set_from_icon_name("notification-new-symbolic");
 
 		// TODO: This is worse
@@ -151,6 +172,7 @@ void module_notifications::on_interface_method_call(
 			// TODO: Make this switch focus to the program that sent the notification
 			box_notifications.remove(*notif);
 			if (box_notifications.get_children().size() == 0)
+				box_header.set_visible(false);
 				image_icon.set_from_icon_name("notification-symbolic");
 				set_tooltip_text("No new notifications\n");
 		});
@@ -169,6 +191,7 @@ void module_notifications::on_interface_method_call(
 				flowbox_alert.remove(*notif_alert);
 
 				if (flowbox_alert.get_children().size() == 0) {
+					box_header.set_visible(false);
 					image_icon.set_from_icon_name("notification-symbolic");
 					timeout_connection.disconnect();
 					popover_alert.popdown();
