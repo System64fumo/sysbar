@@ -43,6 +43,9 @@ void sysbar::setup_overlay_widgets() {
 	grid_widgets_start.get_style_context()->add_class("grid_widgets_start");
 	grid_widgets_end.get_style_context()->add_class("grid_widgets_end");
 
+	box_widgets_start.get_style_context()->add_class("sidepanel_start");
+	box_widgets_end.get_style_context()->add_class("sidepanel_end");
+
 	scrolled_Window_start.set_child(box_widgets_start);
 	box_widgets_start.append(grid_widgets_start);
 	grid_widgets_start.set_vexpand_set();
