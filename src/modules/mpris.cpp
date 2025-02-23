@@ -1,9 +1,34 @@
 #include "mpris.hpp"
 
 #include <gdkmm/pixbufloader.h>
+#include <gdkmm/general.h>
 #include <curl/curl.h>
 #include <filesystem>
 #include <thread>
+
+Glib::RefPtr<Gdk::Pixbuf> create_rounded_pixbuf(const Glib::RefPtr<Gdk::Pixbuf>& src_pixbuf, const int& size, const int& rounding_radius) {
+	// Limit to 50% rounding otherwise funky stuff happens
+	int rounding = std::clamp(rounding_radius, 0, size / 2);
+
+	int width = src_pixbuf->get_width();
+	int height = src_pixbuf->get_height();
+
+	auto surface = Cairo::ImageSurface::create(Cairo::Surface::Format::ARGB32, size, size);
+	auto cr = Cairo::Context::create(surface);
+
+	cr->begin_new_path();
+	cr->arc(rounding, rounding, rounding, M_PI, 3.0 * M_PI / 2.0);
+	cr->arc(width - rounding, rounding, rounding, 3.0 * M_PI / 2.0, 0.0);
+	cr->arc(width - rounding, height - rounding, rounding, 0.0, M_PI / 2.0);
+	cr->arc(rounding, height - rounding, rounding, M_PI / 2.0, M_PI);
+	cr->close_path();
+	cr->clip();
+
+	Gdk::Cairo::set_source_pixbuf(cr, src_pixbuf, 0, 0);
+	cr->paint();
+
+	return Gdk::Pixbuf::create(surface, 0, 0, size, size);
+}
 
 static void playback_status(PlayerctlPlayer *player, PlayerctlPlaybackStatus status, gpointer user_data) {
 	module_mpris* self = static_cast<module_mpris*>(user_data);
@@ -69,6 +94,7 @@ static void metadata(PlayerctlPlayer* player, GVariant* metadata, gpointer user_
 			int offset_x = (width - square_size) / 2;
 			int offset_y = (height - square_size) / 2;
 			self->album_pixbuf = Gdk::Pixbuf::create_subpixbuf(pixbuf, offset_x, offset_y, square_size, square_size);
+			self->album_pixbuf = create_rounded_pixbuf(self->album_pixbuf, square_size, 20);
 			self->dispatcher_callback.emit();
 		}
 		catch (...) {
@@ -88,6 +114,8 @@ static void metadata(PlayerctlPlayer* player, GVariant* metadata, gpointer user_
 			pixbuf_loader->write(image_data.data(), image_data.size());
 			pixbuf_loader->close();
 			self->album_pixbuf = pixbuf_loader->get_pixbuf();
+			int square_size = std::min(self->album_pixbuf->get_width(), self->album_pixbuf->get_height());
+			self->album_pixbuf = create_rounded_pixbuf(self->album_pixbuf, square_size, 20);
 			curl_easy_cleanup(curl);
 			self->dispatcher_callback.emit();
 		}).detach();
