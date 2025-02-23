@@ -76,6 +76,7 @@ void module_notifications::setup_widget() {
 		win->box_widgets_end.append(scrolledwindow_notifications);
 	}
 
+	box_header.get_style_context()->add_class("notifications_header");
 	box_header.set_visible(false);
 	box_header.append(label_notif_count);
 	label_notif_count.set_halign(Gtk::Align::START);
@@ -90,6 +91,7 @@ void module_notifications::setup_widget() {
 				box_notifications.remove(*n);
 		}
 		box_header.set_visible(false);
+		label_notif_count.set_text("");
 	});
 
 	// TODO: Support other orientations
@@ -150,6 +152,7 @@ void module_notifications::on_interface_method_call(
 	else if (method_name == "Notify") {
 		box_header.set_visible(true);
 		image_icon.set_from_icon_name("notification-new-symbolic");
+		label_notif_count.set_text(std::to_string(box_notifications.get_children().size() + 1) + " Unread Notifications");
 
 		// TODO: This is worse
 		notification *notif = Gtk::make_managed<notification>(box_notifications, sender, parameters, command);
@@ -171,10 +174,11 @@ void module_notifications::on_interface_method_call(
 		notif->signal_clicked().connect([&, notif]() {
 			// TODO: Make this switch focus to the program that sent the notification
 			box_notifications.remove(*notif);
-			if (box_notifications.get_children().size() == 0)
+			if (box_notifications.get_children().size() == 0) {
 				box_header.set_visible(false);
 				image_icon.set_from_icon_name("notification-symbolic");
-				set_tooltip_text("No new notifications\n");
+				set_tooltip_text("No new notifications");
+			}
 		});
 
 		if (!win->overlay_window.is_visible()) {
