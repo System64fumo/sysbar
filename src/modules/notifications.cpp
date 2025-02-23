@@ -81,6 +81,7 @@ void module_notifications::setup_widget() {
 	box_header.append(label_notif_count);
 	label_notif_count.set_halign(Gtk::Align::START);
 	label_notif_count.set_hexpand(true);
+	scrolledwindow_notifications.set_visible(false);
 
 	box_header.append(button_clear);
 	button_clear.set_halign(Gtk::Align::END);
@@ -92,6 +93,7 @@ void module_notifications::setup_widget() {
 		}
 		box_header.set_visible(false);
 		label_notif_count.set_text("");
+		scrolledwindow_notifications.set_visible(false);
 	});
 
 	// TODO: Support other orientations
@@ -153,6 +155,7 @@ void module_notifications::on_interface_method_call(
 		box_header.set_visible(true);
 		image_icon.set_from_icon_name("notification-new-symbolic");
 		label_notif_count.set_text(std::to_string(box_notifications.get_children().size() + 1) + " Unread Notifications");
+		scrolledwindow_notifications.set_visible(true);
 
 		// TODO: This is worse
 		notification *notif = Gtk::make_managed<notification>(box_notifications, sender, parameters, command);
@@ -174,10 +177,12 @@ void module_notifications::on_interface_method_call(
 		notif->signal_clicked().connect([&, notif]() {
 			// TODO: Make this switch focus to the program that sent the notification
 			box_notifications.remove(*notif);
+			label_notif_count.set_text(std::to_string(box_notifications.get_children().size()) + " Unread Notifications");
 			if (box_notifications.get_children().size() == 0) {
 				box_header.set_visible(false);
 				image_icon.set_from_icon_name("notification-symbolic");
 				set_tooltip_text("No new notifications");
+				scrolledwindow_notifications.set_visible(false);
 			}
 		});
 
@@ -193,13 +198,15 @@ void module_notifications::on_interface_method_call(
 
 				notif_alert->timeout_connection.disconnect();
 				flowbox_alert.remove(*notif_alert);
+				label_notif_count.set_text(std::to_string(box_notifications.get_children().size()) + " Unread Notifications");
 
-				if (flowbox_alert.get_children().size() == 0) {
+				if (box_notifications.get_children().size() == 0) {
 					box_header.set_visible(false);
 					image_icon.set_from_icon_name("notification-symbolic");
 					timeout_connection.disconnect();
 					popover_alert.popdown();
-					set_tooltip_text("No new notifications\n");
+					set_tooltip_text("No new notificationsn");
+					scrolledwindow_notifications.set_visible(false);
 				}
 			});
 			flowbox_alert.prepend(*notif_alert);
