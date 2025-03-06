@@ -67,16 +67,16 @@ class tray_watcher {
 
 class module_tray : public module {
 	public:
-		module_tray(sysbar *window, const bool &icon_on_start = true);
+		module_tray(sysbar*, const bool& = true);
 
 	private:
-		const bool& icon_on_start;
+		bool m_icon_on_start;
 		Gtk::Revealer revealer_box;
 		Gtk::Box box_container;
 
 		tray_watcher watcher = tray_watcher(&box_container);
 		Glib::RefPtr<Gtk::GestureClick> gesture_click;
-		void on_clicked(const int &n_press, const double &x, const double &y);
+		void on_clicked(const int&, const double&, const double&);
 };
 
 #endif

@@ -4,7 +4,7 @@
 #include <filesystem>
 
 // Tray module
-module_tray::module_tray(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), icon_on_start(icon_on_start) {
+module_tray::module_tray(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), m_icon_on_start(icon_on_start) {
 	get_style_context()->add_class("module_tray");
 	label_info.hide();
 
@@ -45,11 +45,13 @@ module_tray::module_tray(sysbar* window, const bool& icon_on_start) : module(win
 }
 
 void module_tray::on_clicked(const int& n_press, const double& x, const double& y) {
-	revealer_box.set_reveal_child(!revealer_box.get_reveal_child());
+	bool revealed = revealer_box.get_reveal_child();
+
+	revealer_box.set_reveal_child(!revealed);
 	if (win->position % 2)
-		image_icon.set_from_icon_name(icon_on_start == revealer_box.get_reveal_child() ? "arrow-down" : "arrow-up");
+		image_icon.set_from_icon_name(m_icon_on_start == revealed ? "arrow-down" : "arrow-up");
 	else
-		image_icon.set_from_icon_name(icon_on_start == revealer_box.get_reveal_child() ? "arrow-right" : "arrow-left");
+		image_icon.set_from_icon_name(m_icon_on_start == revealed ? "arrow-right" : "arrow-left");
 
 	// Prevent gestures bellow from triggering
 	gesture_click->reset();
