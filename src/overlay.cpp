@@ -56,36 +56,48 @@ void sysbar::setup_overlay_widgets() {
 	scrolled_Window_end.set_kinetic_scrolling(false);
 
 	if (position == 0) {
+		overlay_window.get_style_context()->add_class("position_top");
 		scrolled_Window_start.set_valign(Gtk::Align::START);
 		scrolled_Window_end.set_valign(Gtk::Align::START);
 		box_widgets_start.set_orientation(Gtk::Orientation::VERTICAL);
 		box_widgets_end.set_orientation(Gtk::Orientation::VERTICAL);
 		grid_widgets_start.set_valign(Gtk::Align::START);
 		grid_widgets_end.set_valign(Gtk::Align::START);
+		box_widgets_start.set_valign(Gtk::Align::START);
+		box_widgets_end.set_valign(Gtk::Align::START);
 	}
 	else if (position == 1) {
+		overlay_window.get_style_context()->add_class("position_right");
 		scrolled_Window_start.set_valign(Gtk::Align::START);
 		scrolled_Window_end.set_valign(Gtk::Align::END);
 		scrolled_Window_start.set_halign(Gtk::Align::END);
 		scrolled_Window_end.set_halign(Gtk::Align::END);
 		grid_widgets_start.set_halign(Gtk::Align::END);
 		grid_widgets_end.set_halign(Gtk::Align::END);
+		box_widgets_start.set_valign(Gtk::Align::START);
+		box_widgets_end.set_valign(Gtk::Align::START);
 	}
 	else if (position == 2) {
+		overlay_window.get_style_context()->add_class("position_bottom");
 		scrolled_Window_start.set_valign(Gtk::Align::END);
 		scrolled_Window_end.set_valign(Gtk::Align::END);
 		box_widgets_start.set_orientation(Gtk::Orientation::VERTICAL);
 		box_widgets_end.set_orientation(Gtk::Orientation::VERTICAL);
 		grid_widgets_start.set_valign(Gtk::Align::END);
 		grid_widgets_end.set_valign(Gtk::Align::END);
+		box_widgets_start.set_valign(Gtk::Align::END);
+		box_widgets_end.set_valign(Gtk::Align::END);
 	}
 	else if (position == 3) {
+		overlay_window.get_style_context()->add_class("position_left");
 		scrolled_Window_start.set_valign(Gtk::Align::START);
 		scrolled_Window_end.set_valign(Gtk::Align::END);
 		grid_widgets_start.set_valign(Gtk::Align::START);
 		grid_widgets_end.set_valign(Gtk::Align::START);
 		grid_widgets_start.set_halign(Gtk::Align::START);
 		grid_widgets_end.set_halign(Gtk::Align::START);
+		box_widgets_start.set_valign(Gtk::Align::END);
+		box_widgets_end.set_valign(Gtk::Align::END);
 	}
 
 	// Common

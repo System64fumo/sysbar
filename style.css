@@ -21,10 +21,18 @@
 	border-radius: 10px;
 }
 
-#sysbar_overlay .sidepanel_end >:first-child:not(:only-child) {
+#sysbar_overlay.position_top .sidepanel_end >:first-child:not(:only-child),
+#sysbar_overlay.position_right .sidepanel_end >:first-child:not(:only-child)  {
 	border-radius: 10px 10px 0px 0px;
 	border-bottom: 0px;
 	margin-bottom: 0px;
+}
+
+#sysbar_overlay.position_bottom .sidepanel_end >:last-child:not(:only-child),
+#sysbar_overlay.position_left .sidepanel_end >:last-child:not(:only-child) {
+	border-radius: 0px 0px 10px 10px;
+	border-top: 0px;
+	margin-top: 0px;
 }
 
 #sysbar .module {
@@ -73,11 +81,26 @@
 
 #sysbar_overlay .notifications_header {
 	background: alpha(@theme_base_color, 0.9);
-	margin: 0px 10px 10px 10px;
-	padding: 0px 5px 5px 5px;
-	border-radius: 0px 0px 10px 10px;
+	margin: 10px;
+	padding: 5px;
 	border: 1px solid @borders;
+}
+
+#sysbar_overlay.position_top .notifications_header,
+#sysbar_overlay.position_right .notifications_header {
+	margin-top: 0px;
+	padding-top: 0px;
 	border-top: unset;
+	border-radius: 0px 0px 10px 10px;
+	box-shadow: 0px -2px 5px 0px rgba(0, 0, 0, 0.5);
+}
+
+#sysbar_overlay.position_bottom .notifications_header,
+#sysbar_overlay.position_left .notifications_header {
+	margin-bottom: 0px;
+	padding-bottom: 0px;
+	border-bottom: unset;
+	border-radius: 10px 10px 0px 0px;
 	box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.5);
 }
 
