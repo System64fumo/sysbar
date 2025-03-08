@@ -70,24 +70,28 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_BOTTOM, false);
 			bar_width = -1;
 			bar_height = size;
+			get_style_context()->add_class("position_bottom");
 			break;
 		case 1:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_LEFT;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_LEFT, false);
 			bar_width = size;
 			bar_height = -1;
+			get_style_context()->add_class("position_left");
 			break;
 		case 2:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_UP;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_TOP, false);
 			bar_width = -1;
 			bar_height = size;
+			get_style_context()->add_class("position_top");
 			break;
 		case 3:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_RIGHT;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_RIGHT, false);
 			bar_width = size;
 			bar_height = -1;
+			get_style_context()->add_class("position_right");
 			break;
 	}
 
