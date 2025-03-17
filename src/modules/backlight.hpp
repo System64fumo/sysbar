@@ -20,7 +20,7 @@ class module_backlight : public module {
 		int inotify_fd;
 		std::string backlight_path;
 		std::mutex brightness_mutex;
-		std::map<int, std::string> volume_brightness;
+		std::map<int, std::string> brightness_icons;
 		std::vector<int> widget_layout = {0, 3, 4, 1};
 
 		Gtk::Scale scale_backlight;
