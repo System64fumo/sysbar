@@ -103,12 +103,14 @@ void module_hyprland::socket_listener() {
 		return;
 	}
 
-	std::string instance_signature = getenv("HYPRLAND_INSTANCE_SIGNATURE");
+	const char* is = getenv("HYPRLAND_INSTANCE_SIGNATURE");
 
-	if (instance_signature.empty()) {
+	if (is == nullptr) {
 		std::fprintf(stderr, "Hyprland instance signature not found, Is hyprland running?\n");
 		return;
 	}
+
+	std::string instance_signature = is;
 
 	std::filesystem::path socket_path = hyprland_socket / instance_signature / ".socket2.sock";
 

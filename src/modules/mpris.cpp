@@ -94,7 +94,8 @@ static void metadata(PlayerctlPlayer* player, GVariant* metadata, gpointer user_
 			int offset_x = (width - square_size) / 2;
 			int offset_y = (height - square_size) / 2;
 			self->album_pixbuf = Gdk::Pixbuf::create_subpixbuf(pixbuf, offset_x, offset_y, square_size, square_size);
-			self->album_pixbuf = create_rounded_pixbuf(self->album_pixbuf, square_size, 20);
+			if (std::stoi(self->win->config_main["mpris"]["album-rounding"]) > 0)
+				self->album_pixbuf = create_rounded_pixbuf(self->album_pixbuf, square_size, std::stoi(self->win->config_main["mpris"]["album-rounding"]));
 			self->dispatcher_callback.emit();
 		}
 		catch (...) {
