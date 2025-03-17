@@ -93,6 +93,7 @@ void module_notifications::setup_widget() {
 		}
 		box_header.set_visible(false);
 		label_notif_count.set_text("");
+		image_icon.set_from_icon_name("notification-symbolic");
 		scrolledwindow_notifications.set_visible(false);
 	});
 

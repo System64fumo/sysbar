@@ -8,9 +8,9 @@
 module_backlight::module_backlight(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
 	get_style_context()->add_class("module_backlight");
 	image_icon.set_from_icon_name("brightness-display-symbolic");
-	volume_brightness[0] = "display-brightness-low-symbolic";
-	volume_brightness[1] = "display-brightness-medium-symbolic";
-	volume_brightness[2] = "display-brightness-high-symbolic";
+	brightness_icons[0] = "display-brightness-low-symbolic";
+	brightness_icons[1] = "display-brightness-medium-symbolic";
+	brightness_icons[2] = "display-brightness-high-symbolic";
 
 	std::string cfg_bl_path = win->config_main["backlight"]["path"];
 	if (!cfg_bl_path.empty())
@@ -67,20 +67,23 @@ module_backlight::module_backlight(sysbar* window, const bool& icon_on_start) : 
 
 void module_backlight::update_info() {
 	label_info.set_text(std::to_string(brightness));
-	image_widget_icon.set_from_icon_name(volume_brightness[brightness / 35]);
+	image_widget_icon.set_from_icon_name(brightness_icons[brightness / 35]);
 	// TODO: Prevent this from changing if currently being dragged
 	//scale_backlight.set_value(brightness);
 }
 
 void module_backlight::on_scale_brightness_change() {
-	double scale_val = scale_backlight.get_value();
-	if ((int)scale_val == brightness)
+	double scale_val_db = scale_backlight.get_value();
+	int scale_val = (int)scale_val_db;
+	if (scale_val == brightness)
 		return;
 
-	std::ofstream backlight_file(backlight_path + "/brightness", std::ios::trunc);
-	backlight_file << (int)scale_val;
+	// Probably not ideal to open and close the file every time..
+	FILE* backlight_file = fopen((backlight_path + "/brightness").c_str(), "w");
+	fprintf(backlight_file, "%d\n", scale_val);
+	fclose(backlight_file);
 
-	image_widget_icon.set_from_icon_name(volume_brightness[(scale_val / max_brightness) * 100.0 / 35]);
+	image_widget_icon.set_from_icon_name(brightness_icons[(scale_val_db / max_brightness) * 100.0 / 35]);
 }
 
 void module_backlight::setup_widget() {
@@ -95,8 +98,6 @@ void module_backlight::setup_widget() {
 	scale_backlight.set_value(brightness_literal);
 
 	scale_backlight.signal_value_changed().connect(sigc::mem_fun(*this, &module_backlight::on_scale_brightness_change));
-
-
 
 	if (widget_layout[2] < widget_layout[3]) { // Vertical layout
 		box_widget->set_orientation(Gtk::Orientation::VERTICAL);
