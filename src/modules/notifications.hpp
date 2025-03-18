@@ -51,7 +51,6 @@ class module_notifications : public module {
 		std::string command;
 		guint object_id;
 
-		bool update_info();
 		void setup_widget();
 		void on_overlay_change();
 		void setup_daemon();
