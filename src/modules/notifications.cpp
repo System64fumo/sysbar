@@ -45,7 +45,7 @@ const auto introspection_data = Gio::DBus::NodeInfo::create_for_xml(
 module_notifications::module_notifications(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), notif_count(0) {
 	get_style_context()->add_class("module_notifications");
 	image_icon.set_from_icon_name("notification-symbolic");
-	set_tooltip_text("No new notifications\n");
+	set_tooltip_text("No new notifications");
 	label_info.hide();
 
 	std::string cfg_command = win->config_main["notification"]["command"];
@@ -54,10 +54,6 @@ module_notifications::module_notifications(sysbar* window, const bool& icon_on_s
 
 	setup_widget();
 	setup_daemon();
-}
-
-bool module_notifications::update_info() {
-	return true;
 }
 
 void module_notifications::setup_widget() {
@@ -206,7 +202,7 @@ void module_notifications::on_interface_method_call(
 					image_icon.set_from_icon_name("notification-symbolic");
 					timeout_connection.disconnect();
 					popover_alert.popdown();
-					set_tooltip_text("No new notificationsn");
+					set_tooltip_text("No new notifications");
 					scrolledwindow_notifications.set_visible(false);
 				}
 			});
