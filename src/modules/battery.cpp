@@ -60,7 +60,7 @@ void module_battery::setup_control() {
 		return;
 
 	auto container = static_cast<module_controls*>(win->box_controls);
-	control_battery = Gtk::make_managed<control>("battery-level-100-symbolic", true);
+	control_battery = Gtk::make_managed<control>(win, "battery-level-100-symbolic", true, "battery");
 	container->flowbox_controls.append(*control_battery);
 
 	// TODO: Clicking on the main button should trigger low power mode

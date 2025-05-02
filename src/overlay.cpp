@@ -40,18 +40,24 @@ void sysbar::setup_overlay_widgets() {
 
 	int size = (position % 2) ? monitor_geometry.height : monitor_geometry.width;
 
-	grid_widgets_start.get_style_context()->add_class("grid_widgets_start");
-	grid_widgets_end.get_style_context()->add_class("grid_widgets_end");
+	stack_start.get_style_context()->add_class("widgets_start");
+	stack_end.get_style_context()->add_class("widgets_end");
 
 	box_widgets_start.get_style_context()->add_class("sidepanel_start");
 	box_widgets_end.get_style_context()->add_class("sidepanel_end");
 
 	scrolled_Window_start.set_child(box_widgets_start);
-	box_widgets_start.append(grid_widgets_start);
-	grid_widgets_start.set_vexpand_set();
+	stack_start.add(grid_widgets_start, "main");
+	stack_start.set_vexpand_set();
+	stack_start.set_transition_type(Gtk::StackTransitionType::SLIDE_LEFT_RIGHT);
+	box_widgets_start.append(stack_start);
+
 	scrolled_Window_end.set_child(box_widgets_end);
-	box_widgets_end.append(grid_widgets_end);
-	grid_widgets_end.set_vexpand_set();
+	stack_end.add(grid_widgets_end, "main");
+	stack_end.set_vexpand_set();
+	stack_end.set_transition_type(Gtk::StackTransitionType::SLIDE_LEFT_RIGHT);
+	box_widgets_end.append(stack_end);
+
 	scrolled_Window_start.set_kinetic_scrolling(false);
 	scrolled_Window_end.set_kinetic_scrolling(false);
 

@@ -7,6 +7,7 @@
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/gesturedrag.h>
 #include <gtkmm/box.h>
+#include <gtkmm/stack.h>
 #include <gtkmm/grid.h>
 
 class sysbar : public Gtk::Window {
@@ -19,6 +20,8 @@ class sysbar : public Gtk::Window {
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag;
 		Gtk::Box* box_controls = nullptr;
 		Gtk::Box box_widgets_start;
+		Gtk::Stack stack_start;
+		Gtk::Stack stack_end;
 		Gtk::Grid grid_widgets_start;
 		Gtk::Box box_widgets_end;
 		Gtk::Grid grid_widgets_end;
