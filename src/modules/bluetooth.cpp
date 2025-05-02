@@ -200,7 +200,7 @@ void module_bluetooth::setup_control() {
 		return;
 
 	auto container = static_cast<module_controls*>(win->box_controls);
-	control_bluetooth = Gtk::make_managed<control>("bluetooth-active-symbolic", true);
+	control_bluetooth = Gtk::make_managed<control>(win, "bluetooth-active-symbolic", true, "bluetooth");
 	container->flowbox_controls.append(*control_bluetooth);
 }
 #endif

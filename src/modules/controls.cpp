@@ -14,7 +14,20 @@ module_controls::module_controls(sysbar* window, const bool& icon_on_start) : mo
 	win->grid_widgets_end.attach(*this, 0, 0, 4, 1);
 }
 
-control::control(const std::string& icon, const bool& extra) {
+control_page::control_page(sysbar* window, const std::string& name) : Gtk::Box(Gtk::Orientation::VERTICAL), box_body(Gtk::Orientation::VERTICAL) {
+	append(box_header);
+	append(box_body);
+
+	box_header.append(button_return);
+	button_return.signal_clicked().connect([window]() {
+		window->stack_end.set_visible_child("main");
+	});
+
+	// TODO: Detect position
+	window->stack_end.add(*this, name);
+}
+
+control::control(sysbar* window, const std::string& icon, const bool& extra, const std::string& name) {
 	get_style_context()->add_class("control");
 	append(button_action);
 	button_action.set_icon_name(icon);
@@ -30,5 +43,6 @@ control::control(const std::string& icon, const bool& extra) {
 		button_expand.set_focusable(false);
 		button_expand.set_has_frame(false);
 		button_expand.set_icon_name("arrow-right");
+		page = Gtk::make_managed<control_page>(window, name);
 	}
 }
