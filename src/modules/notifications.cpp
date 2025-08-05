@@ -2,6 +2,7 @@
 
 #include <glibmm/dispatcher.h>
 #include <giomm/dbusownname.h>
+#include <filesystem>
 #include <thread>
 
 const auto introspection_data = Gio::DBus::NodeInfo::create_for_xml(
@@ -99,10 +100,13 @@ void module_notifications::setup_widget() {
 	popover_alert.set_child(scrolledwindow_alert);
 	popover_alert.set_autohide(false);
 	popover_alert.set_has_arrow(false);
-	scrolledwindow_alert.set_size_request(350, -1);
+	popover_alert.set_position(Gtk::PositionType::BOTTOM);
+	scrolledwindow_alert.set_size_request(350, 400);
 	scrolledwindow_alert.set_child(flowbox_alert);
 	scrolledwindow_alert.set_propagate_natural_height(true);
 	flowbox_alert.set_max_children_per_line(1);
+	flowbox_alert.set_selection_mode(Gtk::SelectionMode::NONE);
+	flowbox_alert.set_valign(Gtk::Align::START);
 
 	win->overlay_window.signal_show().connect(sigc::mem_fun(*this, &module_notifications::on_overlay_change));
 }
@@ -212,7 +216,15 @@ void module_notifications::on_interface_method_call(
 				flowbox_alert.remove(*notif_alert);
 				return false;
 			}, 5000);
-			popover_alert.popup();
+
+			// This whole dance is needed to get popovers working when the bar is "hidden"
+			int def_w, def_h;
+			win->get_default_size(def_w, def_h);
+			win->set_default_size(5, 5);
+			Glib::signal_timeout().connect_once([&, def_w, def_h]() {
+				popover_alert.popup();
+				win->set_default_size(def_w, def_h);
+			}, 10);
 		}
 
 		box_notifications.prepend(*notif);
@@ -278,7 +290,7 @@ notification::notification(const Gtk::Box& box_notifications, const Glib::ustrin
 	Gtk::Image image_icon;
 
 	// Load image data from path
-	if (app_icon != "")
+	if (app_icon != "" && std::filesystem::exists(std::filesystem::path(app_icon))) 
 		image_data = Gdk::Pixbuf::create_from_file(app_icon);
 
 	// Load image from pixbuf if applicable

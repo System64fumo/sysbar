@@ -2,13 +2,12 @@
 
 #include <thread>
 
-module_volume::module_volume(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
+module_volume::module_volume(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), sys_wp(nullptr, &dispatcher_callback) {
 	get_style_context()->add_class("module_volume");
 	volume_icons[0] = "audio-volume-low-symbolic";
 	volume_icons[1] = "audio-volume-medium-symbolic";
 	volume_icons[2] = "audio-volume-high-symbolic";
 	label_info.hide();
-
 
 	if (win->config_main["volume"]["show-label"] == "true")
 		label_info.show();
@@ -22,8 +21,6 @@ module_volume::module_volume(sysbar* window, const bool& icon_on_start) : module
 	}
 
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_volume::update_info));
-	dispatcher_load.connect(sigc::mem_fun(*this, &module_volume::load_wireplumber));
-	dispatcher_load.emit();
 
 	setup_widget();
 }
@@ -37,7 +34,7 @@ void module_volume::setup_widget() {
 	scale_volume.set_vexpand(true);
 	scale_volume.set_range(0, 100);
 	scale_volume.signal_change_value().connect([&](Gtk::ScrollType scroll_type, double val) {
-		sys_wp->set_volume(true, val);
+		sys_wp.set_volume(true, val);
 		return true;
 	}, true);
 
@@ -57,18 +54,14 @@ void module_volume::setup_widget() {
 }
 
 void module_volume::update_info() {
-	label_info.set_text(std::to_string(sys_wp->volume));
-	if (sys_wp->muted)
+	label_info.set_text(std::to_string(sys_wp.volume));
+	if (sys_wp.muted)
 		image_icon.set_from_icon_name("audio-volume-muted-blocking-symbolic");
 	else
-		image_icon.set_from_icon_name(volume_icons[sys_wp->volume / 35]);
+		image_icon.set_from_icon_name(volume_icons[sys_wp.volume / 35]);
 
 	// Widget
 	image_widget_icon.set_from_icon_name(image_icon.get_icon_name());
-	scale_volume.set_value(sys_wp->volume);
-	set_tooltip_text(std::to_string(sys_wp->volume) + "%");
-}
-
-void module_volume::load_wireplumber() {
-	sys_wp = new syshud_wireplumber(nullptr, &dispatcher_callback);
+	scale_volume.set_value(sys_wp.volume);
+	set_tooltip_text(std::to_string(sys_wp.volume) + "%");
 }

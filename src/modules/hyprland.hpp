@@ -30,12 +30,13 @@ class module_hyprland : public module {
 		std::mutex mutex;
 		std::unordered_map<std::string, monitor> monitors;
 		std::unordered_map<std::string, window> windows;
+		std::string fullscreen_cause_id;
 		window* window_active;
 		monitor* monitor_active;
 
 		void update_info();
 		void socket_listener();
-		void update_fullscreen_status();
+		void update_fullscreen_status(const bool& override = false);
 };
 
 #endif
