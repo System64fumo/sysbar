@@ -2,6 +2,7 @@
 #include "../module.hpp"
 #ifdef MODULE_HYPRLAND
 
+#include <unordered_map>
 #include <glibmm/dispatcher.h>
 #include <queue>
 #include <mutex>
@@ -11,16 +12,14 @@ class module_hyprland : public module {
 		module_hyprland(sysbar*, const bool&);
 
 	private:
-		struct workspace {
-			int id;
-			bool active;
+		struct window {
+			std::string id;
 			bool fullscreen;
 		};
 		struct monitor {
-			std::string name;
-			bool active;
-			std::vector<workspace> workspaces;
+			std::string connector;
 		};
+
 
 		int new_workspace;
 
@@ -29,10 +28,14 @@ class module_hyprland : public module {
 		int character_limit;
 		std::queue<std::string> data_queue;
 		std::mutex mutex;
-		std::vector<monitor> monitors;
+		std::unordered_map<std::string, monitor> monitors;
+		std::unordered_map<std::string, window> windows;
+		window* window_active;
+		monitor* monitor_active;
 
 		void update_info();
 		void socket_listener();
+		void update_fullscreen_status();
 };
 
 #endif

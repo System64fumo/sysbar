@@ -31,6 +31,7 @@ class sysbar : public Gtk::Window {
 		int size;
 		int layer;
 		bool verbose;
+		bool visible;
 
 	private:
 		Gtk::Revealer revealer_box;

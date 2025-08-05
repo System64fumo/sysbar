@@ -31,6 +31,7 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 	verbose = config_main["main"]["verbose"] == "true";
 
 	// Get main monitor
+	// TODO: Add monitor config correction if specified monitor is not found
 	GdkDisplay* display = gdk_display_get_default();
 	GListModel* monitors = gdk_display_get_monitors(display);
 
@@ -262,12 +263,14 @@ void sysbar::handle_signal(const int& signum) {
 				revealer_box.set_reveal_child(true);
 				gtk_layer_set_exclusive_zone(gobj(), size);
 				set_default_size(bar_width, bar_height);
+				visible = true;
 				break;
 
 			case 12: // Hide
 				revealer_box.set_reveal_child(false);
 				gtk_layer_set_exclusive_zone(gobj(), 0);
 				set_default_size(1, 1);
+				visible = false;
 				break;
 
 			case 34: // Toggle
