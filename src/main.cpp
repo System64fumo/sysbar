@@ -141,9 +141,9 @@ int main(int argc, char* argv[]) {
 	win = sysbar_create_ptr(config);
 
 	// Catch signals
-	signal(SIGUSR1, handle_signal);
-	signal(SIGUSR2, handle_signal);
-	signal(SIGRTMIN, handle_signal);
+	signal(SIGUSR1, handle_signal); // Show
+	signal(SIGUSR2, handle_signal); // Hide
+	signal(SIGRTMIN, handle_signal); // Toggle
 
 	return app->run();
 }

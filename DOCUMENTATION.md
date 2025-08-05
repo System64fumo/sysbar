@@ -74,6 +74,7 @@ The config system is INI based and can be configured by editing `~/.config/sys64
 | position             | 0                           | 0 = top 1 = right 2 = bottom 3 = left              |
 | size                 | 40                          | Height or width depending on position              |
 | layer                | 2                           | Background = 0, Bottom = 1, Top = 2, Overlay = 3   |
+| autohide             | true                        | Hides the bar automatically when going fullscreen  |
 | exclusive            | true                        | Exclude part of the screen for the bar             |
 | verbose              | false                       | Verbose output (For debugging)                     |
 | main-monitor         | HDMI-A-1                    | Monitor output name (DP-1, HDMI-A-1, ect..)        |

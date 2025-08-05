@@ -11,6 +11,8 @@ module_hyprland::module_hyprland(sysbar* window, const bool& icon_on_start) : mo
 	image_icon.hide();
 	label_info.set_margin_end(win->size / 3);
 
+	window_active = nullptr;
+	monitor_active = nullptr;
 
 	std::string cfg_char_limit = win->config_main["hyprland"]["character-limit"];
 	if (!cfg_char_limit.empty())
@@ -31,18 +33,49 @@ void module_hyprland::update_info() {
 
 	//std::printf("Data: %s\n", data.c_str());
 
-	// Create new workspace
-	if (data.find("createworkspace>>") != std::string::npos) {
-		new_workspace = std::stoi(data.substr(17,data.find(',') - 12));
+	// Amazing if else chain of states
+	if (data.find("openwindow>>") != std::string::npos ||
+		data.find("closewindow>>") != std::string::npos) {
+		uint8_t start = data.find(">>") + 2;
+		uint8_t end = data.find(",", start);
+		std::string window_id = data.substr(start, end - start);
+
+		// TODO: Handle process sleep states
+		// If sysbar or sysshell go to sleep we may lose track of windows
+		// Maybe add a garbage collector/resetter thing?
+		if (data.find("openwindow>>") != std::string::npos) {
+			windows[window_id] = window {
+				window_id
+			};
+			window_active = &windows[window_id];
+		}
+		else if (data.find("closewindow>>") != std::string::npos) {
+			windows.erase(window_id);
+		}
 	}
 
-	// Delete workspace
-	if (data.find("destroyworkspace>>") != std::string::npos) {
-		std::string workspace_id = data.substr(18,data.find(',') - 12);
-		// TODO: Add delete code
+	else if (data.find("activewindowv2>>") != std::string::npos) {
+		// TODO: Verify existance of window otherwise return nullptr
+		std::string window_id = data.substr(16, 12);
+		if (window_id == "")
+			window_active = nullptr;
+		else 
+			window_active = &windows[window_id];
+
+		update_fullscreen_status();
 	}
 
-	if (data.find("activewindow>>") != std::string::npos) {
+	else if (data.find("fullscreen>>") != std::string::npos) {
+		bool fullscreen_state = data.substr(12, 1) == "1";
+		if (window_active == nullptr)
+			return;
+
+		window_active->fullscreen = fullscreen_state;
+		update_fullscreen_status();
+	}
+
+	// TODO: Get current active window and monitor on startup
+	else if (data.find("activewindow>>") != std::string::npos) {
 		std::string active_window_data = data.substr(14);
 		int pos = active_window_data.find(',');
 
@@ -54,43 +87,18 @@ void module_hyprland::update_info() {
 
 		label_info.set_text(active_window_title);
 	}
+
 	else if (data.find("focusedmon>>") != std::string::npos) {
-		std::string focused_monitor = data.substr(12,data.find(',') - 12);
-		int focused_workspace = std::stoi(data.substr(data.find(',') + 1));
-		auto mon_it = std::find_if(monitors.begin(), monitors.end(), [focused_monitor](const monitor& mon) {
-			return mon.name == focused_monitor;
-		});
-		if (mon_it == monitors.end()) {
-			monitor mon;
-			mon.name = focused_monitor;
-			mon.active = true;
-			monitors.push_back(mon);
-
-			workspace ws;
-			ws.id = focused_workspace;
-			ws.active = false;
-			ws.fullscreen = false;
-			mon.workspaces.push_back(ws);
+		uint8_t start = data.find(">>") + 2;
+		uint8_t end = data.find(",", start);
+		std::string monitor_connector = data.substr(start, end - start);
+		if (!monitors.count(monitor_connector)) {
+			monitors[monitor_connector] = {
+				monitor_connector
+			};
 		}
 
-		for (monitor mon : monitors) {
-			mon.active = false;
-			if (mon.name != focused_monitor)
-				continue;
-
-			// Create a new workspace if needed
-			if (new_workspace != 0) {
-				workspace ws;
-				ws.id = new_workspace;
-				ws.active = false;
-				ws.fullscreen = false;
-				mon.workspaces.push_back(ws);
-				new_workspace = 0;
-			}
-
-			for (workspace ws : mon.workspaces)
-				ws.active = (ws.id == focused_workspace);
-		}
+		monitor_active = &monitors[monitor_connector];
 	}
 }
 
@@ -154,4 +162,26 @@ void module_hyprland::socket_listener() {
 	}
 
 	close(sockfd);
+}
+
+void module_hyprland::update_fullscreen_status() {
+	if (win->config_main["main"]["autohide"] != "true")
+		return;
+
+	if (monitor_active == nullptr)
+		return;
+
+	if (monitor_active->connector != win->config_main["main"]["main-monitor"])
+		return;
+	
+	bool window_active_state;
+	if (window_active != nullptr)
+		window_active_state = window_active->fullscreen;
+
+	if (window_active_state && win->visible) {
+		win->handle_signal(12);
+	}
+	else if (!window_active_state && !(win->visible)) {
+		win->handle_signal(10);
+	}
 }
