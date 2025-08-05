@@ -30,6 +30,27 @@ Glib::RefPtr<Gdk::Pixbuf> create_rounded_pixbuf(const Glib::RefPtr<Gdk::Pixbuf>&
 	return Gdk::Pixbuf::create(surface, 0, 0, size, size);
 }
 
+Glib::RefPtr<Gdk::Pixbuf> scale_and_crop_pixbuf(const Glib::RefPtr<Gdk::Pixbuf>& src_pixbuf, const int target_size) {
+	int width = src_pixbuf->get_width();
+	int height = src_pixbuf->get_height();
+	
+	int crop_size = std::min(width, height);
+
+	int x_offset = (width - crop_size) / 2;
+	int y_offset = (height - crop_size) / 2;
+
+	x_offset = std::max(0, x_offset);
+	y_offset = std::max(0, y_offset);
+	crop_size = std::min(crop_size, width - x_offset);
+	crop_size = std::min(crop_size, height - y_offset);
+	
+	auto cropped = Gdk::Pixbuf::create_subpixbuf(src_pixbuf, x_offset, y_offset, crop_size, crop_size);
+
+	auto scaled = cropped->scale_simple(target_size, target_size, Gdk::InterpType::BILINEAR);
+
+	return scaled;
+}
+
 static void playback_status(PlayerctlPlayer *player, PlayerctlPlaybackStatus status, gpointer user_data) {
 	module_mpris* self = static_cast<module_mpris*>(user_data);
 	self->status = status;
@@ -80,7 +101,7 @@ static void metadata(PlayerctlPlayer* player, GVariant* metadata, gpointer user_
 	}
 
 	// Load album art
-	if (self->album_art_url.find("file://") == 0) {
+	if (self->album_art_url.find("file://") != std::string::npos) {
 		self->album_art_url.erase(0, 7);
 		if (self->album_art_url == "" || !std::filesystem::exists(self->album_art_url))
 			return;
@@ -102,7 +123,7 @@ static void metadata(PlayerctlPlayer* player, GVariant* metadata, gpointer user_
 			return;
 		}
 	}
-	else if (self->album_art_url.find("https://") == 0) {
+	else if (self->album_art_url.find("https://") != std::string::npos) {
 		CURL* curl = curl_easy_init();
 		std::thread([&, curl, self]() {
 			std::vector<unsigned char> image_data;
@@ -110,16 +131,33 @@ static void metadata(PlayerctlPlayer* player, GVariant* metadata, gpointer user_
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &image_data);
 			(void)curl_easy_perform(curl);
-	
-			auto pixbuf_loader = Gdk::PixbufLoader::create();
-			pixbuf_loader->write(image_data.data(), image_data.size());
-			pixbuf_loader->close();
-			self->album_pixbuf = pixbuf_loader->get_pixbuf();
-			int square_size = std::min(self->album_pixbuf->get_width(), self->album_pixbuf->get_height());
-			self->album_pixbuf = create_rounded_pixbuf(self->album_pixbuf, square_size, 20);
+
+			Glib::MainContext::get_default()->invoke([&, self]() {
+				auto pixbuf_loader = Gdk::PixbufLoader::create();
+				pixbuf_loader->write(image_data.data(), image_data.size());
+				pixbuf_loader->close();
+				self->album_pixbuf = pixbuf_loader->get_pixbuf();
+				self->dispatcher_callback.emit();
+				return false;
+			});
+
 			curl_easy_cleanup(curl);
-			self->dispatcher_callback.emit();
 		}).detach();
+	}
+	else if (self->album_art_url.find("base64") != std::string::npos) {
+		size_t comma_pos = self->album_art_url.find(',');
+		std::string base64_data = self->album_art_url.substr(comma_pos + 1);
+		gsize decoded_len;
+		guchar* decoded_data = g_base64_decode(base64_data.c_str(), &decoded_len);
+		GInputStream* stream = g_memory_input_stream_new_from_data(
+			decoded_data, 
+			decoded_len, 
+			g_free
+		);
+		GError* error = NULL;
+		GdkPixbuf* pixbuf = gdk_pixbuf_new_from_stream(stream, NULL, &error);
+		self->album_pixbuf = Glib::wrap(pixbuf);
+		self->dispatcher_callback.emit();
 	}
 	else
 		self->dispatcher_callback.emit();
@@ -194,8 +232,12 @@ void module_mpris::update_info() {
 	label_title.set_text(title);
 	label_artist.set_text(artist);
 
-	if (album_pixbuf != nullptr)
+	if (album_pixbuf != nullptr) {
+		album_pixbuf = scale_and_crop_pixbuf(album_pixbuf, 96);
+		int square_size = std::min(album_pixbuf->get_width(), album_pixbuf->get_height());
+		album_pixbuf = create_rounded_pixbuf(album_pixbuf, square_size, 6);
 		image_album_art.set(album_pixbuf);
+	}
 	else if (album_art_url.empty())
 		image_album_art.set_from_icon_name("music-app-symbolic");
 	else

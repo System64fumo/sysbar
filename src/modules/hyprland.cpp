@@ -13,6 +13,7 @@ module_hyprland::module_hyprland(sysbar* window, const bool& icon_on_start) : mo
 
 	window_active = nullptr;
 	monitor_active = nullptr;
+	fullscreen_cause_id = "";
 
 	std::string cfg_char_limit = win->config_main["hyprland"]["character-limit"];
 	if (!cfg_char_limit.empty())
@@ -50,6 +51,11 @@ void module_hyprland::update_info() {
 			window_active = &windows[window_id];
 		}
 		else if (data.find("closewindow>>") != std::string::npos) {
+			if (window_id == fullscreen_cause_id) {
+				windows[window_id].fullscreen = false;
+				update_fullscreen_status(true);
+			}
+
 			windows.erase(window_id);
 		}
 	}
@@ -164,14 +170,14 @@ void module_hyprland::socket_listener() {
 	close(sockfd);
 }
 
-void module_hyprland::update_fullscreen_status() {
+void module_hyprland::update_fullscreen_status(const bool& override) {
 	if (win->config_main["main"]["autohide"] != "true")
 		return;
 
 	if (monitor_active == nullptr)
 		return;
 
-	if (monitor_active->connector != win->config_main["main"]["main-monitor"])
+	if (!override && monitor_active->connector != win->config_main["main"]["main-monitor"])
 		return;
 	
 	bool window_active_state;
@@ -179,9 +185,11 @@ void module_hyprland::update_fullscreen_status() {
 		window_active_state = window_active->fullscreen;
 
 	if (window_active_state && win->visible) {
+		fullscreen_cause_id = window_active->id;
 		win->handle_signal(12);
 	}
 	else if (!window_active_state && !(win->visible)) {
+		fullscreen_cause_id = window_active->id;
 		win->handle_signal(10);
 	}
 }
