@@ -108,13 +108,17 @@
 	margin-left: 10px;
 }
 
+#sysbar_notifications {
+	background: transparent;
+}
+#sysbar_notifications .notification,
 #sysbar_overlay .notification {
-	background: alpha(currentcolor, 0.1);
+	background: alpha(@theme_bg_color, 0.75);
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
 	border-radius: 4px;
-	box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.25);
-	margin: 5px;
-	padding: 5px;
 	min-height: 70px;
+	margin: 10px;
+	padding: 0px;
 }
 #sysbar_overlay .notification .summary {
 	font-size: 14px;
@@ -122,18 +126,6 @@
 }
 #sysbar_overlay .notification .body {
 	font-size: 13px;
-}
-#sysbar .popover_notifications > * {
-	background: transparent;
-	border: unset;
-	box-shadow: unset;
-	margin: unset;
-	padding: unset;
-}
-#sysbar .popover_notifications .notification {
-	background: alpha(@insensitive_bg_color, 0.9);
-	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-	margin: 10px 10px 0px 10px;
 }
 
 #sysbar_overlay calendar {

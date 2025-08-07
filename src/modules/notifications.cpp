@@ -1,6 +1,7 @@
 #include "notifications.hpp"
 
 #include <glibmm/dispatcher.h>
+#include <gtk4-layer-shell.h>
 #include <giomm/dbusownname.h>
 #include <filesystem>
 #include <thread>
@@ -95,15 +96,22 @@ void module_notifications::setup_widget() {
 	});
 
 	// TODO: Support other orientations
-	popover_alert.get_style_context()->add_class("popover_notifications");
-	popover_alert.set_parent(*win);
-	popover_alert.set_child(scrolledwindow_alert);
-	popover_alert.set_autohide(false);
-	popover_alert.set_has_arrow(false);
-	popover_alert.set_position(Gtk::PositionType::BOTTOM);
-	scrolledwindow_alert.set_size_request(350, 400);
+	window_alert.set_name("sysbar_notifications");
+	window_alert.set_child(scrolledwindow_alert);
+	window_alert.set_decorated(false);
+	window_alert.set_default_size(350, -1);
+	window_alert.set_hide_on_close(true);
+
+	gtk_layer_init_for_window(window_alert.gobj());
+	gtk_layer_set_namespace(window_alert.gobj(), "sysbar-notifications");
+	gtk_layer_set_keyboard_mode(window_alert.gobj(), GTK_LAYER_SHELL_KEYBOARD_MODE_NONE);
+	gtk_layer_set_layer(window_alert.gobj(), GTK_LAYER_SHELL_LAYER_OVERLAY);
+
+	gtk_layer_set_anchor(window_alert.gobj(), GTK_LAYER_SHELL_EDGE_TOP, true);
+
 	scrolledwindow_alert.set_child(flowbox_alert);
 	scrolledwindow_alert.set_propagate_natural_height(true);
+	scrolledwindow_alert.set_max_content_height(400);
 	flowbox_alert.set_max_children_per_line(1);
 	flowbox_alert.set_selection_mode(Gtk::SelectionMode::NONE);
 	flowbox_alert.set_valign(Gtk::Align::START);
@@ -113,7 +121,7 @@ void module_notifications::setup_widget() {
 
 
 void module_notifications::on_overlay_change() {
-	popover_alert.popdown();
+	window_alert.hide();
 }
 
 void module_notifications::setup_daemon() {
@@ -175,7 +183,7 @@ void module_notifications::on_interface_method_call(
 		auto id_var = Glib::VariantContainerBase::create_tuple(
 			Glib::Variant<guint32>::create(notif->notif_id));
 
-		notif->signal_clicked().connect([&, notif]() {
+		notif->button_main.signal_clicked().connect([&, notif]() {
 			// TODO: Make this switch focus to the program that sent the notification
 			box_notifications.remove(*notif);
 			label_notif_count.set_text(std::to_string(box_notifications.get_children().size()) + " Unread Notifications");
@@ -189,7 +197,7 @@ void module_notifications::on_interface_method_call(
 
 		if (!win->overlay_window.is_visible()) {
 			notification *notif_alert = Gtk::make_managed<notification>(box_notifications, sender, parameters, "");
-			notif_alert->signal_clicked().connect([&, notif_alert]() {
+			notif_alert->button_main.signal_clicked().connect([&, notif_alert]() {
 				// TODO: Make this switch focus to the program that sent the notification
 				for (auto n_child : box_notifications.get_children()) {
 					auto n = static_cast<notification*>(n_child);
@@ -205,7 +213,7 @@ void module_notifications::on_interface_method_call(
 					box_header.set_visible(false);
 					image_icon.set_from_icon_name("notification-symbolic");
 					timeout_connection.disconnect();
-					popover_alert.popdown();
+					window_alert.hide();
 					set_tooltip_text("No new notifications");
 					scrolledwindow_notifications.set_visible(false);
 				}
@@ -217,24 +225,19 @@ void module_notifications::on_interface_method_call(
 				return false;
 			}, 5000);
 
-			// This whole dance is needed to get popovers working when the bar is "hidden"
-			int def_w, def_h;
-			win->get_default_size(def_w, def_h);
-			win->set_default_size(5, 5);
-			Glib::signal_timeout().connect_once([&, def_w, def_h]() {
-				popover_alert.popup();
-				win->set_default_size(def_w, def_h);
-			}, 10);
+			window_alert.show();
+			notif_alert->set_reveal_child(true);
 		}
 
 		box_notifications.prepend(*notif);
+		notif->set_reveal_child(true);
 		set_tooltip_text(std::to_string(flowbox_alert.get_children().size()) + " unread notifications\n");
 
 		invocation->return_value(id_var);
 
 		timeout_connection.disconnect();
 		timeout_connection = Glib::signal_timeout().connect([&]() {
-			popover_alert.popdown();
+			window_alert.hide();
 			return false;
 		}, 5000);
 	}
@@ -330,7 +333,10 @@ notification::notification(const Gtk::Box& box_notifications, const Glib::ustrin
 	box_notification.append(label_body);
 
 	box_main.append(box_notification);
-	set_child(box_main);
+	button_main.set_child(box_main);
+	set_child(button_main);
+	set_transition_duration(500);
+	set_transition_type(Gtk::RevealerTransitionType::SLIDE_DOWN);
 	set_focusable(false);
 
 	box_notification.set_orientation(Gtk::Orientation::VERTICAL);

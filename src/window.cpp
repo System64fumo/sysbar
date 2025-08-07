@@ -257,11 +257,6 @@ void sysbar::load_modules(const std::string& modules, Gtk::Box& box) {
 }
 
 void sysbar::handle_signal(const int& signum) {
-	if (signum == 10)
-		gtk_layer_set_layer(gobj(), GTK_LAYER_SHELL_LAYER_OVERLAY);
-	else if (signum == 12)
-		gtk_layer_set_layer(gobj(), static_cast<GtkLayerShellLayer>(layer));
-
 	Glib::signal_idle().connect_once([this, signum]() {
 		switch (signum) {
 			case 10: // Show
@@ -275,9 +270,9 @@ void sysbar::handle_signal(const int& signum) {
 				revealer_box.set_reveal_child(false);
 				gtk_layer_set_exclusive_zone(gobj(), 0);
 				if (position % 2) // Vertical
-					set_default_size(1, bar_height);
+					set_default_size(2, bar_height);
 				else // Horizontal
-					set_default_size(bar_width, 1);
+					set_default_size(bar_width, 2);
 				visible = false;
 				break;
 
