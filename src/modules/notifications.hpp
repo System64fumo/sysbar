@@ -3,15 +3,16 @@
 #ifdef MODULE_NOTIFICATION
 
 #include <giomm/dbusconnection.h>
+#include <gtkmm/revealer.h>
 #include <gtkmm/button.h>
 #include <gtkmm/label.h>
-#include <gtkmm/popover.h>
 #include <gtkmm/flowbox.h>
 
-class notification : public Gtk::Button {
+class notification : public Gtk::Revealer {
 	public:
 		notification(const Gtk::Box&, const Glib::ustring&, const Glib::VariantContainerBase&, const std::string&);
 
+		Gtk::Button button_main;
 		sigc::connection timeout_connection;
 
 		guint32 notif_id;
@@ -41,7 +42,7 @@ class module_notifications : public module {
 		Gtk::Box box_header;
 		Gtk::Label label_notif_count;
 		Gtk::Button button_clear;
-		Gtk::Popover popover_alert;
+		Gtk::Window window_alert;
 		Gtk::FlowBox flowbox_alert;
 		Gtk::ScrolledWindow scrolledwindow_alert;
 		sigc::connection timeout_connection;
