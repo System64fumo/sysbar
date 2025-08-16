@@ -11,7 +11,7 @@ module_controls::module_controls(sysbar* window, const bool& icon_on_start) : mo
 	flowbox_controls.set_max_children_per_line(1);
 	flowbox_controls.set_selection_mode(Gtk::SelectionMode::NONE);
 
-	win->grid_widgets_end.attach(*this, 0, 0, 4, 1);
+	win->sidepanel_end->grid_main.attach(*this, 0, 0, 4, 1);
 }
 
 control_page::control_page(sysbar* window, const std::string& name) : Gtk::Box(Gtk::Orientation::VERTICAL), box_body(Gtk::Orientation::VERTICAL) {
@@ -20,11 +20,11 @@ control_page::control_page(sysbar* window, const std::string& name) : Gtk::Box(G
 
 	box_header.append(button_return);
 	button_return.signal_clicked().connect([window]() {
-		window->stack_end.set_visible_child("main");
+		window->sidepanel_end->stack_pages.set_visible_child("main");
 	});
 
 	// TODO: Detect position
-	window->stack_end.add(*this, name);
+	window->sidepanel_end->stack_pages.add(*this, name);
 }
 
 control::control(sysbar* window, const std::string& icon, const bool& extra, const std::string& name) {

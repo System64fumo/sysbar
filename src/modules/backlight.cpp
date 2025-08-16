@@ -111,7 +111,7 @@ void module_backlight::setup_widget() {
 		box_widget->append(scale_backlight);
 	}
 
-	win->grid_widgets_end.attach(*box_widget, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
+	win->sidepanel_end->grid_main.attach(*box_widget, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
 }
 
 void module_backlight::get_backlight_path(const std::string& custom_backlight_path) {

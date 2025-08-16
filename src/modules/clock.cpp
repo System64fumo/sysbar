@@ -60,7 +60,7 @@ void module_clock::setup_widget() {
 	revealer_events.set_child(label_event);
 	revealer_events.set_transition_type(Gtk::RevealerTransitionType::SLIDE_DOWN);
 	revealer_events.set_transition_duration(500);
-	win->grid_widgets_start.attach(*box_widget, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
+	win->sidepanel_start->grid_main.attach(*box_widget, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
 
 	std::string events_path;
 	const std::string user_events = std::string(getenv("HOME")) + "/.config/sys64/bar/calendar.conf";
@@ -106,8 +106,8 @@ void module_clock::check_for_events() {
 	revealer_events.set_reveal_child(false);
 	if (!event_class.empty()) {
 		win->get_style_context()->remove_class(event_class);
-		win->grid_widgets_start.get_style_context()->remove_class(event_class);
-		win->grid_widgets_end.get_style_context()->remove_class(event_class);
+		win->sidepanel_start->grid_main.get_style_context()->remove_class(event_class);
+		win->sidepanel_end->grid_main.get_style_context()->remove_class(event_class);
 		event_class = "";
 	}
 
@@ -133,8 +133,8 @@ void module_clock::check_for_events() {
 	}
 	event_class = "event_" + event_class;
 	win->get_style_context()->add_class(event_class);
-	win->grid_widgets_start.get_style_context()->add_class(event_class);
-	win->grid_widgets_end.get_style_context()->add_class(event_class);
+	win->sidepanel_start->grid_main.get_style_context()->add_class(event_class);
+	win->sidepanel_end->grid_main.get_style_context()->add_class(event_class);
 }
 
 module_clock::date_time module_clock::parse_date_time(const std::string& date_str) {

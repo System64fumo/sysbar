@@ -1,5 +1,6 @@
 #pragma once
 #include "config.hpp"
+#include "sidepanel.hpp"
 
 #include <gtkmm/window.h>
 #include <gtkmm/revealer.h>
@@ -19,12 +20,11 @@ class sysbar : public Gtk::Window {
 		Gtk::Window overlay_window;
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag;
 		Gtk::Box* box_controls = nullptr;
-		Gtk::Box box_widgets_start;
-		Gtk::Stack stack_start;
-		Gtk::Stack stack_end;
-		Gtk::Grid grid_widgets_start;
-		Gtk::Box box_widgets_end;
-		Gtk::Grid grid_widgets_end;
+
+		sidepanel* sidepanel_start;
+		sidepanel* sidepanel_end;
+		int default_size_start;
+		int default_size_end;
 
 		// Main config
 		int position;
@@ -41,8 +41,6 @@ class sysbar : public Gtk::Window {
 		Gtk::Box box_center;
 		Gtk::Box box_end;
 
-		Gtk::ScrolledWindow scrolled_Window_start;
-		Gtk::ScrolledWindow scrolled_Window_end;
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_start;
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_end;
 

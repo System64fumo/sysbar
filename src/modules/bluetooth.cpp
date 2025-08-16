@@ -6,6 +6,9 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 	get_style_context()->add_class("module_bluetooth");
 	label_info.hide();
 
+	if (win->config_main["bluetooth"]["show-icon"] != "true")
+		image_icon.hide();
+
 	if (!test()) {
 		// TODO: Consider adding error codes or error messages, This is too vague.
 		std::printf("Bluetooth: Some errors were found, disabling..\n");

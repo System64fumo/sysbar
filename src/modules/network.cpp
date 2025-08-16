@@ -21,9 +21,9 @@ module_network::module_network(sysbar* window, const bool& icon_on_start) : modu
 	std::thread thread_network(&module_network::interface_thread, this);
 	thread_network.detach();
 
-	Glib::signal_timeout().connect([&]() {
+	// Check for signal updates every 10 seconds
+	Glib::signal_timeout().connect_once([&]() {
 		update_info();
-		return true;
 	}, 10000);
 
 	#ifdef MODULE_CONTROLS
@@ -96,6 +96,10 @@ void module_network::update_info() {
 	#endif
 	else
 		image_icon.set_from_icon_name("network-error-symbolic");
+
+	#ifdef MODULE_CONTROLS
+	control_network->button_action.set_image_from_icon_name(image_icon.get_icon_name());
+	#endif
 
 	set_tooltip_text("Adapter: " + default_if->interface + "\nAddress: " + default_if->ipv4);
 }
@@ -232,7 +236,7 @@ void module_network::setup_control() {
 	control_network = Gtk::make_managed<control>(win, "network-wireless-symbolic", true, "network");
 	container->flowbox_controls.append(*control_network);
 	control_network->button_expand.signal_clicked().connect([&]() {
-		win->stack_end.set_visible_child("network");
+		win->sidepanel_end->stack_pages.set_visible_child("network");
 	});
 }
 #endif

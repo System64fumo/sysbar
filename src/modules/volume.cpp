@@ -50,7 +50,7 @@ void module_volume::setup_widget() {
 		box_widget.append(scale_volume);
 	}
 
-	win->grid_widgets_end.attach(box_widget, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
+	win->sidepanel_end->grid_main.attach(box_widget, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
 }
 
 void module_volume::update_info() {
