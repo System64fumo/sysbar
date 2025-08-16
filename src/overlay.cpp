@@ -1,5 +1,7 @@
 #include "window.hpp"
 
+#include <gtkmm/label.h>
+#include <gtkmm/button.h>
 #include <gtk4-layer-shell.h>
 
 /*
@@ -25,140 +27,112 @@ void sysbar::setup_overlay() {
 }
 
 void sysbar::setup_overlay_widgets() {
-	int default_size_start = 350;
-	int default_size_end = 350;
-
-
-	std::string cfg_sidepanel_start_size = config_main["main"]["sidepanel-start-size"];
-	if (!cfg_sidepanel_start_size.empty())
-		default_size_start = std::stoi(cfg_sidepanel_start_size);
-
-	std::string cfg_sidepanel_end_size = config_main["main"]["sidepanel-end-size"];
-	if (!cfg_sidepanel_end_size.empty())
-		default_size_end = std::stoi(cfg_sidepanel_start_size);
-
-
+	default_size_start = 350;
+	default_size_end = 350;
 	int size = (position % 2) ? monitor_geometry.height : monitor_geometry.width;
 
-	stack_start.get_style_context()->add_class("widgets_start");
-	stack_end.get_style_context()->add_class("widgets_end");
+	sidepanel_start = Gtk::make_managed<sidepanel>(this, true);
+	box_overlay.append(*sidepanel_start);
 
-	box_widgets_start.get_style_context()->add_class("sidepanel_start");
-	box_widgets_end.get_style_context()->add_class("sidepanel_end");
+	sidepanel_end = Gtk::make_managed<sidepanel>(this, false);
+	box_overlay.append(*sidepanel_end);
 
-	scrolled_Window_start.set_child(box_widgets_start);
-	stack_start.add(grid_widgets_start, "main");
-	stack_start.set_vexpand_set();
-	stack_start.set_transition_type(Gtk::StackTransitionType::SLIDE_LEFT_RIGHT);
-	box_widgets_start.append(stack_start);
-
-	scrolled_Window_end.set_child(box_widgets_end);
-	stack_end.add(grid_widgets_end, "main");
-	stack_end.set_vexpand_set();
-	stack_end.set_transition_type(Gtk::StackTransitionType::SLIDE_LEFT_RIGHT);
-	box_widgets_end.append(stack_end);
-
-	scrolled_Window_start.set_kinetic_scrolling(false);
-	scrolled_Window_end.set_kinetic_scrolling(false);
-
+	// TODO: This is a mess, Clean it up.
 	if (position == 0) {
 		overlay_window.get_style_context()->add_class("position_top");
-		scrolled_Window_start.set_valign(Gtk::Align::START);
-		scrolled_Window_end.set_valign(Gtk::Align::START);
-		box_widgets_start.set_orientation(Gtk::Orientation::VERTICAL);
-		box_widgets_end.set_orientation(Gtk::Orientation::VERTICAL);
-		grid_widgets_start.set_valign(Gtk::Align::START);
-		grid_widgets_end.set_valign(Gtk::Align::START);
-		box_widgets_start.set_valign(Gtk::Align::START);
-		box_widgets_end.set_valign(Gtk::Align::START);
+		sidepanel_start->set_valign(Gtk::Align::START);
+		sidepanel_end->set_valign(Gtk::Align::START);
+		sidepanel_start->box_widgets.set_orientation(Gtk::Orientation::VERTICAL);
+		sidepanel_end->box_widgets.set_orientation(Gtk::Orientation::VERTICAL);
+		sidepanel_start->grid_main.set_valign(Gtk::Align::START);
+		sidepanel_end->grid_main.set_valign(Gtk::Align::START);
+		sidepanel_start->box_widgets.set_valign(Gtk::Align::START);
+		sidepanel_end->box_widgets.set_valign(Gtk::Align::START);
 	}
 	else if (position == 1) {
 		overlay_window.get_style_context()->add_class("position_right");
-		scrolled_Window_start.set_valign(Gtk::Align::START);
-		scrolled_Window_end.set_valign(Gtk::Align::END);
-		scrolled_Window_start.set_halign(Gtk::Align::END);
-		scrolled_Window_end.set_halign(Gtk::Align::END);
-		grid_widgets_start.set_halign(Gtk::Align::END);
-		grid_widgets_end.set_halign(Gtk::Align::END);
-		box_widgets_start.set_valign(Gtk::Align::START);
-		box_widgets_end.set_valign(Gtk::Align::START);
+		sidepanel_start->set_valign(Gtk::Align::START);
+		sidepanel_end->set_valign(Gtk::Align::END);
+		sidepanel_start->set_halign(Gtk::Align::END);
+		sidepanel_end->set_halign(Gtk::Align::END);
+		sidepanel_start->grid_main.set_halign(Gtk::Align::END);
+		sidepanel_end->grid_main.set_halign(Gtk::Align::END);
+		sidepanel_start->box_widgets.set_valign(Gtk::Align::START);
+		sidepanel_end->box_widgets.set_valign(Gtk::Align::START);
 	}
 	else if (position == 2) {
 		overlay_window.get_style_context()->add_class("position_bottom");
-		scrolled_Window_start.set_valign(Gtk::Align::END);
-		scrolled_Window_end.set_valign(Gtk::Align::END);
-		box_widgets_start.set_orientation(Gtk::Orientation::VERTICAL);
-		box_widgets_end.set_orientation(Gtk::Orientation::VERTICAL);
-		grid_widgets_start.set_valign(Gtk::Align::END);
-		grid_widgets_end.set_valign(Gtk::Align::END);
-		box_widgets_start.set_valign(Gtk::Align::END);
-		box_widgets_end.set_valign(Gtk::Align::END);
+		sidepanel_start->set_valign(Gtk::Align::END);
+		sidepanel_end->set_valign(Gtk::Align::END);
+		sidepanel_start->box_widgets.set_orientation(Gtk::Orientation::VERTICAL);
+		sidepanel_end->box_widgets.set_orientation(Gtk::Orientation::VERTICAL);
+		sidepanel_start->grid_main.set_valign(Gtk::Align::END);
+		sidepanel_end->grid_main.set_valign(Gtk::Align::END);
+		sidepanel_start->box_widgets.set_valign(Gtk::Align::END);
+		sidepanel_end->box_widgets.set_valign(Gtk::Align::END);
 	}
 	else if (position == 3) {
 		overlay_window.get_style_context()->add_class("position_left");
-		scrolled_Window_start.set_valign(Gtk::Align::START);
-		scrolled_Window_end.set_valign(Gtk::Align::END);
-		grid_widgets_start.set_valign(Gtk::Align::START);
-		grid_widgets_end.set_valign(Gtk::Align::START);
-		grid_widgets_start.set_halign(Gtk::Align::START);
-		grid_widgets_end.set_halign(Gtk::Align::START);
-		box_widgets_start.set_valign(Gtk::Align::END);
-		box_widgets_end.set_valign(Gtk::Align::END);
+		sidepanel_start->set_valign(Gtk::Align::START);
+		sidepanel_end->set_valign(Gtk::Align::END);
+		sidepanel_start->grid_main.set_valign(Gtk::Align::START);
+		sidepanel_end->grid_main.set_valign(Gtk::Align::START);
+		sidepanel_start->grid_main.set_halign(Gtk::Align::START);
+		sidepanel_end->grid_main.set_halign(Gtk::Align::START);
+		sidepanel_start->box_widgets.set_valign(Gtk::Align::END);
+		sidepanel_end->box_widgets.set_valign(Gtk::Align::END);
 	}
 
 	// Common
 	bool vertical_layout = position % 2;
 	if (vertical_layout) { // Vertical
 		if (size / 2 > default_size_start) {
-			grid_widgets_start.set_size_request(-1, default_size_start);
-			scrolled_Window_start.set_halign(Gtk::Align::START);
+			sidepanel_start->grid_main.set_size_request(-1, default_size_start);
+			sidepanel_start->set_halign(Gtk::Align::START);
 		}
 		else
-			scrolled_Window_start.set_hexpand(true);
+			sidepanel_start->set_hexpand(true);
 
 		if (size / 2 > default_size_end) {
-			grid_widgets_end.set_size_request(-1, default_size_end);
-			scrolled_Window_end.set_halign(Gtk::Align::END);
+			sidepanel_end->grid_main.set_size_request(-1, default_size_end);
+			sidepanel_end->set_halign(Gtk::Align::END);
 		}
 		else
-			scrolled_Window_end.set_hexpand(true);
+			sidepanel_end->set_hexpand(true);
 
 		box_overlay.set_orientation(Gtk::Orientation::VERTICAL);
 	}
 	else { // Horizontal
 		if (size / 2 > default_size_start) {
-			grid_widgets_start.set_size_request(default_size_start, -1);
-			scrolled_Window_start.set_halign(Gtk::Align::START);
+			sidepanel_start->grid_main.set_size_request(default_size_start, -1);
+			sidepanel_start->set_halign(Gtk::Align::START);
 		}
 		else {
-			scrolled_Window_start.set_hexpand(true);
-			scrolled_Window_start.set_halign(Gtk::Align::FILL);
+			sidepanel_start->set_hexpand(true);
+			sidepanel_start->set_halign(Gtk::Align::FILL);
 		}
 
 		if (size / 2 > default_size_end) {
-			grid_widgets_end.set_size_request(default_size_end, -1);
-			scrolled_Window_end.set_halign(Gtk::Align::END);
+			sidepanel_end->grid_main.set_size_request(default_size_end, -1);
+			sidepanel_end->set_halign(Gtk::Align::END);
 		}
 		else {
-			scrolled_Window_end.set_hexpand(true);
-			scrolled_Window_end.set_halign(Gtk::Align::FILL);
+			sidepanel_end->set_hexpand(true);
+			sidepanel_end->set_halign(Gtk::Align::FILL);
 		}
 
 		box_overlay.set_orientation(Gtk::Orientation::HORIZONTAL);
 	}
 
-	scrolled_Window_start.set_policy(
+	sidepanel_start->set_policy(
 		vertical_layout ? Gtk::PolicyType::EXTERNAL : Gtk::PolicyType::NEVER,
 		!vertical_layout ? Gtk::PolicyType::EXTERNAL : Gtk::PolicyType::NEVER);
-	scrolled_Window_end.set_policy(
+	sidepanel_end->set_policy(
 		vertical_layout ? Gtk::PolicyType::EXTERNAL : Gtk::PolicyType::NEVER,
 		!vertical_layout ? Gtk::PolicyType::EXTERNAL : Gtk::PolicyType::NEVER);
 
-	scrolled_Window_start.set_visible(false);
-	scrolled_Window_end.set_visible(false);
-
-	box_overlay.append(scrolled_Window_start);
-	box_overlay.append(scrolled_Window_end);
+	sidepanel_start->set_visible(false);
+	sidepanel_end->set_visible(false);
 }
 
 // TODO: The whole gesture system needs a rework
@@ -189,7 +163,7 @@ void sysbar::setup_gestures() {
 	});
 	gesture_drag_start->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
 	gesture_drag_start->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
-	scrolled_Window_start.add_controller(gesture_drag_start);
+	sidepanel_start->add_controller(gesture_drag_start);
 
 	gesture_drag_end = Gtk::GestureDrag::create();
 	gesture_drag_end->signal_drag_begin().connect([&](const double& x, const double& y) {
@@ -204,63 +178,63 @@ void sysbar::setup_gestures() {
 	});
 	gesture_drag_end->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
 	gesture_drag_end->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
-	scrolled_Window_end.add_controller(gesture_drag_end);
+	sidepanel_end->add_controller(gesture_drag_end);
 }
 
 void sysbar::on_drag_start(const double& x, const double& y) {
 	overlay_window.show();
 
-	scrolled_Window_start.set_valign(Gtk::Align::START);
-	scrolled_Window_end.set_valign(Gtk::Align::START);
+	sidepanel_start->set_valign(Gtk::Align::START);
+	sidepanel_end->set_valign(Gtk::Align::START);
 
 	if (position == 0) {
-		scrolled_Window_start.set_valign(Gtk::Align::START);
-		scrolled_Window_end.set_valign(Gtk::Align::START);
+		sidepanel_start->set_valign(Gtk::Align::START);
+		sidepanel_end->set_valign(Gtk::Align::START);
 	}
 	else if (position == 1) {
-		scrolled_Window_start.set_halign(Gtk::Align::END);
-		scrolled_Window_end.set_halign(Gtk::Align::END);
+		sidepanel_start->set_halign(Gtk::Align::END);
+		sidepanel_end->set_halign(Gtk::Align::END);
 	}
 	else if (position == 2) {
-		scrolled_Window_start.set_valign(Gtk::Align::END);
-		scrolled_Window_end.set_valign(Gtk::Align::END);
+		sidepanel_start->set_valign(Gtk::Align::END);
+		sidepanel_end->set_valign(Gtk::Align::END);
 	}
 	else if (position == 3) {
-		scrolled_Window_start.set_halign(Gtk::Align::START);
-		scrolled_Window_end.set_halign(Gtk::Align::START);
+		sidepanel_start->set_halign(Gtk::Align::START);
+		sidepanel_end->set_halign(Gtk::Align::START);
 	}
 
 	if (position % 2) {
 		sliding_start_widget = y < monitor_geometry.height / 2;
-		initial_size_start = scrolled_Window_start.get_width();
-		initial_size_end = scrolled_Window_end.get_width();
+		initial_size_start = sidepanel_start->get_width();
+		initial_size_end = sidepanel_end->get_width();
 	}
 	else {
 		sliding_start_widget = x < monitor_geometry.width / 2;
-		initial_size_start = scrolled_Window_start.get_height();
-		initial_size_end = scrolled_Window_end.get_height();
+		initial_size_start = sidepanel_start->get_height();
+		initial_size_end = sidepanel_end->get_height();
 	}
 
 	if (initial_size_start != 0 || initial_size_end != 0) {
 		if (position % 2) {
-			initial_size_start = grid_widgets_start.get_allocated_width();
-			initial_size_end = grid_widgets_end.get_allocated_width();
+			initial_size_start = sidepanel_start->grid_main.get_allocated_width();
+			initial_size_end = sidepanel_end->grid_main.get_allocated_width();
 		}
 		else {
-			initial_size_start = grid_widgets_start.get_allocated_height();
-			initial_size_end = grid_widgets_end.get_allocated_height();
+			initial_size_start = sidepanel_start->grid_main.get_allocated_height();
+			initial_size_end = sidepanel_end->grid_main.get_allocated_height();
 		}
 	}
 
-	scrolled_Window_start.set_visible(sliding_start_widget);
-	scrolled_Window_end.set_visible(!sliding_start_widget);
+	sidepanel_start->set_visible(sliding_start_widget);
+	sidepanel_end->set_visible(!sliding_start_widget);
 }
 
 void sysbar::on_drag_update(const double& x, const double& y) {
 	double drag_width = -1;
 	double drag_height = -1;
 	double initial_size = sliding_start_widget ? initial_size_start : initial_size_end;
-	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? &scrolled_Window_start : &scrolled_Window_end;
+	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? sidepanel_start : sidepanel_end;
 
 	if (position == 0)
 		drag_height = y + initial_size;
@@ -285,8 +259,8 @@ void sysbar::on_drag_update(const double& x, const double& y) {
 void sysbar::on_drag_stop(const double& x, const double& y) {
 	double size = 0;
 	double initial_size = sliding_start_widget ? initial_size_start : initial_size_end;
-	double size_threshold = sliding_start_widget ? grid_widgets_start.get_allocated_height() : grid_widgets_end.get_allocated_height();;
-	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? &scrolled_Window_start : &scrolled_Window_end;
+	double size_threshold = sliding_start_widget ? sidepanel_start->grid_main.get_allocated_height() : sidepanel_end->grid_main.get_allocated_height();;
+	Gtk::ScrolledWindow* scrolled_Window = sliding_start_widget ? sidepanel_start : sidepanel_end;
 
 	if (position == 0)
 		size = y + initial_size;
@@ -311,6 +285,6 @@ void sysbar::on_drag_stop(const double& x, const double& y) {
 
 	scrolled_Window->set_size_request(-1, -1);
 
-	if (!scrolled_Window_start.get_visible() && !scrolled_Window_end.get_visible())
+	if (!sidepanel_start->get_visible() && !sidepanel_end->get_visible())
 		overlay_window.hide();
 }

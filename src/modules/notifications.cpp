@@ -66,12 +66,12 @@ void module_notifications::setup_widget() {
 	scrolledwindow_notifications.set_propagate_natural_height();
 
 	if (win->position / 2) {
-		win->box_widgets_end.prepend(box_header);
-		win->box_widgets_end.prepend(scrolledwindow_notifications);
+		win->sidepanel_end->box_widgets.prepend(box_header);
+		win->sidepanel_end->box_widgets.prepend(scrolledwindow_notifications);
 	}
 	else {
-		win->box_widgets_end.append(box_header);
-		win->box_widgets_end.append(scrolledwindow_notifications);
+		win->sidepanel_end->box_widgets.append(box_header);
+		win->sidepanel_end->box_widgets.append(scrolledwindow_notifications);
 	}
 
 	box_header.get_style_context()->add_class("notifications_header");
