@@ -34,9 +34,10 @@ sidepanel::sidepanel(sysbar* window, const bool& position_start) : window(window
 		window->default_size_start = std::stoi(cfg_sidepanel_start_size);
 
 	// Header
-	revealer_header = create_header(true);
-	box_widgets.append(*revealer_header);
-	revealer_header->set_reveal_child(true);
+	// TODO: Re-Enable headers
+	// revealer_header = create_header(true);
+	// box_widgets.append(*revealer_header);
+	// revealer_header->set_reveal_child(true);
 
 	// Content
 	set_child(box_widgets);
