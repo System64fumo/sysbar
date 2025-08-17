@@ -1,13 +1,17 @@
 #include "volume.hpp"
 
-#include <thread>
-
 module_volume::module_volume(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), sys_wp(nullptr, &dispatcher_callback) {
 	get_style_context()->add_class("module_volume");
 	volume_icons[0] = "audio-volume-low-symbolic";
 	volume_icons[1] = "audio-volume-medium-symbolic";
 	volume_icons[2] = "audio-volume-high-symbolic";
 	label_info.hide();
+
+	if (!sys_wp.connected) {
+		std::fprintf(stderr, "Module 'volume' failed to load\n");
+		hide();
+		return;
+	}
 
 	if (win->config_main["volume"]["show-label"] == "true")
 		label_info.show();
