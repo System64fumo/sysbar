@@ -27,8 +27,8 @@ void sysbar::setup_overlay() {
 }
 
 void sysbar::setup_overlay_widgets() {
-	default_size_start = 350;
-	default_size_end = 350;
+	default_size_start = std::stoi(config_main["sidepanels"]["start-size"]);
+	default_size_end = std::stoi(config_main["sidepanels"]["end-size"]);
 	int size = (position % 2) ? monitor_geometry.height : monitor_geometry.width;
 
 	sidepanel_start = Gtk::make_managed<sidepanel>(this, true);
@@ -217,12 +217,12 @@ void sysbar::on_drag_start(const double& x, const double& y) {
 
 	if (initial_size_start != 0 || initial_size_end != 0) {
 		if (position % 2) {
-			initial_size_start = sidepanel_start->grid_main.get_allocated_width();
-			initial_size_end = sidepanel_end->grid_main.get_allocated_width();
+			initial_size_start = sidepanel_start->box_widgets.get_allocated_width();
+			initial_size_end = sidepanel_end->box_widgets.get_allocated_width();
 		}
 		else {
-			initial_size_start = sidepanel_start->grid_main.get_allocated_height();
-			initial_size_end = sidepanel_end->grid_main.get_allocated_height();
+			initial_size_start = sidepanel_start->box_widgets.get_allocated_height();
+			initial_size_end = sidepanel_end->box_widgets.get_allocated_height();
 		}
 	}
 

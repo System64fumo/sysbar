@@ -11,7 +11,6 @@ class control_page : public Gtk::Box {
 
 		Gtk::Box box_header;
 		Gtk::Box box_body;
-		Gtk::Button button_return;
 };
 
 class control : public Gtk::Box {

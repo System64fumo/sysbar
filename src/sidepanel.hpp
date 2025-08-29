@@ -12,13 +12,21 @@ class sysbar;
 class sidepanel : public Gtk::ScrolledWindow {
 	public:
 		sidepanel(sysbar* window, const bool& position_start);
-		Gtk::Revealer* revealer_header;
 		Gtk::Box box_widgets;
 		Gtk::Stack stack_pages;
 		Gtk::Grid grid_main;
 
+		void set_page(const std::string& destination);
+
 	private:
 		sysbar* window;
+		Gtk::Revealer revealer_header;
+		Gtk::Box box_header;
+		Gtk::Label label_header;
+		Gtk::Button button_return;
+		Gtk::Revealer revealer_return;
 
-		Gtk::Revealer* create_header(const bool& position_start);
+		bool position_start;
+
+		void setup_header();
 };

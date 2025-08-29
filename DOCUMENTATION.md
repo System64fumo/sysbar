@@ -81,8 +81,12 @@ The config system is INI based and can be configured by editing `~/.config/sys64
 | modules-start        | clock,weather,tray          | Modules shown at the start of the bar (Left/Top)   |
 | modules-center       | hyprland                    | Modules shown in the middle of the bar             |
 | modules-end          | volume,network,notification | Modules shown at the end of the bar (Right/Bottom) |
-| sidepanel-start-size | 350                         | Start (Left/Top) sidepanel (Width/Height)          |
-| sidepanel-end-size   | 350                         | End (Right/Bottom) sidepanel (Width/Height)        |
+|&nbsp;                |                             |                                                    |
+| [sidepanels]         |                             |                                                    |
+| start-size           | 350                         | Width or Height of the Left/Top sidepanel          |
+| start-label          |                             | Default/Main page header text (Empty to hide)      |
+| end-size             | 350                         | Width or Height of the Right/Bottom sidepanel      |
+| end-label            | Quick settings              | Default/Main page header text (Empty to hide)      |
 |&nbsp;                |                             |                                                    |
 | [clock]              |                             | Clock module configuration                         |
 | interval             | 1000                        | How long (in ms) to refresh the time               |

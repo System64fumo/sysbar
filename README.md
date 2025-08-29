@@ -1,5 +1,5 @@
 # Sysbar
-Sysbar is a modular status bar for wayland written in gtkmm4<br>
+Sysbar is a modular status bar<br>
 ![preview](https://github.com/System64fumo/sysbar/blob/main/preview.jpg "preview")
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/sysbar.svg)](https://repology.org/project/sysbar/versions)
