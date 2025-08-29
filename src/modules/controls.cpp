@@ -18,11 +18,6 @@ control_page::control_page(sysbar* window, const std::string& name) : Gtk::Box(G
 	append(box_header);
 	append(box_body);
 
-	box_header.append(button_return);
-	button_return.signal_clicked().connect([window]() {
-		window->sidepanel_end->stack_pages.set_visible_child("main");
-	});
-
 	// TODO: Detect position
 	window->sidepanel_end->stack_pages.add(*this, name);
 }
