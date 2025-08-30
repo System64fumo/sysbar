@@ -105,8 +105,7 @@ void module_cellular::extract_data(const Glib::VariantBase& variant_base) {
 						update_info();
 					}
 					else if (property_name == "AccessTechnologies") {
-						// TODO: Set network module icon using this
-						std::string icon = tech_to_icon(std::stoi(value.print()));
+						win->network_icon = tech_to_icon(std::stoi(value.print()));
 					}
 					//std::printf("    Property: %s = %s\n", property_name.c_str(), value.print().c_str());
 				}

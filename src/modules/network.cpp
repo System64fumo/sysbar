@@ -59,6 +59,7 @@ void module_network::update_info() {
 	// Get primary interface
 	uint if_index = default_if_index;
 	auto default_if = std::find_if(adapters.begin(), adapters.end(), [if_index](const network_adapter& a) { return a.index == if_index; });
+	std::string icon;
 	if (default_if == adapters.end()) {
 		std::fprintf(stderr, "No interface found\n");
 		image_icon.set_from_icon_name("network-error-symbolic");
@@ -69,7 +70,7 @@ void module_network::update_info() {
 		std::printf("Default interface is %s\n", default_if->interface.c_str());
 
 	if (default_if->type == "Ethernet") {
-		image_icon.set_from_icon_name("network-wired-symbolic");
+		icon = "network-wired-symbolic";
 		label_info.set_text("");
 	}
 	#ifdef FEATURE_WIRELESS
@@ -77,7 +78,6 @@ void module_network::update_info() {
 		auto info = manager.get_wireless_info(default_if->interface);
 		label_info.set_text(std::to_string(info->signal_percentage));
 
-		std::string icon;
 		if (info->signal_percentage > 80)
 			icon = "network-wireless-signal-excellent-symbolic";
 		else if (info->signal_percentage > 60)
@@ -88,20 +88,23 @@ void module_network::update_info() {
 			icon = "network-wireless-signal-weak-symbolic";
 		else
 			icon = "network-wireless-signal-none-symbolic";
-
-		image_icon.set_from_icon_name(icon);
 	}
-	else if (default_if->type == "Cellular")
-		image_icon.set_from_icon_name("network-cellular-connected-symbolic");
+	else if (default_if->type == "Cellular") {
+		if (win->network_icon.empty())
+			icon = "network-cellular-connected-symbolic";
+		else
+			icon = win->network_icon;
+	}
 	#endif
 	else
-		image_icon.set_from_icon_name("network-error-symbolic");
+		icon = "network-error-symbolic";
 
 	#ifdef MODULE_CONTROLS
-	control_network->button_action.set_image_from_icon_name(image_icon.get_icon_name());
+	control_network->button_action.set_image_from_icon_name(icon);
 	#endif
 
 	set_tooltip_text("Adapter: " + default_if->interface + "\nAddress: " + default_if->ipv4);
+	image_icon.set_from_icon_name(icon);
 }
 
 bool module_network::setup_netlink() {
@@ -236,7 +239,7 @@ void module_network::setup_control() {
 	control_network = Gtk::make_managed<control>(win, "network-wireless-symbolic", true, "network");
 	container->flowbox_controls.append(*control_network);
 	control_network->button_expand.signal_clicked().connect([&]() {
-		win->sidepanel_end->stack_pages.set_visible_child("network");
+		win->sidepanel_end->set_page("network");
 	});
 }
 #endif

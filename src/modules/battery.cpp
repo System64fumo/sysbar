@@ -10,8 +10,8 @@ module_battery::module_battery(sysbar* window, const bool& icon_on_start) : modu
 	if (win->config_main["battery"]["show-label"] != "true")
 		label_info.hide();
 
-	setup();
 	setup_control();
+	setup();
 }
 
 void module_battery::setup() {
@@ -45,6 +45,9 @@ void module_battery::update_info(const std::string& property) {
 		Glib::Variant<Glib::ustring> icon_name;
 		proxy->get_cached_property(icon_name, "IconName");
 		image_icon.set_from_icon_name(icon_name.get());
+		#ifdef MODULE_CONTROLS
+		control_battery->button_action.set_image_from_icon_name(icon_name.get());
+		#endif
 	}
 
 	else if (property ==  "UpdateTime") {
@@ -62,6 +65,10 @@ void module_battery::setup_control() {
 	auto container = static_cast<module_controls*>(win->box_controls);
 	control_battery = Gtk::make_managed<control>(win, "battery-level-100-symbolic", true, "battery");
 	container->flowbox_controls.append(*control_battery);
+
+	control_battery->button_expand.signal_clicked().connect([&]() {
+		win->sidepanel_end->set_page("battery");
+	});
 
 	// TODO: Clicking on the main button should trigger low power mode
 	// Additionaly controls for battery management (For devices that support it)-
