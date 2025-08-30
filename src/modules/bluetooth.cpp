@@ -32,6 +32,10 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 	auto result_base = result_cb.get_child(0);
 
 	extract_data(result_base);
+	if (adapters.empty()) {
+		std::fprintf(stderr, "No default adapter found\n");
+		return;
+	}
 	default_adapter = adapters.front();
 
 	// TODO: This should probably use the first adapter's path-
@@ -82,6 +86,11 @@ bool module_bluetooth::test() {
 
 	// Check if an adapter is available
 	std::filesystem::path bluetooth_path("/sys/class/bluetooth/");
+	if (!std::filesystem::exists(bluetooth_path)) {
+		std::fprintf(stderr, "/sys/class/bluetooth does not exist\n");
+		return false;
+	}
+
 	for (const auto& entry : std::filesystem::directory_iterator(bluetooth_path)) {
 		if (std::filesystem::is_directory(entry.status()))
 			adapter_available = true;

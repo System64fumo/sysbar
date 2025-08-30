@@ -25,6 +25,7 @@ class sysbar : public Gtk::Window {
 		sidepanel* sidepanel_end;
 		int default_size_start;
 		int default_size_end;
+		std::string network_icon; // TODO: Terrible implementation..
 
 		// Main config
 		int position;
