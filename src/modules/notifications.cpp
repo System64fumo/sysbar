@@ -214,7 +214,7 @@ void module_notifications::on_interface_method_call(
 					image_icon.set_from_icon_name("notification-symbolic");
 					timeout_connection.disconnect();
 					window_alert.hide();
-					set_tooltip_text("No new notifications");
+					set_tooltip_text("No new notifications"); // TODO: This does not seem to work all the time
 					scrolledwindow_notifications.set_visible(false);
 				}
 			});
@@ -231,7 +231,7 @@ void module_notifications::on_interface_method_call(
 
 		box_notifications.prepend(*notif);
 		notif->set_reveal_child(true);
-		set_tooltip_text(std::to_string(flowbox_alert.get_children().size()) + " unread notifications\n");
+		set_tooltip_text(std::to_string(flowbox_alert.get_children().size()) + " unread notifications");
 
 		invocation->return_value(id_var);
 

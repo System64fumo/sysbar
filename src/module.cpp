@@ -37,4 +37,5 @@ module::module(sysbar* window, const bool& icon_on_start) : win(window) {
 
 	// TODO: add user customizable margins
 	image_icon.set_size_request(win->size, win->size);
+	image_icon.set_pixel_size(window->icon_size);
 }

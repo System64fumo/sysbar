@@ -78,9 +78,12 @@ The config system is INI based and can be configured by editing `~/.config/sys64
 | exclusive            | true                        | Exclude part of the screen for the bar             |
 | verbose              | false                       | Verbose output (For debugging)                     |
 | main-monitor         | HDMI-A-1                    | Monitor output name (DP-1, HDMI-A-1, ect..)        |
-| modules-start        | clock,weather,tray          | Modules shown at the start of the bar (Left/Top)   |
-| modules-center       | hyprland                    | Modules shown in the middle of the bar             |
-| modules-end          | volume,network,notification | Modules shown at the end of the bar (Right/Bottom) |
+|&nbsp;                |                             |                                                    |
+| [modules]            |                             |                                                    |
+| start                | clock,weather,tray          | Modules shown at the start of the bar (Left/Top)   |
+| center               | hyprland                    | Modules shown in the middle of the bar             |
+| end                  | volume,network,notification | Modules shown at the end of the bar (Right/Bottom) |
+| icon-size            | 16                          | Icon size of modules                               |
 |&nbsp;                |                             |                                                    |
 | [sidepanels]         |                             |                                                    |
 | start-size           | 350                         | Width or Height of the Left/Top sidepanel          |
@@ -111,6 +114,9 @@ The config system is INI based and can be configured by editing `~/.config/sys64
 | [battery]            |                             | Battery module configuration                       |
 | show-label           | false                       | Show charge level as text                          |
 |&nbsp;                |                             |                                                    |
+| [bluetooth]          |                             | Bluetooth module configuration                     |
+| show-icon            | false                       | Show the icon                                      |
+|&nbsp;                |                             |                                                    |
 | [notification]       |                             | Notification widget configuration                  |
 | command              | ffplay /usr/share/..        | Command to run whenever you recieve a notification |
 |&nbsp;                |                             |                                                    |
@@ -133,6 +139,8 @@ The config system is INI based and can be configured by editing `~/.config/sys64
 | [mpris]              |                             | Mpris module configuration                         |
 | show-icon            | true                        | Show player status as an icon                      |
 | show-label           | true                        | Show album name as text                            |
+| album-rounding       | 10                          | Album art rounding                                 |
+| album-size           | 96                          | Size of album art cover                            |
 | widget-layout        | 0142                        | [XYWH (Single digit values to position the widget)](https://gnome.pages.gitlab.gnome.org/gtkmm/classGtk_1_1Grid.html#a2f3d5ceb9a1c2f491b541aa56ebdc1e8)  |
 |&nbsp;                |                             |                                                    |
 | [cellular]           |                             | Cellular module configuration                      |

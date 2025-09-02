@@ -30,6 +30,7 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 	size = std::stoi(config_main["main"]["size"]);
 	layer = std::stoi(config_main["main"]["layer"]);
 	verbose = config_main["main"]["verbose"] == "true";
+	icon_size = std::stoi(config_main["modules"]["icon-size"]);
 
 	// Get main monitor
 	// TODO: Add monitor config correction if specified monitor is not found
@@ -144,9 +145,9 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 	setup_gestures();
 
 	// Load modules
-	load_modules(config_main["main"]["modules-start"], box_start);
-	load_modules(config_main["main"]["modules-center"], box_center);
-	load_modules(config_main["main"]["modules-end"], box_end);
+	load_modules(config_main["modules"]["start"], box_start);
+	load_modules(config_main["modules"]["center"], box_center);
+	load_modules(config_main["modules"]["end"], box_end);
 }
 
 void sysbar::load_modules(const std::string& modules, Gtk::Box& box) {

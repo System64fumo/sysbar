@@ -14,6 +14,8 @@ class module_mpris : public module {
 		PlayerctlPlayer* player;
 		Glib::RefPtr<Gdk::Pixbuf> album_pixbuf;
 
+		uint album_size;
+		uint album_rounding;
 		int status = 0;
 		std::string artist = "";
 		std::string album = "";
