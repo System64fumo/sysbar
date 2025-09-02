@@ -81,15 +81,15 @@ int main(int argc, char* argv[]) {
 				continue;
 
 			case 's':
-				config["main"]["modules-start"] = optarg;
+				config["modules"]["start"] = optarg;
 				continue;
 
 			case 'c':
-				config["main"]["modules-center"] = optarg;
+				config["modules"]["center"] = optarg;
 				continue;
 
 			case 'e':
-				config["main"]["modules-end"] = optarg;
+				config["modules"]["end"] = optarg;
 				continue;
 
 			case 'S':

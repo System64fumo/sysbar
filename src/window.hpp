@@ -30,6 +30,7 @@ class sysbar : public Gtk::Window {
 		// Main config
 		int position;
 		int size;
+		int icon_size;
 		int layer;
 		bool verbose;
 		bool visible;

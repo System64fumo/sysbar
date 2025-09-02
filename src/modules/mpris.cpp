@@ -115,8 +115,8 @@ static void metadata(PlayerctlPlayer* player, GVariant* metadata, gpointer user_
 			int offset_x = (width - square_size) / 2;
 			int offset_y = (height - square_size) / 2;
 			self->album_pixbuf = Gdk::Pixbuf::create_subpixbuf(pixbuf, offset_x, offset_y, square_size, square_size);
-			if (std::stoi(self->win->config_main["mpris"]["album-rounding"]) > 0)
-				self->album_pixbuf = create_rounded_pixbuf(self->album_pixbuf, square_size, std::stoi(self->win->config_main["mpris"]["album-rounding"]));
+			if (self->album_rounding > 0)
+				self->album_pixbuf = create_rounded_pixbuf(self->album_pixbuf, square_size, self->album_rounding);
 			self->dispatcher_callback.emit();
 		}
 		catch (...) {
@@ -204,11 +204,20 @@ module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(w
 			widget_layout.push_back(c - '0');
 		}
 	}
+	album_rounding = std::stoul(win->config_main["mpris"]["album-rounding"]);
+	album_size = std::stoul(win->config_main["mpris"]["album-size"]);
 
 	dispatcher_callback.connect(sigc::mem_fun(*this, &module_mpris::update_info));
 
 	// Setup
-	auto manager = playerctl_player_manager_new(nullptr);
+	GError *error = nullptr;
+	auto manager = playerctl_player_manager_new(&error);
+	if (error) {
+		std::fprintf(stderr, "%s", error->message);
+		g_error_free(error);
+		return;
+	}
+
 	g_object_connect(manager, "signal::name-appeared", G_CALLBACK(player_appeared), this, nullptr);
 	g_object_connect(manager, "signal::name-vanished", G_CALLBACK(player_vanished), this, nullptr);
 
@@ -233,7 +242,7 @@ void module_mpris::update_info() {
 	label_artist.set_text(artist);
 
 	if (album_pixbuf != nullptr) {
-		album_pixbuf = scale_and_crop_pixbuf(album_pixbuf, 96);
+		album_pixbuf = scale_and_crop_pixbuf(album_pixbuf, album_size);
 		int square_size = std::min(album_pixbuf->get_width(), album_pixbuf->get_height());
 		album_pixbuf = create_rounded_pixbuf(album_pixbuf, square_size, 6);
 		image_album_art.set(album_pixbuf);
@@ -252,7 +261,7 @@ void module_mpris::setup_widget() {
 	box_player.get_style_context()->add_class("widget_mpris");
 	image_album_art.get_style_context()->add_class("image_album_art");
 	image_album_art.set_from_icon_name("music-app-symbolic");
-	image_album_art.set_size_request(96 ,96);
+	image_album_art.set_size_request(album_size, album_size);
 	box_player.append(image_album_art);
 
 	box_player.append(box_right);
