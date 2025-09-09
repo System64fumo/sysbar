@@ -24,6 +24,7 @@ void sysbar::setup_overlay() {
 	gtk_layer_set_anchor(overlay_window.gobj(), GTK_LAYER_SHELL_EDGE_LEFT, true);
 
 	overlay_window.set_child(box_overlay);
+	overlay_window.get_style_context()->remove_class("background");
 }
 
 void sysbar::setup_overlay_widgets() {
@@ -245,9 +246,10 @@ void sysbar::on_drag_update(const double& x, const double& y) {
 	else if (position == 3)
 		drag_width = x + initial_size;
 
-	// This clamp ensures the values are not bellow 0
-	drag_width = std::max(0.0, drag_width);
-	drag_height = std::max(0.0, drag_height);
+	// This clamp ensures the values are not bellow 1
+	// GTK does not like 0px high/wide widgets..
+	drag_width = std::max(1.0, drag_width);
+	drag_height = std::max(1.0, drag_height);
 
 	// And this ensures we don't go outside of the screen
 	drag_width = std::min((double)monitor_geometry.width - bar_width, drag_width);

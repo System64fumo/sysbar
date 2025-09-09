@@ -1,6 +1,7 @@
 #include "controls.hpp"
 
 module_controls::module_controls(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
+	get_style_context()->add_class("widget");
 	get_style_context()->add_class("widget_controls");
 	image_icon.hide();
 	label_info.hide();
@@ -15,6 +16,7 @@ module_controls::module_controls(sysbar* window, const bool& icon_on_start) : mo
 }
 
 control_page::control_page(sysbar* window, const std::string& name) : Gtk::Box(Gtk::Orientation::VERTICAL), box_body(Gtk::Orientation::VERTICAL) {
+	get_style_context()->add_class("control_page_" + name);
 	append(box_header);
 	append(box_body);
 

@@ -258,6 +258,7 @@ void module_mpris::update_info() {
 void module_mpris::setup_widget() {
 	win->sidepanel_end->grid_main.attach(box_player, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
 
+	box_player.get_style_context()->add_class("widget");
 	box_player.get_style_context()->add_class("widget_mpris");
 	image_album_art.get_style_context()->add_class("image_album_art");
 	image_album_art.set_from_icon_name("music-app-symbolic");

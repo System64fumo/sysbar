@@ -21,19 +21,19 @@ class sysbar : public Gtk::Window {
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag;
 		Gtk::Box* box_controls = nullptr;
 
-		sidepanel* sidepanel_start;
-		sidepanel* sidepanel_end;
-		int default_size_start;
-		int default_size_end;
-		std::string network_icon; // TODO: Terrible implementation..
+		sidepanel* sidepanel_start = nullptr;
+		sidepanel* sidepanel_end = nullptr;
+		int default_size_start = 350;
+		int default_size_end = 350;
+		std::string network_icon = "network-error-symbolic"; // TODO: Terrible implementation..
 
 		// Main config
-		int position;
-		int size;
-		int icon_size;
-		int layer;
-		bool verbose;
-		bool visible;
+		int position = 0;
+		int size = 40;
+		int icon_size = 16;
+		int layer = 2;
+		bool verbose = false;
+		bool visible = true;
 
 	private:
 		Gtk::Revealer revealer_box;
@@ -46,12 +46,14 @@ class sysbar : public Gtk::Window {
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_start;
 		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_end;
 
-		GdkMonitor* monitor;
+		GdkMonitor* monitor = nullptr;
 		GdkRectangle monitor_geometry;
-		double initial_size_start, initial_size_end;
-		int bar_width, bar_height;
-		bool sliding_start_widget;
-		bool gesture_touch;
+		double initial_size_start = 0;
+		double initial_size_end = 0;
+		int bar_width = 40;
+		int bar_height = 40;
+		bool sliding_start_widget = false;
+		bool gesture_touch = false;
 
 		void load_modules(const std::string&, Gtk::Box&);
 		void setup_overlay();

@@ -34,11 +34,11 @@ class tray_watcher {
 		tray_watcher(Gtk::Box*);
 
 	private:
-		Gtk::Box* box_container;
+		Gtk::Box* box_container = nullptr;;
 		std::map<Glib::ustring, tray_item> items;
-		int hosts_counter;
+		int hosts_counter = 0;
 
-		guint watcher_id;
+		guint watcher_id = 0;
 		Glib::RefPtr<Gio::DBus::Connection> watcher_connection;
 		Glib::RefPtr<Gio::DBus::Proxy> watcher_proxy;
 
@@ -70,7 +70,7 @@ class module_tray : public module {
 		module_tray(sysbar*, const bool& = true);
 
 	private:
-		bool m_icon_on_start;
+		bool m_icon_on_start = false;
 		Gtk::Revealer revealer_box;
 		Gtk::Box box_container;
 

@@ -21,9 +21,7 @@
 #include <gtkmm/cssprovider.h>
 #include <filesystem>
 
-sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& cfg) {
-	config_main = cfg;
-	network_icon = "";
+sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& cfg) : config_main(cfg) {
 
 	// Only load commonly used non string configs
 	position = std::stoi(config_main["main"]["position"]);

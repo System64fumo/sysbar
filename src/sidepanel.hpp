@@ -12,6 +12,7 @@ class sysbar;
 class sidepanel : public Gtk::ScrolledWindow {
 	public:
 		sidepanel(sysbar* window, const bool& position_start);
+		Gtk::Box box_sidepanel;
 		Gtk::Box box_widgets;
 		Gtk::Stack stack_pages;
 		Gtk::Grid grid_main;

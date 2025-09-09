@@ -30,9 +30,8 @@ module_volume::module_volume(sysbar* window, const bool& icon_on_start) : module
 }
 
 void module_volume::setup_widget() {
+	box_widget.get_style_context()->add_class("widget");
 	box_widget.get_style_context()->add_class("widget_volume");
-
-	image_widget_icon.set_pixel_size(24);
 
 	scale_volume.set_hexpand(true);
 	scale_volume.set_vexpand(true);

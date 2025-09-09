@@ -13,6 +13,10 @@ module_network::module_network(sysbar* window, const bool& icon_on_start) : modu
 	if (win->config_main["network"]["show-label"] != "true")
 		label_info.hide();
 
+	#ifdef MODULE_CONTROLS
+	setup_control();
+	#endif
+
 	// Set up networking stuff
 	if (!setup_netlink())
 		return;
@@ -25,10 +29,6 @@ module_network::module_network(sysbar* window, const bool& icon_on_start) : modu
 	Glib::signal_timeout().connect_once([&]() {
 		update_info();
 	}, 10000);
-
-	#ifdef MODULE_CONTROLS
-	setup_control();
-	#endif
 }
 
 module_network::~module_network() {
