@@ -1,42 +1,6 @@
 @import url('events.css');
 
 #sysbar {
-	background: @theme_bg_color;
-	border-bottom: 1px solid @borders;
-}
-
-#sysbar .centerbox_main {
-}
-
-#sysbar_overlay {
-	background: transparent;
-}
-
-#sysbar_overlay .grid_widgets_start,
-#sysbar_overlay .grid_widgets_end {
-	background: @theme_base_color;
-	margin: 10px;
-	box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
-	border: 1px solid @borders;
-	border-radius: 10px;
-}
-
-#sysbar_overlay.position_top .sidepanel_end >:first-child:not(:only-child),
-#sysbar_overlay.position_right .sidepanel_end >:first-child:not(:only-child)  {
-	border-radius: 10px 10px 0px 0px;
-	border-bottom: 0px;
-	margin-bottom: 0px;
-}
-
-#sysbar_overlay.position_bottom .sidepanel_end >:last-child:not(:only-child),
-#sysbar_overlay.position_left .sidepanel_end >:last-child:not(:only-child) {
-	border-radius: 0px 0px 10px 10px;
-	border-top: 0px;
-	margin-top: 0px;
-}
-
-#sysbar .module {
-	border-radius: 4px;
 }
 
 #sysbar .module:hover {
@@ -45,87 +9,36 @@
 
 #sysbar .tray_container {
 }
-
 #sysbar .tray_item {
 	padding: 10px;
 }
 #sysbar .tray_item:hover {
 	background: alpha(currentcolor, 0.1);
-	border-radius: 4px;
 }
-
 #sysbar .context_menu contents {
 	background: @insensitive_bg_color;
 	min-width: 100px;
 	padding: 5px;
 }
 #sysbar .context_menu flowboxchild {
-	padding: 10px;
+	padding: 8px;
 }
 #sysbar .context_menu flowboxchild:hover {
 	background: alpha(currentcolor, 0.1);
 }
 
-#sysbar .module_taskbar flowboxchild {
-	color: alpha(@theme_fg_color, 0.75);
-	margin: 0px;
-	padding: 0px;
-}
-#sysbar .module_taskbar flowboxchild:selected {
-	background: alpha(@theme_fg_color, 0.1);
-	color: unset;
-}
-#sysbar .module_taskbar flowboxchild:hover {
-	background: alpha(@theme_fg_color, 0.05);
-}
 
-#sysbar_overlay .notifications_header {
-	background: alpha(@theme_base_color, 0.9);
-	margin: 10px;
-	padding: 5px;
+
+
+#sysbar_overlay .sidepanel {
+	background: @theme_bg_color;
 	border: 1px solid @borders;
-}
-
-#sysbar_overlay.position_top .notifications_header,
-#sysbar_overlay.position_right .notifications_header {
-	margin-top: 0px;
-	padding-top: 0px;
-	border-top: unset;
-	border-radius: 0px 0px 10px 10px;
-	box-shadow: 0px -2px 5px 0px rgba(0, 0, 0, 0.5);
-}
-
-#sysbar_overlay.position_bottom .notifications_header,
-#sysbar_overlay.position_left .notifications_header {
-	margin-bottom: 0px;
-	padding-bottom: 0px;
-	border-bottom: unset;
-	border-radius: 10px 10px 0px 0px;
-	box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.5);
-}
-
-#sysbar_overlay .notifications_header > label {
-	margin-left: 10px;
-}
-
-#sysbar_notifications {
-	background: transparent;
-}
-#sysbar_notifications .notification,
-#sysbar_overlay .notification {
-	background: alpha(@theme_bg_color, 0.75);
-	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-	border-radius: 4px;
-	min-height: 70px;
 	margin: 10px;
-	padding: 0px;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+	border-radius: 6px;
 }
-#sysbar_overlay .notification .summary {
-	font-size: 14px;
-	font-weight: 500;
-}
-#sysbar_overlay .notification .body {
-	font-size: 13px;
+
+#sysbar_overlay .sidepanel .header {
 }
 
 #sysbar_overlay calendar {
@@ -137,38 +50,116 @@
 }
 #sysbar_overlay calendar > header {
 	border-radius: 10px 10px 0px 0px;
-}
-#sysbar_overlay calendar > header {
 	background: alpha(@insensitive_bg_color, 0.5);
 }
-#sysbar_overlay .day-number:checked {
-	box-shadow: 0px -2px inset rgb(255, 0, 100);
-	border-radius: 4px 4px 0px 0px;
+#sysbar_overlay calendar > header >:nth-child(1),
+#sysbar_overlay calendar > header >:nth-child(4) {
+	border-radius: 4px 0px 0px 4px;
+	padding: 6px;
+}
+#sysbar_overlay calendar > header >:nth-child(3),
+#sysbar_overlay calendar > header >:nth-child(6) {
+	border-radius: 0px 4px 4px 0px;
+	padding: 10px;
+}
+#sysbar_overlay calendar .day-number {
+	min-height: 33px;
 }
 
-#sysbar_overlay .widget_controls {
+#sysbar_overlay .sidepanel .widget {
+	margin: 5px 10px 5px 10px;
 }
 
-#sysbar_overlay .widget_mpris {
-	background: alpha(currentcolor, 0.05);
-	border-radius: 4px;
-	margin: 10px;
+#sysbar_overlay .sidepanel .widget_controls {
+	margin: 6px;
 }
 
-#sysbar_overlay .widget_mpris .image_album_art {
-	background: alpha(currentcolor, 0.05);
-	margin: 10px;
+#sysbar_overlay .sidepanel .control {
+	min-height: 50px;
+	border-radius: 6px;
+	background: alpha(CurrentColor, 0.05);
+}
+
+#sysbar_overlay .sidepanel .control >:first-child {
+	border-radius: 5px 0px 0px 5px;
+}
+
+#sysbar_overlay .sidepanel .control >:last-child {
+	border-radius: 0px 5px 5px 0px;
+	min-width: 40px;
+}
+
+#sysbar_overlay .sidepanel .widget_mpris {
+	background: alpha(CurrentColor, 0.05);
+	border-radius: 6px;
+	padding: 10px;
+}
+#sysbar_overlay .sidepanel .widget_mpris .image_album_art {
+	background: rgba(0,0,0, 0.25);
 	border-radius: 10px;
 }
-
-#sysbar_overlay .widget_mpris .label_title {
-	margin-top: 10px;
+#sysbar_overlay .sidepanel .widget_mpris .label_title,
+#sysbar_overlay .sidepanel .widget_mpris .label_artist {
+	margin-left: 10px;
+}
+#sysbar_overlay .sidepanel .widget_mpris .box_controls {
+	border-radius: 5px;
+}
+#sysbar_overlay .sidepanel .widget_mpris .box_controls > button {
+	padding: 12px;
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+#sysbar_overlay .sidepanel .widget_mpris .box_controls >:nth-child(1) {
+	border-radius: 5px 0px  0px 5px;
+}
+#sysbar_overlay .sidepanel .widget_mpris .box_controls >:nth-child(2) {
+	border-radius: 0px;
+}
+#sysbar_overlay .sidepanel .widget_mpris .box_controls >:nth-child(3) {
+	border-radius: 0px 5px 5px 0px;
 }
 
-#sysbar_overlay .widget_mpris .box_controls {
-	margin-bottom: 10px;
+#sysbar_overlay .sidepanel .widget_volume,
+#sysbar_overlay .sidepanel .widget_backlight {
+	-gtk-icon-size: 25px;
+	min-height: 45px;
+	margin-left: 5px;
 }
-#sysbar_overlay .widget_controls .control {
+#sysbar_overlay .sidepanel .widget_volume > image,
+#sysbar_overlay .sidepanel .widget_backlight > image {
+	min-width: 45px;
+}
+#sysbar_overlay .sidepanel .widget_volume > scale,
+#sysbar_overlay .sidepanel .widget_backlight > scale {
+	padding-left: 3px;
+}
+
+#sysbar_overlay .notifications_header {
+	background: @theme_bg_color;
 	border: 1px solid @borders;
-	border-radius: 10px;
+	border-bottom: unset;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+	margin: 10px;
+	padding: 5px;
+	padding-left: 10px;
+	margin-bottom: 0px;
+	border-radius: 6px 6px 0px 0px;
+}
+
+#sysbar_overlay .notification,
+#sysbar_notifications .notification {
+	background: @theme_bg_color;
+	border: 1px solid @borders;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+	margin: 10px;
+	margin-bottom: 0px;
+	min-height: 82px;
+	border-radius: 6px;
+}
+#sysbar_overlay .notification:first-child,
+#sysbar_overlay .notification:first-child > * {
+	margin-top: 0px;
+	border-radius: 0px 0px 6px 6px;
+	border-top: unset;
 }
