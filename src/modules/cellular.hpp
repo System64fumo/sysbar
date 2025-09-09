@@ -35,7 +35,7 @@ class module_cellular : public module {
 	private:
 		Glib::RefPtr<Gio::DBus::Proxy> proxy;
 
-		uint32_t signal;
+		uint32_t signal = 0;
 
 		void setup();
 		void on_properties_changed(

@@ -18,7 +18,7 @@ class control : public Gtk::Box {
 		control(sysbar* window, const std::string& icon, const bool& extra, const std::string& name);
 		Gtk::Button button_action;
 		Gtk::Button button_expand;
-		control_page* page;
+		control_page* page = nullptr;
 };
 
 class module_controls : public module {

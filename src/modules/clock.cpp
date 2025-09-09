@@ -52,6 +52,8 @@ bool module_clock::update_info() {
 
 void module_clock::setup_widget() {
 	Gtk::Box* box_widget = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
+	box_widget->get_style_context()->add_class("widget");
+	box_widget->get_style_context()->add_class("widget_calendar");
 	box_widget->append(calendar);
 	box_widget->append(revealer_events);
 	calendar.set_hexpand(true);

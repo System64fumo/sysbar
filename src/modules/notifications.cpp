@@ -66,12 +66,12 @@ void module_notifications::setup_widget() {
 	scrolledwindow_notifications.set_propagate_natural_height();
 
 	if (win->position / 2) {
-		win->sidepanel_end->box_widgets.prepend(box_header);
-		win->sidepanel_end->box_widgets.prepend(scrolledwindow_notifications);
+		win->sidepanel_end->box_sidepanel.prepend(box_header);
+		win->sidepanel_end->box_sidepanel.prepend(scrolledwindow_notifications);
 	}
 	else {
-		win->sidepanel_end->box_widgets.append(box_header);
-		win->sidepanel_end->box_widgets.append(scrolledwindow_notifications);
+		win->sidepanel_end->box_sidepanel.append(box_header);
+		win->sidepanel_end->box_sidepanel.append(scrolledwindow_notifications);
 	}
 
 	box_header.get_style_context()->add_class("notifications_header");
@@ -91,6 +91,7 @@ void module_notifications::setup_widget() {
 		}
 		box_header.set_visible(false);
 		label_notif_count.set_text("");
+		set_tooltip_text("No new notifications");
 		image_icon.set_from_icon_name("notification-symbolic");
 		scrolledwindow_notifications.set_visible(false);
 	});
@@ -101,6 +102,7 @@ void module_notifications::setup_widget() {
 	window_alert.set_decorated(false);
 	window_alert.set_default_size(350, -1);
 	window_alert.set_hide_on_close(true);
+	window_alert.remove_css_class("background");
 
 	gtk_layer_init_for_window(window_alert.gobj());
 	gtk_layer_set_namespace(window_alert.gobj(), "sysbar-notifications");
@@ -164,6 +166,7 @@ void module_notifications::on_interface_method_call(
 		box_header.set_visible(true);
 		image_icon.set_from_icon_name("notification-new-symbolic");
 		label_notif_count.set_text(std::to_string(box_notifications.get_children().size() + 1) + " Unread Notifications");
+		set_tooltip_text(label_notif_count.get_text());
 		scrolledwindow_notifications.set_visible(true);
 
 		// TODO: This is worse
@@ -187,6 +190,7 @@ void module_notifications::on_interface_method_call(
 			// TODO: Make this switch focus to the program that sent the notification
 			box_notifications.remove(*notif);
 			label_notif_count.set_text(std::to_string(box_notifications.get_children().size()) + " Unread Notifications");
+			set_tooltip_text(label_notif_count.get_text());
 			if (box_notifications.get_children().size() == 0) {
 				box_header.set_visible(false);
 				image_icon.set_from_icon_name("notification-symbolic");
@@ -208,6 +212,7 @@ void module_notifications::on_interface_method_call(
 				notif_alert->timeout_connection.disconnect();
 				flowbox_alert.remove(*notif_alert);
 				label_notif_count.set_text(std::to_string(box_notifications.get_children().size()) + " Unread Notifications");
+				set_tooltip_text(label_notif_count.get_text());
 
 				if (box_notifications.get_children().size() == 0) {
 					box_header.set_visible(false);
@@ -231,7 +236,6 @@ void module_notifications::on_interface_method_call(
 
 		box_notifications.prepend(*notif);
 		notif->set_reveal_child(true);
-		set_tooltip_text(std::to_string(flowbox_alert.get_children().size()) + " unread notifications");
 
 		invocation->return_value(id_var);
 
@@ -334,6 +338,8 @@ notification::notification(const Gtk::Box& box_notifications, const Glib::ustrin
 
 	box_main.append(box_notification);
 	button_main.set_child(box_main);
+	button_main.add_css_class("flat");
+	button_main.set_focusable(false);
 	set_child(button_main);
 	set_transition_duration(500);
 	set_transition_type(Gtk::RevealerTransitionType::SLIDE_DOWN);

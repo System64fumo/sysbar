@@ -25,11 +25,11 @@ class module_network : public module {
 		#endif
 
 		#ifdef MODULE_CONTROLS
-		control* control_network;
+		control* control_network = nullptr;
 		void setup_control();
 		#endif
 
-		int nl_socket;
+		int nl_socket = 0;
 		char buffer[4096];
 		uint default_if_index;
 		std::vector<network_adapter> adapters;

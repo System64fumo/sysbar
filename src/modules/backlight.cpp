@@ -89,9 +89,9 @@ void module_backlight::on_scale_brightness_change() {
 void module_backlight::setup_widget() {
 	Gtk::Box *box_widget = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL);
 
+	box_widget->get_style_context()->add_class("widget");
 	box_widget->get_style_context()->add_class("widget_backlight");
 	image_widget_icon.set_from_icon_name("brightness-display-symbolic");
-	image_widget_icon.set_pixel_size(16);
 
 	scale_backlight.set_hexpand(true);
 	scale_backlight.set_vexpand(true);

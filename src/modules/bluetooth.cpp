@@ -16,6 +16,10 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 		return;
 	}
 
+	#ifdef MODULE_CONTROLS
+	setup_control();
+	#endif
+
 	auto connection = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM);
 
 	// Get initial data
@@ -51,9 +55,6 @@ module_bluetooth::module_bluetooth(sysbar *window, const bool &icon_on_start) : 
 	prop_proxy->signal_signal().connect(
 		sigc::mem_fun(*this, &module_bluetooth::on_properties_changed));
 
-	#ifdef MODULE_CONTROLS
-	setup_control();
-	#endif
 	update_info("PowerState");
 }
 
