@@ -18,7 +18,8 @@ class sysbar : public Gtk::Window {
 
 		std::map<std::string, std::map<std::string, std::string>> config_main;
 		Gtk::Window overlay_window;
-		Glib::RefPtr<Gtk::GestureDrag> gesture_drag;
+		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_s; // TODO: Temporary, Rework this
+		Glib::RefPtr<Gtk::GestureDrag> gesture_drag_e; // TODO: Temporary, Rework this
 		Gtk::Box* box_controls = nullptr;
 
 		sidepanel* sidepanel_start = nullptr;

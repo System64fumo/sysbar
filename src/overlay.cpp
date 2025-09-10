@@ -139,17 +139,31 @@ void sysbar::setup_overlay_widgets() {
 // TODO: The whole gesture system needs a rework
 // This is a horrible mess..
 void sysbar::setup_gestures() {
-	gesture_drag = Gtk::GestureDrag::create();
-	gesture_drag->signal_drag_begin().connect([&](const double& x, const double& y) {
-		gesture_touch = gesture_drag->get_current_event()->get_pointer_emulated();
+	gesture_drag_s = Gtk::GestureDrag::create();
+	gesture_drag_s->signal_drag_begin().connect([&](const double& x, const double& y) {
+		gesture_touch = gesture_drag_s->get_current_event()->get_pointer_emulated();
+		sliding_start_widget = true;
 		on_drag_start(x, y);
 
 		if (!gesture_touch)
-			gesture_drag->reset();
+			gesture_drag_s->reset();
 	});
-	gesture_drag->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
-	gesture_drag->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
-	add_controller(gesture_drag);
+	gesture_drag_s->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
+	gesture_drag_s->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
+	box_start.add_controller(gesture_drag_s);
+
+	gesture_drag_e = Gtk::GestureDrag::create();
+	gesture_drag_e->signal_drag_begin().connect([&](const double& x, const double& y) {
+		gesture_touch = gesture_drag_e->get_current_event()->get_pointer_emulated();
+		sliding_start_widget = false;
+		on_drag_start(x, y);
+
+		if (!gesture_touch)
+			gesture_drag_e->reset();
+	});
+	gesture_drag_e->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
+	gesture_drag_e->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
+	box_end.add_controller(gesture_drag_e);
 
 	gesture_drag_start = Gtk::GestureDrag::create();
 	gesture_drag_start->signal_drag_begin().connect([&](const double& x, const double& y) {
@@ -206,12 +220,10 @@ void sysbar::on_drag_start(const double& x, const double& y) {
 	}
 
 	if (position % 2) {
-		sliding_start_widget = y < monitor_geometry.height / 2;
 		initial_size_start = sidepanel_start->get_width();
 		initial_size_end = sidepanel_end->get_width();
 	}
 	else {
-		sliding_start_widget = x < monitor_geometry.width / 2;
 		initial_size_start = sidepanel_start->get_height();
 		initial_size_end = sidepanel_end->get_height();
 	}
