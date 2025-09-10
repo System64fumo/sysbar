@@ -24,10 +24,12 @@
 	padding: 8px;
 }
 #sysbar .context_menu flowboxchild:hover {
-	background: alpha(currentcolor, 0.1);
+	background: alpha(CurrentColor, 0.1);
 }
 
-
+#sysbar .module_taskbar flowboxchild:hover {
+	background: alpha(CurrentColor, 0.05);
+}
 
 
 #sysbar_overlay .sidepanel {

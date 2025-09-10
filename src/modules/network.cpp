@@ -100,7 +100,7 @@ void module_network::update_info() {
 		icon = "network-error-symbolic";
 
 	#ifdef MODULE_CONTROLS
-	control_network->button_action.set_image_from_icon_name(icon);
+	if (control_network) control_network->button_action.set_image_from_icon_name(icon);
 	#endif
 
 	set_tooltip_text("Adapter: " + default_if->interface + "\nAddress: " + default_if->ipv4);

@@ -35,7 +35,7 @@ class module_battery : public module {
 		PowerSource* ac_source = nullptr;
 
 		#ifdef MODULE_CONTROLS
-		control* control_battery;
+		control* control_battery = nullptr;
 		void setup_control();
 		#endif
 

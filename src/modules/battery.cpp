@@ -156,9 +156,7 @@ void module_battery::update_battery_icon() {
 	image_icon.set_from_icon_name(icon_name);
 	
 	#ifdef MODULE_CONTROLS
-	if (control_battery) {
-		control_battery->button_action.set_image_from_icon_name(icon_name);
-	}
+	if (control_battery) control_battery->button_action.set_image_from_icon_name(icon_name);
 	#endif
 }
 

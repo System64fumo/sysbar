@@ -215,12 +215,14 @@ taskbar_item::taskbar_item(module_taskbar* self, const module_taskbar::config_tb
 
 	// There's probably a better way of doing this
 	gesture_drag->signal_drag_begin().connect([&, self](const double& x, const double& y) {
-		self->win->gesture_drag->set_propagation_phase(Gtk::PropagationPhase::NONE);
+		self->win->gesture_drag_s->set_propagation_phase(Gtk::PropagationPhase::NONE);
+		self->win->gesture_drag_e->set_propagation_phase(Gtk::PropagationPhase::NONE);
 	});
 	gesture_drag->signal_drag_update().connect([&](const double& x, const double& y) {
 	});
 	gesture_drag->signal_drag_end().connect([&, self](const double& x, const double& y) {
-		self->win->gesture_drag->set_propagation_phase(Gtk::PropagationPhase::BUBBLE);
+		self->win->gesture_drag_s->set_propagation_phase(Gtk::PropagationPhase::BUBBLE);
+		self->win->gesture_drag_e->set_propagation_phase(Gtk::PropagationPhase::BUBBLE);
 	});
 
 	add_controller(gesture_drag);

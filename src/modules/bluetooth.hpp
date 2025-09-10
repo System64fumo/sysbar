@@ -38,7 +38,7 @@ class module_bluetooth : public module {
 		adapter default_adapter;
 
 		#ifdef MODULE_CONTROLS
-		control* control_bluetooth;
+		control* control_bluetooth = nullptr;
 		void setup_control();
 		#endif
 
