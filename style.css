@@ -3,6 +3,12 @@
 #sysbar {
 }
 
+/* Example window tag
+#sysbar.window_frog {
+	background: green;
+}
+*/
+
 #sysbar .module:hover {
 	background: alpha(CurrentColor, 0.1);
 }

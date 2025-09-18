@@ -6,6 +6,7 @@
 #include <gtkmm/revealer.h>
 #include <gtkmm/centerbox.h>
 #include <gtkmm/scrolledwindow.h>
+#include <glibmm/dispatcher.h>
 #include <gtkmm/gesturedrag.h>
 #include <gtkmm/box.h>
 #include <gtkmm/stack.h>
@@ -27,6 +28,12 @@ class sysbar : public Gtk::Window {
 		int default_size_start = 350;
 		int default_size_end = 350;
 		std::string network_icon = "network-error-symbolic"; // TODO: Terrible implementation..
+
+		// TODO: Add support for taskbar window tracking
+		// Window tracking
+		bool tracking_window = false;
+		std::string active_window = "";
+		Glib::Dispatcher dispatcher_window_changed;
 
 		// Main config
 		int position = 0;
@@ -55,8 +62,10 @@ class sysbar : public Gtk::Window {
 		int bar_height = 40;
 		bool sliding_start_widget = false;
 		bool gesture_touch = false;
+		std::string previous_active_window = "";
 
 		void load_modules(const std::string&, Gtk::Box&);
+		void on_window_change();
 		void setup_overlay();
 		void setup_overlay_widgets();
 		void setup_gestures();
