@@ -29,6 +29,7 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 	layer = std::stoi(config_main["main"]["layer"]);
 	verbose = config_main["main"]["verbose"] == "true";
 	icon_size = std::stoi(config_main["modules"]["icon-size"]);
+	tracking_window = config_main["main"]["window-tracking"] == "true";
 
 	// Get main monitor
 	// TODO: Add monitor config correction if specified monitor is not found
@@ -146,6 +147,9 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 	load_modules(config_main["modules"]["start"], box_start);
 	load_modules(config_main["modules"]["center"], box_center);
 	load_modules(config_main["modules"]["end"], box_end);
+
+	// Window tracking
+	dispatcher_window_changed.connect(sigc::mem_fun(*this, &sysbar::on_window_change));
 }
 
 void sysbar::load_modules(const std::string& modules, Gtk::Box& box) {
@@ -254,6 +258,18 @@ void sysbar::load_modules(const std::string& modules, Gtk::Box& box) {
 
 		box.append(*new_module);
 	}
+}
+
+void sysbar::on_window_change() {
+	if (verbose)
+		std::printf("Active window: %s\n", active_window.c_str());
+	
+	if (active_window == previous_active_window)
+		return;
+
+	remove_css_class("window_" + previous_active_window);
+	add_css_class("window_" + active_window);
+	previous_active_window = active_window;
 }
 
 void sysbar::handle_signal(const int& signum) {

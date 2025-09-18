@@ -85,7 +85,13 @@ void module_hyprland::update_info() {
 		std::string active_window_data = data.substr(14);
 		int pos = active_window_data.find(',');
 
-		std::string active_window = active_window_data.substr(0, pos);
+		if (monitor_active != nullptr) {
+			if (win->tracking_window && monitor_active->connector == win->config_main["main"]["main-monitor"]) {
+				win->active_window  = active_window_data.substr(0, pos);
+				win->dispatcher_window_changed.emit();
+			}
+		}
+			
 		Glib::ustring active_window_title = active_window_data.substr(pos + 1);
 
 		if ((int)active_window_title.size() > character_limit)
