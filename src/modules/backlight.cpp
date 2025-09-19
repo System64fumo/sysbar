@@ -32,6 +32,9 @@ module_backlight::module_backlight(sysbar* window, const bool& icon_on_start) : 
 		}
 	}
 
+	min_brightness = std::stoi(win->config_main["backlight"]["min-level"]);
+	high_brightness = std::stoi(win->config_main["backlight"]["high-level"]);
+
 	// Setup
 	get_backlight_path(backlight_path);
 	if (backlight_path.empty()) // TODO: Maybe replace this with a test function?
@@ -41,49 +44,47 @@ module_backlight::module_backlight(sysbar* window, const bool& icon_on_start) : 
 	update_info();
 	setup_widget();
 
+	// TODO: Fix this, It's broken
 	// Listen for changes
-	dispatcher_callback.connect(sigc::mem_fun(*this, &module_backlight::update_info));
+	// dispatcher_callback.connect(sigc::mem_fun(*this, &module_backlight::update_info));
 
-	std::thread([&]() {
-		int inotify_fd = inotify_init();
-		inotify_add_watch(inotify_fd, backlight_path.c_str(), IN_MODIFY);
+	// std::thread([&]() {
+	// 	int inotify_fd = inotify_init();
+	// 	inotify_add_watch(inotify_fd, backlight_path.c_str(), IN_MODIFY);
 
-		int last_brightness = get_brightness();
-		char buffer[1024];
+	// 	int last_brightness = get_brightness();
+	// 	char buffer[1024];
 
-		while (true) {
-			ssize_t ret = read(inotify_fd, buffer, 1024);
-			(void)ret; // Return value does not matter
+	// 	while (true) {
+	// 		ssize_t ret = read(inotify_fd, buffer, 1024);
+	// 		(void)ret; // Return value does not matter
 
-			brightness = get_brightness();
-			if (brightness == last_brightness)
-				break;
+	// 		brightness = get_brightness();
+	// 		if (brightness == last_brightness)
+	// 			break;
 
-			last_brightness = brightness;
-			dispatcher_callback.emit();
-		}
-	}).detach();
+	// 		last_brightness = brightness;
+	// 		dispatcher_callback.emit();
+	// 	}
+	// }).detach();
 }
 
 void module_backlight::update_info() {
 	label_info.set_text(std::to_string(brightness));
-	image_widget_icon.set_from_icon_name(brightness_icons[brightness / 35]);
+	image_widget_icon.set_from_icon_name(brightness_icons[brightness / 35.0f]);
 	// TODO: Prevent this from changing if currently being dragged
 	//scale_backlight.set_value(brightness);
 }
 
 void module_backlight::on_scale_brightness_change() {
-	double scale_val_db = scale_backlight.get_value();
-	int scale_val = (int)scale_val_db;
-	if (scale_val == brightness)
-		return;
+	brightness = std::lround(scale_backlight.get_value());
 
 	// Probably not ideal to open and close the file every time..
 	FILE* backlight_file = fopen((backlight_path + "/brightness").c_str(), "w");
-	fprintf(backlight_file, "%d\n", scale_val);
+	fprintf(backlight_file, "%d\n", std::lround(brightness * (max_brightness / 100.0f)));
 	fclose(backlight_file);
 
-	image_widget_icon.set_from_icon_name(brightness_icons[(scale_val_db / max_brightness) * 100.0 / 35]);
+	image_widget_icon.set_from_icon_name(brightness_icons[brightness / 35]);
 }
 
 void module_backlight::setup_widget() {
@@ -95,7 +96,12 @@ void module_backlight::setup_widget() {
 
 	scale_backlight.set_hexpand(true);
 	scale_backlight.set_vexpand(true);
-	scale_backlight.set_value(brightness_literal);
+	scale_backlight.set_value(brightness);
+	scale_backlight.set_range(min_brightness, 100);
+	scale_backlight.set_digits(0);
+
+	if (high_brightness != 0)
+		scale_backlight.add_mark(high_brightness, Gtk::PositionType::BOTTOM, "");
 
 	scale_backlight.signal_value_changed().connect(sigc::mem_fun(*this, &module_backlight::on_scale_brightness_change));
 
@@ -135,6 +141,5 @@ int module_backlight::get_brightness() {
 	brightness_file >> brightness_literal;
 	max_brightness_file >> max_brightness;
 
-	scale_backlight.set_range(0, max_brightness);
 	return (brightness_literal / max_brightness) * 100;
 }
