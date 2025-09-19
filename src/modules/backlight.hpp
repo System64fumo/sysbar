@@ -19,7 +19,6 @@ class module_backlight : public module {
 		int min_brightness;
 		int high_brightness;
 		double brightness_literal;
-		int inotify_fd;
 		std::string backlight_path;
 		std::mutex brightness_mutex;
 		std::map<int, std::string> brightness_icons;
@@ -28,12 +27,14 @@ class module_backlight : public module {
 		Gtk::Scale scale_backlight;
 		Gtk::Image image_widget_icon;
 		Glib::Dispatcher dispatcher_callback;
+		sigc::connection timer_connection;
 
 		void update_info();
 		void on_scale_brightness_change();
 		void get_backlight_path(const std::string&);
 		int get_brightness();
 		void setup_widget();
+		void setup_listener();
 };
 
 #endif
