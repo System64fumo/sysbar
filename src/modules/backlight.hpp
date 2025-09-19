@@ -16,6 +16,8 @@ class module_backlight : public module {
 		std::ifstream max_brightness_file;
 		int brightness;
 		int max_brightness;
+		int min_brightness;
+		int high_brightness;
 		double brightness_literal;
 		int inotify_fd;
 		std::string backlight_path;
