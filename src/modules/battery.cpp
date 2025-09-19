@@ -145,6 +145,10 @@ std::string module_battery::get_battery_icon_name(double percentage, guint32 sta
 	if (state == 1 || state == 5) {
 		icon_base += "-charging";
 	}
+	else if (state == 4) {
+		if (ac_source != nullptr && ac_source->is_present)
+			icon_base += "-charged";
+	}
 
 	return icon_base + "-symbolic";
 }
