@@ -245,12 +245,17 @@ void module_mpris::update_info() {
 		album_pixbuf = scale_and_crop_pixbuf(album_pixbuf, album_size);
 		int square_size = std::min(album_pixbuf->get_width(), album_pixbuf->get_height());
 		album_pixbuf = create_rounded_pixbuf(album_pixbuf, square_size, 6);
+		image_album_art.set_pixel_size(album_size);
 		image_album_art.set(album_pixbuf);
 	}
-	else if (album_art_url.empty())
+	else if (album_art_url.empty()) {
+		image_album_art.set_pixel_size(-1);
 		image_album_art.set_from_icon_name("music-app-symbolic");
-	else
+	}
+	else {
+		image_album_art.set_pixel_size(-1);
 		image_album_art.set_from_icon_name("process-working-symbolic");
+	}
 
 	// TODO: Add a progress slider
 }

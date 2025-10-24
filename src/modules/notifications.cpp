@@ -305,7 +305,7 @@ notification::notification(const Gtk::Box& box_notifications, const Glib::ustrin
 		image_icon.get_style_context()->add_class("image");
 		image_icon.set(image_data);
 		image_data = image_data->scale_simple(64, 64, Gdk::InterpType::BILINEAR);
-		image_icon.set_size_request(64, 64);
+		image_icon.set_pixel_size(64);
 		box_main.append(image_icon);
 	}
 
