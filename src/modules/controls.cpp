@@ -24,7 +24,7 @@ control_page::control_page(sysbar* window, const std::string& name) : Gtk::Box(G
 	window->sidepanel_end->stack_pages.add(*this, name);
 }
 
-control::control(sysbar* window, const std::string& icon, const bool& extra, const std::string& name) {
+control::control(sysbar* window, const std::string& icon, const bool& extra, const std::string& name, const bool& position_start) {
 	get_style_context()->add_class("control");
 	append(button_action);
 	button_action.set_icon_name(icon);
@@ -41,5 +41,10 @@ control::control(sysbar* window, const std::string& icon, const bool& extra, con
 		button_expand.set_has_frame(false);
 		button_expand.set_icon_name("arrow-right");
 		page = Gtk::make_managed<control_page>(window, name);
+
+		sidepanel* panel = position_start ? window->sidepanel_start : window->sidepanel_end;
+		button_expand.signal_clicked().connect([&, panel, name]() {
+			panel->set_page(name);
+		});
 	}
 }

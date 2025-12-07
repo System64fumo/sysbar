@@ -241,6 +241,8 @@ void sysbar::on_drag_start(const double& x, const double& y) {
 
 	sidepanel_start->set_visible(sliding_start_widget);
 	sidepanel_end->set_visible(!sliding_start_widget);
+	sidepanel_start->set_page("main");
+	sidepanel_end->set_page("main");
 }
 
 void sysbar::on_drag_update(const double& x, const double& y) {

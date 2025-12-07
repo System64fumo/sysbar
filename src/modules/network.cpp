@@ -236,10 +236,7 @@ void module_network::setup_control() {
 		return;
 
 	auto container = static_cast<module_controls*>(win->box_controls);
-	control_network = Gtk::make_managed<control>(win, "network-wireless-symbolic", true, "network");
+	control_network = Gtk::make_managed<control>(win, "network-wireless-symbolic", true, "network", false);
 	container->flowbox_controls.append(*control_network);
-	control_network->button_expand.signal_clicked().connect([&]() {
-		win->sidepanel_end->set_page("network");
-	});
 }
 #endif

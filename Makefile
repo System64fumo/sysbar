@@ -100,15 +100,18 @@ release: $(BINS) $(LIBS)
 debug: CFLAGS += -O0 -g -Wall -fPIC -DDEBUG
 debug: $(BINS) $(LIBS)
 
+run:
+	LD_LIBRARY_PATH=$(BUILDDIR) $(BUILDDIR)/$(BINS)
+
+clean:
+	@echo "Cleaning up"
+	@rm -r $(BUILDDIR) src/git_info.hpp $(PROTO_HDRS) $(PROTO_SRCS)
+
 install: $(BINS)
 	@echo "Installing..."
 	@install -D -t $(DESTDIR)$(BINDIR) $(BUILDDIR)/$(BINS)
 	@install -D -t $(DESTDIR)$(LIBDIR) $(BUILDDIR)/$(LIBS)
 	@install -D -t $(DESTDIR)$(DATADIR)/sys64/bar config.conf style.css events.css calendar.conf
-
-clean:
-	@echo "Cleaning up"
-	@rm -r $(BUILDDIR) src/git_info.hpp $(PROTO_HDRS) $(PROTO_SRCS)
 
 uninstall:
 	@echo "Uninstalling..."

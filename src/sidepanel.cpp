@@ -54,6 +54,7 @@ void sidepanel::set_page(const std::string& destination) {
 	else
 		pages["main"] = window->config_main["sidepanels"]["end-label"];
 	pages["battery"] = "Battery";
+	pages["bluetooth"] = "Bluetooth";
 	pages["network"] = "Network";
 
 	label_header.set_text(pages[destination]);

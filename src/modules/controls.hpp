@@ -15,7 +15,7 @@ class control_page : public Gtk::Box {
 
 class control : public Gtk::Box {
 	public:
-		control(sysbar* window, const std::string& icon, const bool& extra, const std::string& name);
+		control(sysbar* window, const std::string& icon, const bool& extra, const std::string& name, const bool& position_start);
 		Gtk::Button button_action;
 		Gtk::Button button_expand;
 		control_page* page = nullptr;
