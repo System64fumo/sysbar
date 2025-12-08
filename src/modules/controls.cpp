@@ -17,7 +17,6 @@ module_controls::module_controls(sysbar* window, const bool& icon_on_start) : mo
 
 control_page::control_page(sysbar* window, const std::string& name) : Gtk::Box(Gtk::Orientation::VERTICAL), box_body(Gtk::Orientation::VERTICAL) {
 	get_style_context()->add_class("control_page_" + name);
-	append(box_header);
 	append(box_body);
 
 	// TODO: Detect position

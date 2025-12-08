@@ -21,46 +21,100 @@ static bool get_bool(const Glib::VariantBase& v) {
 module_bluetooth::module_bluetooth(sysbar* win, bool show_icon) : module(win, show_icon) {
 	get_style_context()->add_class("module_bluetooth");
 	label_info.hide();
-
-	if (win->config_main["bluetooth"]["show-icon"] != "true")
-		image_icon.hide();
-
-	auto conn = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM);
-
-	manager_proxy = Gio::DBus::Proxy::create_sync(
-		conn, "org.bluez", "/", "org.freedesktop.DBus.ObjectManager");
-
-	manager_proxy->signal_signal().connect([this](
-		const Glib::ustring&,
-		const Glib::ustring& signal,
-		const Glib::VariantContainerBase& params) {
-		Glib::VariantIter iter(params);
-		Glib::VariantBase tmp;
-		Glib::DBusObjectPathString path;
-		
-		iter.next_value(tmp);
-		path = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::DBusObjectPathString>>(tmp).get();
-		iter.next_value(tmp);
-
-		if (signal == "InterfacesAdded") {
-			auto ifaces = Glib::VariantBase::cast_dynamic<
-				Glib::Variant<std::map<Glib::ustring, std::map<Glib::ustring, Glib::VariantBase>>>>(tmp).get();
-			on_interfaces_added(path, ifaces);
-		}
-		else if (signal == "InterfacesRemoved") {
-			auto ifaces = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<Glib::ustring>>>(tmp).get();
-			on_interfaces_removed(path, ifaces);
-		}
-	});
-
-	register_agent();
-	fetch_all_objects();
-	update_icon();
+	image_icon.hide();
 
 	#ifdef MODULE_CONTROLS
 	if (win->box_controls)
 		setup_control();
 	#endif
+
+	try {
+		auto conn = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM);
+
+		manager_proxy = Gio::DBus::Proxy::create_sync(
+			conn, "org.bluez", "/", "org.freedesktop.DBus.ObjectManager");
+
+		manager_proxy->signal_signal().connect([this](
+			const Glib::ustring&,
+			const Glib::ustring& signal,
+			const Glib::VariantContainerBase& params) {
+			Glib::VariantIter iter(params);
+			Glib::VariantBase tmp;
+			Glib::DBusObjectPathString path;
+			
+			iter.next_value(tmp);
+			path = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::DBusObjectPathString>>(tmp).get();
+			iter.next_value(tmp);
+
+			if (signal == "InterfacesAdded") {
+				auto ifaces = Glib::VariantBase::cast_dynamic<
+					Glib::Variant<std::map<Glib::ustring, std::map<Glib::ustring, Glib::VariantBase>>>>(tmp).get();
+				on_interfaces_added(path, ifaces);
+			}
+			else if (signal == "InterfacesRemoved") {
+				auto ifaces = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<Glib::ustring>>>(tmp).get();
+				on_interfaces_removed(path, ifaces);
+			}
+		});
+
+		bluez_available = true;
+		register_agent();
+		fetch_all_objects();
+		update_visibility();
+	}
+	catch (const Glib::Error&) {
+		bluez_available = false;
+		monitor_bluez_availability();
+	}
+}
+
+void module_bluetooth::monitor_bluez_availability() {
+	std::thread([this]() {
+		while (!bluez_available) {
+			std::this_thread::sleep_for(std::chrono::seconds(2));
+			
+			try {
+				auto conn = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM);
+				manager_proxy = Gio::DBus::Proxy::create_sync(
+					conn, "org.bluez", "/", "org.freedesktop.DBus.ObjectManager");
+
+				manager_proxy->signal_signal().connect([this](
+					const Glib::ustring&,
+					const Glib::ustring& signal,
+					const Glib::VariantContainerBase& params) {
+					Glib::VariantIter iter(params);
+					Glib::VariantBase tmp;
+					Glib::DBusObjectPathString path;
+					
+					iter.next_value(tmp);
+					path = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::DBusObjectPathString>>(tmp).get();
+					iter.next_value(tmp);
+
+					if (signal == "InterfacesAdded") {
+						auto ifaces = Glib::VariantBase::cast_dynamic<
+							Glib::Variant<std::map<Glib::ustring, std::map<Glib::ustring, Glib::VariantBase>>>>(tmp).get();
+						on_interfaces_added(path, ifaces);
+					}
+					else if (signal == "InterfacesRemoved") {
+						auto ifaces = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<Glib::ustring>>>(tmp).get();
+						on_interfaces_removed(path, ifaces);
+					}
+				});
+
+				bluez_available = true;
+				
+				Glib::signal_idle().connect_once([this]() {
+					register_agent();
+					fetch_all_objects();
+					update_visibility();
+				});
+				
+				break;
+			}
+			catch (const Glib::Error&) {
+			}
+		}
+	}).detach();
 }
 
 void module_bluetooth::register_agent() {
@@ -109,8 +163,8 @@ void module_bluetooth::register_agent() {
 		AGENT_PATH,
 		introspection->lookup_interface("org.bluez.Agent1"),
 		[this](auto&&, auto&&, auto&&, auto&&, const Glib::ustring& method_name,
-		       const Glib::VariantContainerBase& params,
-		       const Glib::RefPtr<Gio::DBus::MethodInvocation>& invocation) {
+			   const Glib::VariantContainerBase& params,
+			   const Glib::RefPtr<Gio::DBus::MethodInvocation>& invocation) {
 			handle_agent_method(method_name, params, invocation);
 		});
 
@@ -142,9 +196,9 @@ void module_bluetooth::handle_agent_method(
 			Glib::Variant<uint32_t>::create(0)));
 	}
 	else if (method_name == "Release" || method_name == "DisplayPinCode" ||
-	         method_name == "DisplayPasskey" || method_name == "RequestConfirmation" ||
-	         method_name == "RequestAuthorization" || method_name == "AuthorizeService" ||
-	         method_name == "Cancel") {
+			 method_name == "DisplayPasskey" || method_name == "RequestConfirmation" ||
+			 method_name == "RequestAuthorization" || method_name == "AuthorizeService" ||
+			 method_name == "Cancel") {
 		invocation->return_value(Glib::VariantContainerBase());
 	}
 	else {
@@ -192,9 +246,22 @@ void module_bluetooth::fetch_all_objects() {
 		auto conn = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM);
 		adapter_proxy = Gio::DBus::Proxy::create_sync(
 			conn, "org.bluez", default_adapter.path, "org.bluez.Adapter1");
+		
+		adapter_proxy->signal_properties_changed().connect([this](
+			const Gio::DBus::Proxy::MapChangedProperties& changed,
+			const std::vector<Glib::ustring>&) {
+			for (const auto& [prop, val] : changed) {
+				if (prop == "Powered") {
+					default_adapter.powered = get_bool(val);
+					update_icon();
+					update_visibility();
+				}
+			}
+		});
 	}
 
 	update_icon();
+	update_visibility();
 
 	#ifdef MODULE_CONTROLS
 	if (flowbox)
@@ -213,6 +280,19 @@ void module_bluetooth::on_interfaces_added(
 			default_adapter.powered = get_bool(props.at("Powered"));
 			auto conn = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM);
 			adapter_proxy = Gio::DBus::Proxy::create_sync(conn, "org.bluez", path, "org.bluez.Adapter1");
+			
+			adapter_proxy->signal_properties_changed().connect([this](
+				const Gio::DBus::Proxy::MapChangedProperties& changed,
+				const std::vector<Glib::ustring>&) {
+				for (const auto& [prop, val] : changed) {
+					if (prop == "Powered") {
+						default_adapter.powered = get_bool(val);
+						update_icon();
+						update_visibility();
+					}
+				}
+			});
+			
 			changed = true;
 		}
 		else if (iface == "org.bluez.Device1") {
@@ -230,6 +310,7 @@ void module_bluetooth::on_interfaces_added(
 
 	if (changed) {
 		update_icon();
+		update_visibility();
 		#ifdef MODULE_CONTROLS
 		if (flowbox) refresh_device_list();
 		#endif
@@ -242,7 +323,12 @@ void module_bluetooth::on_interfaces_removed(
 	bool changed = false;
 
 	for (const auto& iface : ifaces) {
-		if (iface == "org.bluez.Device1") {
+		if (iface == "org.bluez.Adapter1" && path == default_adapter.path) {
+			default_adapter = {};
+			adapter_proxy.reset();
+			changed = true;
+		}
+		else if (iface == "org.bluez.Device1") {
 			auto it = std::find_if(devices.begin(), devices.end(),
 				[&path](const device& d) { return d.path == path; });
 
@@ -255,6 +341,7 @@ void module_bluetooth::on_interfaces_removed(
 
 	if (changed) {
 		update_icon();
+		update_visibility();
 		#ifdef MODULE_CONTROLS
 		if (flowbox) refresh_device_list();
 		#endif
@@ -267,23 +354,52 @@ void module_bluetooth::update_icon() {
 	if (default_adapter.path.empty() || !default_adapter.powered) {
 		icon = "bluetooth-disabled-symbolic";
 	} else {
-		bool any_connected = std::any_of(devices.begin(), devices.end(),
-			[](const device& d) { return d.connected; });
-		icon = any_connected ? "bluetooth-connected-symbolic" : "bluetooth-active-symbolic";
+		icon = "bluetooth-active-symbolic";
 	}
 
 	image_icon.set_from_icon_name(icon);
 
 	#ifdef MODULE_CONTROLS
-	if (ctrl) ctrl->button_action.set_icon_name(icon);
+	if (ctrl) {
+		updating_toggle = true;
+		ctrl->button_action.set_icon_name(icon);
+		ctrl->button_action.set_active(default_adapter.powered);
+		updating_toggle = false;
+	}
+	#endif
+}
+
+void module_bluetooth::update_visibility() {
+	bool has_adapter = !default_adapter.path.empty();
+	
+	if (has_adapter && win->config_main["bluetooth"]["show-icon"] == "true") {
+		image_icon.show();
+	} else {
+		image_icon.hide();
+	}
+
+	#ifdef MODULE_CONTROLS
+	if (ctrl) {
+		if (has_adapter) {
+			ctrl->show();
+		} else {
+			ctrl->hide();
+		}
+	}
 	#endif
 }
 
 #ifdef MODULE_CONTROLS
 void module_bluetooth::setup_control() {
 	auto* controls = static_cast<module_controls*>(win->box_controls);
-	ctrl = Gtk::make_managed<control>(win, "bluetooth-active-symbolic", true, "bluetooth", false);
+	ctrl = Gtk::make_managed<control>(win, "bluetooth-disabled-symbolic", true, "bluetooth", false);
 	controls->flowbox_controls.append(*ctrl);
+
+	ctrl->button_action.signal_toggled().connect([this]() {
+		if (!updating_toggle) {
+			toggle_adapter_power();
+		}
+	});
 
 	container = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL, 8);
 	container->set_margin(12);
@@ -335,6 +451,7 @@ void module_bluetooth::setup_control() {
 	ctrl->page->append(*container);
 
 	refresh_device_list();
+	update_visibility();
 }
 
 void module_bluetooth::refresh_device_list() {
@@ -484,6 +601,27 @@ void module_bluetooth::stop_discovery() {
 	}).detach();
 }
 
+void module_bluetooth::toggle_adapter_power() {
+	if (!adapter_proxy)
+		return;
+
+	bool new_state = !default_adapter.powered;
+	
+	std::thread([this, new_state]() {
+		try {
+			adapter_proxy->call_sync("org.freedesktop.DBus.Properties.Set",
+				Glib::VariantContainerBase::create_tuple({
+					Glib::Variant<Glib::ustring>::create("org.bluez.Adapter1"),
+					Glib::Variant<Glib::ustring>::create("Powered"),
+					Glib::Variant<Glib::Variant<bool>>::create(
+						Glib::Variant<bool>::create(new_state))
+				}));
+		}
+		catch (const Glib::Error&) {
+		}
+	}).detach();
+}
+
 void module_bluetooth::toggle_device(const std::string& path) {
 	std::thread([this, path]() {
 		try {
@@ -507,7 +645,7 @@ void module_bluetooth::toggle_device(const std::string& path) {
 		}
 		catch (const Glib::Error& e) {
 			if (e.matches(G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_METHOD) ||
-			    e.matches(G_DBUS_ERROR, G_DBUS_ERROR_ACCESS_DENIED))
+				e.matches(G_DBUS_ERROR, G_DBUS_ERROR_ACCESS_DENIED))
 				Glib::signal_idle().connect_once([this]() { fetch_all_objects(); });
 		}
 	}).detach();

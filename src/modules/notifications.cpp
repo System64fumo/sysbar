@@ -559,6 +559,10 @@ void module_notifications::remove_notification(guint32 id, guint32 reason) {
 			return false;
 		}, w->get_transition_duration());
 	}
+
+	if (alert_widgets.count(id)) {
+		alert_widgets[id]->signal_close.emit(reason);
+	}
 	
 	if (reason > 0) {
 		send_closed_signal(id, reason);

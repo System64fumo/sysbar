@@ -4,19 +4,19 @@
 
 #include <gtkmm/flowbox.h>
 #include <gtkmm/button.h>
+#include <gtkmm/togglebutton.h>
 
 class control_page : public Gtk::Box {
 	public:
 		control_page(sysbar* window, const std::string& name);
 
-		Gtk::Box box_header;
 		Gtk::Box box_body;
 };
 
 class control : public Gtk::Box {
 	public:
 		control(sysbar* window, const std::string& icon, const bool& extra, const std::string& name, const bool& position_start);
-		Gtk::Button button_action;
+		Gtk::ToggleButton button_action;
 		Gtk::Button button_expand;
 		control_page* page = nullptr;
 };

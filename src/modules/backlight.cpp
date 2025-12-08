@@ -101,7 +101,7 @@ void module_backlight::on_scale_brightness_change() {
 
 	// Probably not ideal to open and close the file every time..
 	FILE* backlight_file = fopen((backlight_path + "/brightness").c_str(), "w");
-	fprintf(backlight_file, "%d\n", std::lround(brightness * (max_brightness / 100.0f)));
+	fprintf(backlight_file, "%ld\n", std::lround(brightness * (max_brightness / 100.0f)));
 	fclose(backlight_file);
 
 	label_info.set_text(std::to_string(brightness));

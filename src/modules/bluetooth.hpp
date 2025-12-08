@@ -43,7 +43,9 @@ private:
 	std::vector<adapter> adapters;
 	std::vector<device> devices;
 	adapter default_adapter;
-	bool scanning;
+	bool scanning{false};
+	bool bluez_available{false};
+	bool updating_toggle{false};
 	guint agent_registration_id;
 
 	void register_agent();
@@ -54,6 +56,8 @@ private:
 
 	void fetch_all_objects();
 	void update_icon();
+	void update_visibility();
+	void monitor_bluez_availability();
 
 	void on_interfaces_added(
 		const Glib::DBusObjectPathString&,
@@ -76,6 +80,7 @@ private:
 	void on_scan_clicked();
 	void start_discovery();
 	void stop_discovery();
+	void toggle_adapter_power();
 	void toggle_device(const std::string&);
 	void remove_device(const std::string&);
 	#endif
