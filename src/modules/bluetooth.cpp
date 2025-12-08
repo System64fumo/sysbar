@@ -118,69 +118,84 @@ void module_bluetooth::monitor_bluez_availability() {
 }
 
 void module_bluetooth::register_agent() {
-	auto conn = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM);
+	try {
+		auto conn = Gio::DBus::Connection::get_sync(Gio::DBus::BusType::SYSTEM);
 
-	static const char* introspection_xml = R"(
-		<node>
-			<interface name='org.bluez.Agent1'>
-				<method name='Release'/>
-				<method name='RequestPinCode'>
-					<arg type='o' name='device' direction='in'/>
-					<arg type='s' name='pincode' direction='out'/>
-				</method>
-				<method name='DisplayPinCode'>
-					<arg type='o' name='device' direction='in'/>
-					<arg type='s' name='pincode' direction='in'/>
-				</method>
-				<method name='RequestPasskey'>
-					<arg type='o' name='device' direction='in'/>
-					<arg type='u' name='passkey' direction='out'/>
-				</method>
-				<method name='DisplayPasskey'>
-					<arg type='o' name='device' direction='in'/>
-					<arg type='u' name='passkey' direction='in'/>
-					<arg type='q' name='entered' direction='in'/>
-				</method>
-				<method name='RequestConfirmation'>
-					<arg type='o' name='device' direction='in'/>
-					<arg type='u' name='passkey' direction='in'/>
-				</method>
-				<method name='RequestAuthorization'>
-					<arg type='o' name='device' direction='in'/>
-				</method>
-				<method name='AuthorizeService'>
-					<arg type='o' name='device' direction='in'/>
-					<arg type='s' name='uuid' direction='in'/>
-				</method>
-				<method name='Cancel'/>
-			</interface>
-		</node>
-	)";
+		static const char* introspection_xml = R"(
+			<node>
+				<interface name='org.bluez.Agent1'>
+					<method name='Release'/>
+					<method name='RequestPinCode'>
+						<arg type='o' name='device' direction='in'/>
+						<arg type='s' name='pincode' direction='out'/>
+					</method>
+					<method name='DisplayPinCode'>
+						<arg type='o' name='device' direction='in'/>
+						<arg type='s' name='pincode' direction='in'/>
+					</method>
+					<method name='RequestPasskey'>
+						<arg type='o' name='device' direction='in'/>
+						<arg type='u' name='passkey' direction='out'/>
+					</method>
+					<method name='DisplayPasskey'>
+						<arg type='o' name='device' direction='in'/>
+						<arg type='u' name='passkey' direction='in'/>
+						<arg type='q' name='entered' direction='in'/>
+					</method>
+					<method name='RequestConfirmation'>
+						<arg type='o' name='device' direction='in'/>
+						<arg type='u' name='passkey' direction='in'/>
+					</method>
+					<method name='RequestAuthorization'>
+						<arg type='o' name='device' direction='in'/>
+					</method>
+					<method name='AuthorizeService'>
+						<arg type='o' name='device' direction='in'/>
+						<arg type='s' name='uuid' direction='in'/>
+					</method>
+					<method name='Cancel'/>
+				</interface>
+			</node>
+		)";
 
-	auto introspection = Gio::DBus::NodeInfo::create_for_xml(introspection_xml);
+		auto introspection = Gio::DBus::NodeInfo::create_for_xml(introspection_xml);
 
-	agent_registration_id = conn->register_object(
-		AGENT_PATH,
-		introspection->lookup_interface("org.bluez.Agent1"),
-		[this](auto&&, auto&&, auto&&, auto&&, const Glib::ustring& method_name,
-			   const Glib::VariantContainerBase& params,
-			   const Glib::RefPtr<Gio::DBus::MethodInvocation>& invocation) {
-			handle_agent_method(method_name, params, invocation);
-		});
+		if (agent_registration_id != 0) {
+			conn->unregister_object(agent_registration_id);
+			agent_registration_id = 0;
+		}
 
-	agent_manager = Gio::DBus::Proxy::create_sync(
-		conn, "org.bluez", "/org/bluez", "org.bluez.AgentManager1");
+		agent_registration_id = conn->register_object(
+			AGENT_PATH,
+			introspection->lookup_interface("org.bluez.Agent1"),
+			[this](auto&&, auto&&, auto&&, auto&&, const Glib::ustring& method_name,
+				   const Glib::VariantContainerBase& params,
+				   const Glib::RefPtr<Gio::DBus::MethodInvocation>& invocation) {
+				handle_agent_method(method_name, params, invocation);
+			});
 
-	agent_manager->call_sync("RegisterAgent",
-		Glib::VariantContainerBase::create_tuple({
-			Glib::Variant<Glib::DBusObjectPathString>::create(AGENT_PATH),
-			Glib::Variant<Glib::ustring>::create("KeyboardDisplay")
-		}));
+		agent_manager = Gio::DBus::Proxy::create_sync(
+			conn, "org.bluez", "/org/bluez", "org.bluez.AgentManager1");
 
-	agent_manager->call_sync("RequestDefaultAgent",
-		Glib::VariantContainerBase::create_tuple({
-			Glib::Variant<Glib::DBusObjectPathString>::create(AGENT_PATH)
-		}));
+		try {
+			agent_manager->call_sync("UnregisterAgent",
+				Glib::VariantContainerBase::create_tuple({
+					Glib::Variant<Glib::DBusObjectPathString>::create(AGENT_PATH)
+				}));
+		} catch (...) {}
+
+		agent_manager->call_sync("RegisterAgent",
+			Glib::VariantContainerBase::create_tuple({
+				Glib::Variant<Glib::DBusObjectPathString>::create(AGENT_PATH),
+				Glib::Variant<Glib::ustring>::create("KeyboardDisplay")
+			}));
+
+		agent_manager->call_sync("RequestDefaultAgent",
+			Glib::VariantContainerBase::create_tuple({
+				Glib::Variant<Glib::DBusObjectPathString>::create(AGENT_PATH)
+			}));
+	} catch (const Glib::Error&) {
+	}
 }
 
 void module_bluetooth::handle_agent_method(

@@ -437,9 +437,18 @@ void module_notifications::parse_hints(NotificationData& data, const std::map<Gl
 				int bps = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(4)).get();
 				auto pixels = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<uint8_t>>>(container.get_child(6)).get();
 				
-				data.image_data = Gdk::Pixbuf::create_from_data(
-					pixels.data(), Gdk::Colorspace::RGB, alpha, bps, w, h, rs
-				)->copy();
+				if (!pixels.empty() && w > 0 && h > 0) {
+					data.image_data = Gdk::Pixbuf::create(Gdk::Colorspace::RGB, alpha, bps, w, h);
+					if (data.image_data) {
+						guint8* dst = data.image_data->get_pixels();
+						int dst_stride = data.image_data->get_rowstride();
+						const guint8* src = pixels.data();
+						
+						for (int y = 0; y < h; ++y) {
+							memcpy(dst + y * dst_stride, src + y * rs, std::min(rs, dst_stride));
+						}
+					}
+				}
 			} catch (...) {}
 		}
 	}
@@ -486,7 +495,6 @@ void module_notifications::show_notification(const NotificationData& data) {
 	
 	flowbox_list.prepend(*list_widget);
 	
-	// Defer reveal animation to next frame to ensure widget is properly attached
 	Glib::signal_idle().connect_once([list_widget]() {
 		list_widget->set_reveal_child(true);
 	});
@@ -522,7 +530,6 @@ void module_notifications::show_notification(const NotificationData& data) {
 		
 		flowbox_alert.prepend(*alert_widget);
 		
-		// Show window first, then reveal child after window is visible
 		if (!window_alert.is_visible()) {
 			window_alert.show();
 		}
@@ -530,7 +537,7 @@ void module_notifications::show_notification(const NotificationData& data) {
 		Glib::signal_idle().connect_once([alert_widget]() {
 			alert_widget->set_reveal_child(true);
 			alert_widget->start_timeout([alert_widget]() {
-				alert_widget->signal_close.emit(1); // Expired
+				alert_widget->signal_close.emit(1);
 			});
 		});
 	}
@@ -552,7 +559,6 @@ void module_notifications::remove_notification(guint32 id, guint32 reason) {
 			}
 			list_widgets.erase(id);
 			
-			// Update UI after the last notification finishes animating
 			if (notifications.empty() && list_widgets.empty()) {
 				update_ui();
 			}
@@ -568,7 +574,6 @@ void module_notifications::remove_notification(guint32 id, guint32 reason) {
 		send_closed_signal(id, reason);
 	}
 	
-	// Update UI immediately for non-empty states
 	if (!notifications.empty()) {
 		update_ui();
 	}
