@@ -144,30 +144,69 @@
 }
 
 #sysbar_overlay .notifications_header {
-	background: @theme_bg_color;
-	border: 1px solid @borders;
-	border-bottom: unset;
-	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-	margin: 10px;
-	padding: 5px;
-	padding-left: 10px;
-	margin-bottom: 0px;
-	border-radius: 6px 6px 0px 0px;
+	margin-left: 10px;
+	margin-right: 10px;
+	text-shadow: 0px 0px 5px black;
+	-gtk-icon-shadow: 0px 0px 5px rgba(0, 0, 0, 0.75);
 }
 
 #sysbar_overlay .notification,
 #sysbar_notifications .notification {
-	background: @theme_bg_color;
+	background: alpha(@theme_bg_color, 0.75);
 	border: 1px solid @borders;
-	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-	margin: 10px;
-	margin-bottom: 0px;
-	min-height: 82px;
 	border-radius: 6px;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+	margin: 5px 5px 0px 5px;
 }
-#sysbar_overlay .notification:first-child,
-#sysbar_overlay .notification:first-child > * {
-	margin-top: 0px;
-	border-radius: 0px 0px 6px 6px;
-	border-top: unset;
+
+#sysbar_overlay .notification:hover,
+#sysbar_notifications .notification:hover {
+	background: alpha(@theme_bg_color, 0.5);
+}
+
+#sysbar_overlay .notification .header,
+#sysbar_notifications .notification .header {
+	font-weight: 700;
+}
+
+#sysbar_overlay .notification .header button,
+#sysbar_notifications .notification .header button {
+	margin: 5px;
+}
+
+#sysbar_overlay .notification .header .summary,
+#sysbar_notifications .notification .header .summary {
+	margin: 10px 10px 5px 10px;
+}
+
+#sysbar_overlay .notification .header .time,
+#sysbar_notifications .notification .header .time {
+	color: @insensitive_fg_color;
+	margin: 10px 10px 5px 10px;
+}
+
+#sysbar_overlay .notification .body,
+#sysbar_notifications .notification .body {
+	color: alpha(currentColor, 0.9);
+	margin: 0px 10px 10px 10px;
+}
+
+#sysbar_overlay .notification > box > box > box:last-child:not(.actions),
+#sysbar_notifications .notification > box > box > box:last-child:not(.actions) {
+	min-height: 48px;
+}
+
+#sysbar_overlay .notification .image,
+#sysbar_notifications .notification .image {
+	margin: 5px;
+}
+
+#sysbar_overlay .notification .actions,
+#sysbar_notifications .notification .actions {
+	margin: 5px;
+}
+
+#sysbar_overlay .notification .actions .action,
+#sysbar_notifications .notification .actions .action {
+	margin: 5px;
 }

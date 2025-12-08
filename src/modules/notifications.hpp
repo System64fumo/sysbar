@@ -12,101 +12,99 @@
 
 class module_notifications;
 
-class notification : public Gtk::Revealer {
-public:
-	notification(
-		guint32 id, 
-		const Glib::ustring& sender, 
-		const Glib::VariantContainerBase& parameters, 
-		const std::string& command,
-		const Glib::RefPtr<Gio::DBus::Connection>& connection,
-		module_notifications* module
-	);
-
-	Gtk::Button button_main;
-	sigc::connection timeout_connection;
-	sigc::signal<void(guint32)> signal_close;
-
-	guint32 notif_id;
+struct NotificationData {
+	guint32 id;
 	guint32 replaces_id;
-	int32_t expire_timeout;
-	bool is_transient;
-
-	void cleanup();
-
-private:
-	Gtk::Box box_main;
 	Glib::ustring app_name;
 	Glib::ustring app_icon;
 	Glib::ustring summary;
 	Glib::ustring body;
-	Glib::RefPtr<Gdk::Pixbuf> image_data;
 	std::vector<Glib::ustring> actions;
+	Glib::RefPtr<Gdk::Pixbuf> image_data;
+	int32_t expire_timeout;
+	bool is_transient;
 	std::tm timestamp;
-	
-	Glib::ustring dbus_sender;
-	Glib::RefPtr<Gio::DBus::Connection> dbus_connection;
-	module_notifications* parent_module;
+	Glib::ustring sender;
+};
 
-	bool parse_parameters(const Glib::VariantContainerBase& parameters);
+class NotificationWidget : public Gtk::Revealer {
+public:
+	NotificationWidget(const NotificationData& data, bool is_alert);
+	
+	guint32 get_id() const { return data.id; }
+	void start_timeout(std::function<void()> callback);
+	void stop_timeout();
+	void toggle_expand();
+	
+	sigc::signal<void(guint32)> signal_close;
+	sigc::signal<void(Glib::ustring)> signal_action;
+
+private:
+	NotificationData data;
+	bool is_alert;
+	bool is_expanded;
+	Gtk::Box box_main;
+	Gtk::Label* lbl_body;
+	Gtk::Button* btn_expand;
+	sigc::connection timeout_conn;
+	
 	void build_ui();
-	void parse_and_build_body(Gtk::Box* parent);
+	void build_body(Gtk::Box* parent);
 	void build_actions(Gtk::Box* parent);
-	std::string parse_markup(const Glib::ustring& text);
-	void invoke_action(const Glib::ustring& action_key);
-	void handle_hint(const Glib::ustring& key, const Glib::VariantBase& value);
+	void update_body_display();
+	Glib::ustring sanitize_markup(const Glib::ustring& text);
 };
 
 class module_notifications : public module {
 public:
 	module_notifications(sysbar*, const bool&);
-
-	Gtk::Box box_notifications;
-	Gtk::ScrolledWindow scrolledwindow_notifications;
-
+	
 	void close_notification(guint32 id, guint32 reason);
+	void send_action_signal(guint32 id, const Glib::ustring& action, const Glib::ustring& sender);
 
 private:
 	Gtk::Box box_header;
-	Gtk::Label label_notif_count;
+	Gtk::Label label_count;
 	Gtk::Button button_clear;
+	Gtk::FlowBox flowbox_list;
+	Gtk::ScrolledWindow scroll_list;
 	Gtk::Window window_alert;
 	Gtk::FlowBox flowbox_alert;
-	Gtk::ScrolledWindow scrolledwindow_alert;
-	sigc::connection alert_timeout_connection;
-	Glib::RefPtr<Gio::DBus::Connection> daemon_connection;
-	const Gio::DBus::InterfaceVTable interface_vtable{
-		sigc::mem_fun(*this, &module_notifications::on_interface_method_call)
+	Gtk::ScrolledWindow scroll_alert;
+
+	Glib::RefPtr<Gio::DBus::Connection> connection;
+	const Gio::DBus::InterfaceVTable vtable{
+		sigc::mem_fun(*this, &module_notifications::on_method_call)
 	};
-
-	std::string command;
 	guint object_id;
-	guint32 next_notif_id;
-	std::map<guint32, notification*> notifications_map;
 
-	void setup_widget();
-	void on_overlay_change();
-	void setup_daemon();
-	void update_ui_state();
-	void clear_all_notifications();
+	guint32 next_id;
+	std::map<guint32, NotificationData> notifications;
+	std::map<guint32, NotificationWidget*> list_widgets;
+	std::map<guint32, NotificationWidget*> alert_widgets;
+	std::string command;
+	
+	void setup_ui();
+	void setup_dbus();
+	void update_ui();
+	void clear_all();
+	void clear_alerts();
+	
+	guint32 handle_notify(const Glib::ustring& sender, const Glib::VariantContainerBase& params);
+	void show_notification(const NotificationData& data);
 	void remove_notification(guint32 id, guint32 reason);
 	void send_closed_signal(guint32 id, guint32 reason);
-	void show_alert_notification(guint32 notif_id, const Glib::ustring& sender, const Glib::VariantContainerBase& parameters);
-	guint32 handle_notify(const Glib::ustring& sender, const Glib::VariantContainerBase& parameters);
 	
-	void on_bus_acquired(
-		const Glib::RefPtr<Gio::DBus::Connection>& connection, 
-		const Glib::ustring& name
-	);
-	void on_interface_method_call(
-		const Glib::RefPtr<Gio::DBus::Connection>& connection,
-		const Glib::ustring& sender, 
-		const Glib::ustring& object_path,
-		const Glib::ustring& interface_name, 
-		const Glib::ustring& method_name,
-		const Glib::VariantContainerBase& parameters,
-		const Glib::RefPtr<Gio::DBus::MethodInvocation>& invocation
-	);
+	NotificationData parse_notification(guint32 id, const Glib::ustring& sender, 
+		const Glib::VariantContainerBase& params);
+	void parse_hints(NotificationData& data, const std::map<Glib::ustring, Glib::VariantBase>& hints);
+	
+	void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& conn, const Glib::ustring& name);
+	void on_method_call(const Glib::RefPtr<Gio::DBus::Connection>& conn,
+		const Glib::ustring& sender, const Glib::ustring& path,
+		const Glib::ustring& iface, const Glib::ustring& method,
+		const Glib::VariantContainerBase& params,
+		const Glib::RefPtr<Gio::DBus::MethodInvocation>& invocation);
 };
 
 #endif
