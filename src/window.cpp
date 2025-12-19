@@ -72,28 +72,28 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_BOTTOM, false);
 			bar_width = -1;
 			bar_height = size;
-			get_style_context()->add_class("position_bottom");
+			add_css_class("position_bottom");
 			break;
 		case 1:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_LEFT;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_LEFT, false);
 			bar_width = size;
 			bar_height = -1;
-			get_style_context()->add_class("position_left");
+			add_css_class("position_left");
 			break;
 		case 2:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_UP;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_TOP, false);
 			bar_width = -1;
 			bar_height = size;
-			get_style_context()->add_class("position_top");
+			add_css_class("position_top");
 			break;
 		case 3:
 			transition_type = Gtk::RevealerTransitionType::SLIDE_RIGHT;
 			gtk_layer_set_anchor(gobj(), GTK_LAYER_SHELL_EDGE_RIGHT, false);
 			bar_width = size;
 			bar_height = -1;
-			get_style_context()->add_class("position_right");
+			add_css_class("position_right");
 			break;
 	}
 
@@ -105,7 +105,7 @@ sysbar::sysbar(const std::map<std::string, std::map<std::string, std::string>>& 
 	revealer_box.set_child(centerbox_main);
 	revealer_box.set_transition_type(transition_type);
 	revealer_box.set_transition_duration(1000);
-	centerbox_main.get_style_context()->add_class("centerbox_main");
+	centerbox_main.add_css_class("centerbox_main");
 	centerbox_main.set_start_widget(box_start);
 	centerbox_main.set_center_widget(box_center);
 	centerbox_main.set_end_widget(box_end);

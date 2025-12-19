@@ -35,9 +35,9 @@ sidepanel::sidepanel(sysbar* window, const bool& position_start) : box_sidepanel
 	stack_pages.add(grid_main, "main");
 	stack_pages.set_vexpand_set();
 	stack_pages.set_transition_type(Gtk::StackTransitionType::SLIDE_LEFT_RIGHT);
-	stack_pages.get_style_context()->add_class("control_page_main");
+	stack_pages.add_css_class("control_page_main");
 	box_widgets.append(stack_pages);
-	box_widgets.get_style_context()->add_class("sidepanel");
+	box_widgets.add_css_class("sidepanel");
 	box_sidepanel.append(box_widgets);
 
 	set_page("main");

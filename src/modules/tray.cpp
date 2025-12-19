@@ -5,10 +5,10 @@
 
 // Tray module
 module_tray::module_tray(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), m_icon_on_start(icon_on_start) {
-	get_style_context()->add_class("module_tray");
+	add_css_class("module_tray");
 	label_info.hide();
 
-	box_container.get_style_context()->add_class("tray_container");
+	box_container.add_css_class("tray_container");
 
 	// TODO: Add an option to disable the revealer
 	// TODO: Add an option to set the revealer's transition duration
@@ -205,7 +205,7 @@ void tray_watcher::handle_signal(const Glib::ustring& sender, const Glib::ustrin
 
 // Tray item
 tray_item::tray_item(const Glib::ustring& service) {
-	get_style_context()->add_class("tray_item");
+	add_css_class("tray_item");
 	const auto slash_ind = service.find('/');
 	dbus_name = service.substr(0, slash_ind);
 	dbus_path = (slash_ind != Glib::ustring::npos) ? service.substr(slash_ind) : "/StatusNotifierItem";
@@ -244,7 +244,7 @@ tray_item::tray_item(const Glib::ustring& service) {
 	flowbox_context.set_selection_mode(Gtk::SelectionMode::NONE);
 	flowbox_context.set_max_children_per_line(1);
 
-	popover_context.get_style_context()->add_class("context_menu");
+	popover_context.add_css_class("context_menu");
 	popover_context.set_child(flowbox_context);
 	popover_context.set_offset(0, 5);
 	popover_context.set_has_arrow(false);

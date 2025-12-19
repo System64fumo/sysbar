@@ -43,7 +43,7 @@ const auto introspection_xml = R"(<?xml version="1.0" encoding="UTF-8"?>
 
 NotificationWidget::NotificationWidget(const NotificationData& d, bool alert)
 	: data(d), is_alert(alert), is_expanded(false), lbl_body(nullptr), btn_expand(nullptr) {
-	get_style_context()->add_class("notification");
+	add_css_class("notification");
 	set_transition_duration(400);
 	set_transition_type(Gtk::RevealerTransitionType::SLIDE_DOWN);
 	build_ui();
@@ -54,9 +54,9 @@ void NotificationWidget::build_ui() {
 
 	if (data.image_data) {
 		auto* img = Gtk::make_managed<Gtk::Image>();
-		img->get_style_context()->add_class("image");
+		img->add_css_class("image");
 		img->set(data.image_data);
-		img->set_pixel_size(64); // TODO: Make this user customizable
+		img->set_pixel_size(64);
 		box_main.append(*img);
 	}
 
@@ -64,10 +64,10 @@ void NotificationWidget::build_ui() {
 	box_content->set_hexpand(true);
 
 	auto* box_header = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL);
-	box_header->get_style_context()->add_class("header");
+	box_header->add_css_class("header");
 	
 	auto* lbl_summary = Gtk::make_managed<Gtk::Label>();
-	lbl_summary->get_style_context()->add_class("summary");
+	lbl_summary->add_css_class("summary");
 	lbl_summary->set_markup(sanitize_markup(data.summary));
 	lbl_summary->set_halign(Gtk::Align::START);
 	lbl_summary->set_hexpand(true);
@@ -79,7 +79,7 @@ void NotificationWidget::build_ui() {
 	char time_buf[6];
 	strftime(time_buf, sizeof(time_buf), "%H:%M", &data.timestamp);
 	auto* lbl_time = Gtk::make_managed<Gtk::Label>(time_buf);
-	lbl_time->get_style_context()->add_class("time");
+	lbl_time->add_css_class("time");
 	box_header->append(*lbl_time);
 
 	if (!data.body.empty() && data.body.length() > 150) {
@@ -110,28 +110,26 @@ void NotificationWidget::build_body(Gtk::Box* parent) {
 	auto* box_body = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL);
 	
 	lbl_body = Gtk::make_managed<Gtk::Label>();
-	lbl_body->get_style_context()->add_class("body");
+	lbl_body->add_css_class("body");
 	lbl_body->set_markup(sanitize_markup(data.body));
 	lbl_body->set_halign(Gtk::Align::START);
 	lbl_body->set_wrap(true);
 	lbl_body->set_xalign(0.0);
 	lbl_body->set_yalign(0.0);
 	lbl_body->set_hexpand(true);
-	box_body->append(*lbl_body);
-
+	lbl_body->set_max_width_chars(40);
+	
 	if (data.body.length() > 150) {
-		lbl_body->set_max_width_chars(40);
 		lbl_body->set_lines(3);
 		lbl_body->set_ellipsize(Pango::EllipsizeMode::END);
-	} else {
-		lbl_body->set_max_width_chars(40);
 	}
 	
+	box_body->append(*lbl_body);
 	parent->append(*box_body);
 }
 
 void NotificationWidget::toggle_expand() {
-	if (!btn_expand) return;
+	if (!btn_expand || !lbl_body) return;
 	
 	is_expanded = !is_expanded;
 	
@@ -152,9 +150,7 @@ void NotificationWidget::build_actions(Gtk::Box* parent) {
 	auto* box_actions = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL);
 	box_actions->add_css_class("actions");
 
-	for (size_t i = 0; i < data.actions.size(); i += 2) {
-		if (i + 1 >= data.actions.size()) break;
-		
+	for (size_t i = 0; i + 1 < data.actions.size(); i += 2) {
 		const auto& key = data.actions[i];
 		const auto& label = data.actions[i + 1];
 		
@@ -176,25 +172,24 @@ void NotificationWidget::build_actions(Gtk::Box* parent) {
 
 Glib::ustring NotificationWidget::sanitize_markup(const Glib::ustring& text) {
 	Glib::ustring result = text;
+	
+	auto replace_all = [&result](const char* from, const char* to, size_t from_len) {
+		size_t pos = 0;
+		while ((pos = result.find(from, pos)) != Glib::ustring::npos) {
+			result.replace(pos, from_len, to);
+			pos += strlen(to);
+		}
+	};
 
-	size_t pos = 0;
-	while ((pos = result.find("&amp;", pos)) != Glib::ustring::npos) {
-		result.replace(pos, 5, "&");
-		pos += 1;
-	}
-	pos = 0;
-	while ((pos = result.find("&lt;", pos)) != Glib::ustring::npos) {
-		result.replace(pos, 4, "<");
-		pos += 1;
-	}
-	pos = 0;
-	while ((pos = result.find("&gt;", pos)) != Glib::ustring::npos) {
-		result.replace(pos, 4, ">");
-		pos += 1;
-	}
+	replace_all("&amp;", "&", 5);
+	replace_all("&lt;", "<", 4);
+	replace_all("&gt;", ">", 4);
+	replace_all("<br>", "\n", 4);
+	replace_all("<br/>", "\n", 5);
+	replace_all("<br />", "\n", 6);
 
-	const char* unsupported[] = {"<img", "<a "};
-	for (const auto* tag : unsupported) {
+	for (const char* tag : {"<img", "<a "}) {
+		size_t pos;
 		while ((pos = result.find(tag)) != Glib::ustring::npos) {
 			auto end = result.find(">", pos);
 			if (end != Glib::ustring::npos) {
@@ -205,6 +200,7 @@ Glib::ustring NotificationWidget::sanitize_markup(const Glib::ustring& text) {
 		}
 	}
 
+	size_t pos;
 	while ((pos = result.find("</a>")) != Glib::ustring::npos) {
 		result.erase(pos, 4);
 	}
@@ -213,9 +209,7 @@ Glib::ustring NotificationWidget::sanitize_markup(const Glib::ustring& text) {
 }
 
 void NotificationWidget::start_timeout(std::function<void()> callback) {
-	int timeout_ms = data.expire_timeout;
-	if (timeout_ms == 0) timeout_ms = 5000;
-	else if (timeout_ms < 0) timeout_ms = 10000;
+	int timeout_ms = data.expire_timeout <= 0 ? (data.expire_timeout == 0 ? 5000 : 10000) : data.expire_timeout;
 	
 	timeout_conn = Glib::signal_timeout().connect([callback]() {
 		callback();
@@ -229,7 +223,7 @@ void NotificationWidget::stop_timeout() {
 
 module_notifications::module_notifications(sysbar* window, const bool& icon_on_start)
 	: module(window, icon_on_start), next_id(1) {
-	get_style_context()->add_class("module_notifications");
+	add_css_class("module_notifications");
 	image_icon.set_from_icon_name("notification-symbolic");
 	set_tooltip_text("No notifications");
 	label_info.hide();
@@ -241,6 +235,21 @@ module_notifications::module_notifications(sysbar* window, const bool& icon_on_s
 	setup_dbus();
 }
 
+NotificationWidget* module_notifications::find_widget_by_id(Gtk::FlowBox& flowbox, guint32 id) {
+	auto* child = flowbox.get_first_child();
+	while (child) {
+		auto* flowbox_child = dynamic_cast<Gtk::FlowBoxChild*>(child);
+		if (flowbox_child) {
+			auto* widget = dynamic_cast<NotificationWidget*>(flowbox_child->get_child());
+			if (widget && widget->get_id() == id) {
+				return widget;
+			}
+		}
+		child = child->get_next_sibling();
+	}
+	return nullptr;
+}
+
 void module_notifications::setup_ui() {
 	flowbox_list.set_max_children_per_line(1);
 	flowbox_list.set_selection_mode(Gtk::SelectionMode::NONE);
@@ -248,13 +257,13 @@ void module_notifications::setup_ui() {
 	
 	flowbox_list.signal_child_activated().connect([this](Gtk::FlowBoxChild* child) {
 		auto* revealer = dynamic_cast<NotificationWidget*>(child->get_child());
-		if (revealer) {
-			guint32 id = revealer->get_id();
-			if (!notifications[id].actions.empty() && notifications[id].actions[0] == "default") {
-				send_action_signal(id, "default", notifications[id].sender);
-			}
-			remove_notification(id, 2);
+		if (!revealer) return;
+		
+		const NotificationData& data = revealer->get_data();
+		if (!data.actions.empty() && data.actions[0] == "default") {
+			send_action_signal(data.id, "default", data.sender);
 		}
+		remove_notification(data.id, 2);
 	});
 	
 	scroll_list.set_child(flowbox_list);
@@ -262,7 +271,7 @@ void module_notifications::setup_ui() {
 	scroll_list.set_propagate_natural_height();
 	scroll_list.set_visible(false);
 
-	box_header.get_style_context()->add_class("notifications_header");
+	box_header.add_css_class("notifications_header");
 	box_header.set_visible(false);
 	box_header.append(label_count);
 	label_count.set_halign(Gtk::Align::START);
@@ -273,12 +282,13 @@ void module_notifications::setup_ui() {
 	button_clear.signal_clicked().connect(sigc::mem_fun(*this, &module_notifications::clear_all));
 	box_header.append(button_clear);
 
+	auto& target = win->sidepanel_end->box_sidepanel;
 	if (win->position / 2) {
-		win->sidepanel_end->box_sidepanel.prepend(box_header);
-		win->sidepanel_end->box_sidepanel.prepend(scroll_list);
+		target.prepend(box_header);
+		target.prepend(scroll_list);
 	} else {
-		win->sidepanel_end->box_sidepanel.append(box_header);
-		win->sidepanel_end->box_sidepanel.append(scroll_list);
+		target.append(box_header);
+		target.append(scroll_list);
 	}
 
 	window_alert.set_name("sysbar_notifications");
@@ -299,13 +309,13 @@ void module_notifications::setup_ui() {
 	
 	flowbox_alert.signal_child_activated().connect([this](Gtk::FlowBoxChild* child) {
 		auto* revealer = dynamic_cast<NotificationWidget*>(child->get_child());
-		if (revealer) {
-			guint32 id = revealer->get_id();
-			if (!notifications[id].actions.empty() && notifications[id].actions[0] == "default") {
-				send_action_signal(id, "default", notifications[id].sender);
-			}
-			revealer->signal_close.emit(2);
+		if (!revealer) return;
+		
+		const NotificationData& data = revealer->get_data();
+		if (!data.actions.empty() && data.actions[0] == "default") {
+			send_action_signal(data.id, "default", data.sender);
 		}
+		revealer->signal_close.emit(2);
 	});
 	
 	scroll_alert.set_child(flowbox_alert);
@@ -317,7 +327,6 @@ void module_notifications::setup_ui() {
 }
 
 void module_notifications::setup_dbus() {
-	auto introspection = Gio::DBus::NodeInfo::create_for_xml(introspection_xml);
 	Gio::DBus::own_name(
 		Gio::DBus::BusType::SESSION,
 		"org.freedesktop.Notifications",
@@ -341,16 +350,14 @@ void module_notifications::on_method_call(
 	const Glib::RefPtr<Gio::DBus::MethodInvocation>& invocation) {
 	
 	if (method == "GetServerInformation") {
-		auto info = Glib::Variant<std::tuple<Glib::ustring, Glib::ustring, Glib::ustring, Glib::ustring>>::create(
+		invocation->return_value(Glib::Variant<std::tuple<Glib::ustring, Glib::ustring, Glib::ustring, Glib::ustring>>::create(
 			{"sysbar", "funky.sys64", "1.0.0", "1.2"}
-		);
-		invocation->return_value(info);
+		));
 	}
 	else if (method == "GetCapabilities") {
-		auto caps = Glib::Variant<std::tuple<std::vector<Glib::ustring>>>::create(
+		invocation->return_value(Glib::Variant<std::tuple<std::vector<Glib::ustring>>>::create(
 			{{"actions", "body", "body-markup", "persistence"}}
-		);
-		invocation->return_value(caps);
+		));
 	}
 	else if (method == "CloseNotification") {
 		Glib::VariantIter iter(params);
@@ -362,9 +369,15 @@ void module_notifications::on_method_call(
 	}
 	else if (method == "Notify") {
 		guint32 id = handle_notify(sender, params);
-		auto result = Glib::VariantContainerBase::create_tuple(Glib::Variant<guint32>::create(id));
-		invocation->return_value(result);
+		invocation->return_value(Glib::VariantContainerBase::create_tuple(Glib::Variant<guint32>::create(id)));
 	}
+}
+
+template<typename T>
+T extract_variant(Glib::VariantIter& iter) {
+	Glib::VariantBase child;
+	iter.next_value(child);
+	return Glib::VariantBase::cast_dynamic<Glib::Variant<T>>(child).get();
 }
 
 NotificationData module_notifications::parse_notification(
@@ -379,35 +392,19 @@ NotificationData module_notifications::parse_notification(
 	}
 	
 	Glib::VariantIter iter(params);
-	Glib::VariantBase child;
 	
-	iter.next_value(child);
-	data.app_name = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(child).get();
-	
-	iter.next_value(child);
-	data.replaces_id = Glib::VariantBase::cast_dynamic<Glib::Variant<guint32>>(child).get();
-	
-	iter.next_value(child);
-	data.app_icon = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(child).get();
-	
-	iter.next_value(child);
-	data.summary = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(child).get();
-	
-	iter.next_value(child);
-	data.body = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(child).get();
-	
-	iter.next_value(child);
-	data.actions = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<Glib::ustring>>>(child).get();
-	
-	iter.next_value(child);
-	auto hints = Glib::VariantBase::cast_dynamic<Glib::Variant<std::map<Glib::ustring, Glib::VariantBase>>>(child).get();
-	
-	iter.next_value(child);
-	data.expire_timeout = Glib::VariantBase::cast_dynamic<Glib::Variant<int32_t>>(child).get();
+	data.app_name = extract_variant<Glib::ustring>(iter);
+	data.replaces_id = extract_variant<guint32>(iter);
+	data.app_icon = extract_variant<Glib::ustring>(iter);
+	data.summary = extract_variant<Glib::ustring>(iter);
+	data.body = extract_variant<Glib::ustring>(iter);
+	data.actions = extract_variant<std::vector<Glib::ustring>>(iter);
+	auto hints = extract_variant<std::map<Glib::ustring, Glib::VariantBase>>(iter);
+	data.expire_timeout = extract_variant<int32_t>(iter);
 	
 	parse_hints(data, hints);
 
-	if (!data.app_icon.empty() && std::filesystem::exists(std::filesystem::path(data.app_icon.c_str()))) {
+	if (!data.app_icon.empty() && std::filesystem::exists(data.app_icon.c_str())) {
 		try {
 			data.image_data = Gdk::Pixbuf::create_from_file(data.app_icon);
 		} catch (...) {}
@@ -421,36 +418,40 @@ NotificationData module_notifications::parse_notification(
 }
 
 void module_notifications::parse_hints(NotificationData& data, const std::map<Glib::ustring, Glib::VariantBase>& hints) {
-	for (const auto& [key, value] : hints) {
-		if (key == "transient") {
-			try {
-				data.is_transient = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(value).get();
-			} catch (...) {}
-		}
-		else if (key == "image-data" || key == "image_data" || key == "icon_data") {
-			try {
-				auto container = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(value);
-				int w = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(0)).get();
-				int h = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(1)).get();
-				int rs = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(2)).get();
-				bool alpha = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(container.get_child(3)).get();
-				int bps = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(4)).get();
-				auto pixels = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<uint8_t>>>(container.get_child(6)).get();
-				
-				if (!pixels.empty() && w > 0 && h > 0) {
-					data.image_data = Gdk::Pixbuf::create(Gdk::Colorspace::RGB, alpha, bps, w, h);
-					if (data.image_data) {
-						guint8* dst = data.image_data->get_pixels();
-						int dst_stride = data.image_data->get_rowstride();
-						const guint8* src = pixels.data();
-						
-						for (int y = 0; y < h; ++y) {
-							memcpy(dst + y * dst_stride, src + y * rs, std::min(rs, dst_stride));
-						}
+	auto it = hints.find("transient");
+	if (it != hints.end()) {
+		try {
+			data.is_transient = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(it->second).get();
+		} catch (...) {}
+	}
+
+	for (const char* key : {"image-data", "image_data", "icon_data"}) {
+		it = hints.find(key);
+		if (it == hints.end()) continue;
+		
+		try {
+			auto container = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(it->second);
+			int w = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(0)).get();
+			int h = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(1)).get();
+			int rs = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(2)).get();
+			bool alpha = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(container.get_child(3)).get();
+			int bps = Glib::VariantBase::cast_dynamic<Glib::Variant<int>>(container.get_child(4)).get();
+			auto pixels = Glib::VariantBase::cast_dynamic<Glib::Variant<std::vector<uint8_t>>>(container.get_child(6)).get();
+			
+			if (!pixels.empty() && w > 0 && h > 0) {
+				data.image_data = Gdk::Pixbuf::create(Gdk::Colorspace::RGB, alpha, bps, w, h);
+				if (data.image_data) {
+					guint8* dst = data.image_data->get_pixels();
+					int dst_stride = data.image_data->get_rowstride();
+					const guint8* src = pixels.data();
+					
+					for (int y = 0; y < h; ++y) {
+						memcpy(dst + y * dst_stride, src + y * rs, std::min(rs, dst_stride));
 					}
 				}
-			} catch (...) {}
-		}
+			}
+			break;
+		} catch (...) {}
 	}
 }
 
@@ -458,19 +459,15 @@ guint32 module_notifications::handle_notify(const Glib::ustring& sender, const G
 	Glib::VariantIter iter(params);
 	Glib::VariantBase child;
 	iter.next_value(child);
-	iter.next_value(child);
-	guint32 replaces_id = Glib::VariantBase::cast_dynamic<Glib::Variant<guint32>>(child).get();
+	guint32 replaces_id = extract_variant<guint32>(iter);
 	
-	guint32 id;
-	if (replaces_id != 0 && notifications.count(replaces_id) > 0) {
-		id = replaces_id;
+	guint32 id = (replaces_id != 0 && find_widget_by_id(flowbox_list, replaces_id)) ? replaces_id : next_id++;
+	
+	if (replaces_id != 0 && find_widget_by_id(flowbox_list, replaces_id)) {
 		remove_notification(id, 0);
-	} else {
-		id = next_id++;
 	}
 	
 	auto data = parse_notification(id, sender, params);
-	notifications[id] = data;
 	show_notification(data);
 	
 	if (!command.empty()) {
@@ -482,14 +479,17 @@ guint32 module_notifications::handle_notify(const Glib::ustring& sender, const G
 
 void module_notifications::show_notification(const NotificationData& data) {
 	auto* list_widget = Gtk::make_managed<NotificationWidget>(data, false);
-	list_widgets[data.id] = list_widget;
 	
 	list_widget->signal_close.connect([this, id = data.id](guint32 reason) {
 		remove_notification(id, reason);
 	});
 	
-	list_widget->signal_action.connect([this, id = data.id, sender = data.sender](Glib::ustring action) {
-		send_action_signal(id, action, sender);
+	list_widget->signal_action.connect([this, id = data.id](Glib::ustring action) {
+		auto* widget = find_widget_by_id(flowbox_list, id);
+		if (widget) {
+			const NotificationData& widget_data = widget->get_data();
+			send_action_signal(id, action, widget_data.sender);
+		}
 		remove_notification(id, 2);
 	});
 	
@@ -501,30 +501,33 @@ void module_notifications::show_notification(const NotificationData& data) {
 
 	if (!win->overlay_window.is_visible() && !data.is_transient) {
 		auto* alert_widget = Gtk::make_managed<NotificationWidget>(data, true);
-		alert_widgets[data.id] = alert_widget;
 		
 		alert_widget->signal_close.connect([this, id = data.id](guint32 reason) {
-			if (alert_widgets.count(id)) {
-				auto* w = alert_widgets[id];
-				w->stop_timeout();
-				w->set_reveal_child(false);
-				Glib::signal_timeout().connect([this, w, id]() {
-					if (w->get_parent()) {
-						flowbox_alert.remove(*w->get_parent());
-					}
-					alert_widgets.erase(id);
-					if (!flowbox_alert.get_first_child()) {
-						window_alert.hide();
-					}
-					return false;
-				}, w->get_transition_duration());
-			}
+			auto* w = find_widget_by_id(flowbox_alert, id);
+			if (!w) return;
+			
+			w->stop_timeout();
+			w->set_reveal_child(false);
+			Glib::signal_timeout().connect([this, w, id]() {
+				if (w->get_parent()) {
+					flowbox_alert.remove(*w->get_parent());
+				}
+				if (!flowbox_alert.get_first_child()) {
+					window_alert.hide();
+				}
+				return false;
+			}, w->get_transition_duration());
 		});
 		
-		alert_widget->signal_action.connect([this, id = data.id, sender = data.sender](Glib::ustring action) {
-			send_action_signal(id, action, sender);
-			if (alert_widgets.count(id)) {
-				alert_widgets[id]->signal_close.emit(2);
+		alert_widget->signal_action.connect([this, id = data.id](Glib::ustring action) {
+			auto* widget = find_widget_by_id(flowbox_alert, id);
+			if (widget) {
+				const NotificationData& widget_data = widget->get_data();
+				send_action_signal(id, action, widget_data.sender);
+			}
+			auto* w = find_widget_by_id(flowbox_alert, id);
+			if (w) {
+				w->signal_close.emit(2);
 			}
 		});
 		
@@ -546,35 +549,33 @@ void module_notifications::show_notification(const NotificationData& data) {
 }
 
 void module_notifications::remove_notification(guint32 id, guint32 reason) {
-	if (notifications.count(id) == 0) return;
-	
-	notifications.erase(id);
-	
-	if (list_widgets.count(id)) {
-		auto* w = list_widgets[id];
+	auto* w = find_widget_by_id(flowbox_list, id);
+	if (w) {
 		w->set_reveal_child(false);
 		Glib::signal_timeout().connect([this, w, id]() {
 			if (w->get_parent()) {
 				flowbox_list.remove(*w->get_parent());
 			}
-			list_widgets.erase(id);
 			
-			if (notifications.empty() && list_widgets.empty()) {
+			auto* child = flowbox_list.get_first_child();
+			if (!child) {
 				update_ui();
 			}
 			return false;
 		}, w->get_transition_duration());
 	}
 
-	if (alert_widgets.count(id)) {
-		alert_widgets[id]->signal_close.emit(reason);
+	auto* alert_w = find_widget_by_id(flowbox_alert, id);
+	if (alert_w) {
+		alert_w->signal_close.emit(reason);
 	}
 	
 	if (reason > 0) {
 		send_closed_signal(id, reason);
 	}
 	
-	if (!notifications.empty()) {
+	auto* any_child = flowbox_list.get_first_child();
+	if (any_child) {
 		update_ui();
 	}
 }
@@ -582,9 +583,10 @@ void module_notifications::remove_notification(guint32 id, guint32 reason) {
 void module_notifications::send_closed_signal(guint32 id, guint32 reason) {
 	if (!connection) return;
 	
-	std::vector<Glib::VariantBase> params;
-	params.push_back(Glib::Variant<guint32>::create(id));
-	params.push_back(Glib::Variant<guint32>::create(reason));
+	std::vector<Glib::VariantBase> params{
+		Glib::Variant<guint32>::create(id),
+		Glib::Variant<guint32>::create(reason)
+	};
 	
 	connection->emit_signal(
 		"/org/freedesktop/Notifications",
@@ -598,9 +600,10 @@ void module_notifications::send_closed_signal(guint32 id, guint32 reason) {
 void module_notifications::send_action_signal(guint32 id, const Glib::ustring& action, const Glib::ustring& sender) {
 	if (!connection) return;
 	
-	std::vector<Glib::VariantBase> params;
-	params.push_back(Glib::Variant<guint32>::create(id));
-	params.push_back(Glib::Variant<Glib::ustring>::create(action));
+	std::vector<Glib::VariantBase> params{
+		Glib::Variant<guint32>::create(id),
+		Glib::Variant<Glib::ustring>::create(action)
+	};
 	
 	connection->emit_signal(
 		"/org/freedesktop/Notifications",
@@ -616,7 +619,13 @@ void module_notifications::close_notification(guint32 id, guint32 reason) {
 }
 
 void module_notifications::update_ui() {
-	size_t count = notifications.size();
+	auto* child = flowbox_list.get_first_child();
+	size_t count = 0;
+	
+	while (child) {
+		count++;
+		child = child->get_next_sibling();
+	}
 	
 	if (count == 0) {
 		box_header.set_visible(false);
@@ -633,15 +642,35 @@ void module_notifications::update_ui() {
 }
 
 void module_notifications::clear_all() {
-	auto ids = notifications;
-	for (const auto& [id, _] : ids) {
-		remove_notification(id, 2);
+	std::vector<NotificationWidget*> widgets;
+	auto* child = flowbox_list.get_first_child();
+	while (child) {
+		auto* flowbox_child = dynamic_cast<Gtk::FlowBoxChild*>(child);
+		if (flowbox_child) {
+			auto* widget = dynamic_cast<NotificationWidget*>(flowbox_child->get_child());
+			if (widget) widgets.push_back(widget);
+		}
+		child = child->get_next_sibling();
+	}
+	
+	for (auto* widget : widgets) {
+		remove_notification(widget->get_id(), 2);
 	}
 }
 
 void module_notifications::clear_alerts() {
-	auto ids = alert_widgets;
-	for (const auto& [id, widget] : ids) {
+	std::vector<NotificationWidget*> alerts;
+	auto* child = flowbox_alert.get_first_child();
+	while (child) {
+		auto* flowbox_child = dynamic_cast<Gtk::FlowBoxChild*>(child);
+		if (flowbox_child) {
+			auto* widget = dynamic_cast<NotificationWidget*>(flowbox_child->get_child());
+			if (widget) alerts.push_back(widget);
+		}
+		child = child->get_next_sibling();
+	}
+	
+	for (auto* widget : alerts) {
 		widget->signal_close.emit(2);
 	}
 }

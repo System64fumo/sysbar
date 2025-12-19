@@ -10,7 +10,7 @@ module::module(sysbar* window, const bool& icon_on_start) : win(window) {
 	// TODO: Read config to see if the label should be displayed for the module.
 
 	// Initialization
-	get_style_context()->add_class("module");
+	add_css_class("module");
 	append(label_info);
 	set_cursor(Gdk::Cursor::create("pointer"));
 

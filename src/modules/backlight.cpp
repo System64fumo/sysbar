@@ -6,7 +6,7 @@
 #include <thread>
 
 module_backlight::module_backlight(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
-	get_style_context()->add_class("module_backlight");
+	add_css_class("module_backlight");
 	image_icon.set_from_icon_name("brightness-display-symbolic");
 	brightness_icons[0] = "display-brightness-low-symbolic";
 	brightness_icons[1] = "display-brightness-medium-symbolic";
@@ -111,8 +111,8 @@ void module_backlight::on_scale_brightness_change() {
 void module_backlight::setup_widget() {
 	Gtk::Box *box_widget = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL);
 
-	box_widget->get_style_context()->add_class("widget");
-	box_widget->get_style_context()->add_class("widget_backlight");
+	box_widget->add_css_class("widget");
+	box_widget->add_css_class("widget_backlight");
 
 	scale_backlight.set_hexpand(true);
 	scale_backlight.set_vexpand(true);

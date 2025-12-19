@@ -24,7 +24,7 @@ void sysbar::setup_overlay() {
 	gtk_layer_set_anchor(overlay_window.gobj(), GTK_LAYER_SHELL_EDGE_LEFT, true);
 
 	overlay_window.set_child(box_overlay);
-	overlay_window.get_style_context()->remove_class("background");
+	overlay_window.remove_css_class("background");
 }
 
 void sysbar::setup_overlay_widgets() {
@@ -40,7 +40,7 @@ void sysbar::setup_overlay_widgets() {
 
 	// TODO: This is a mess, Clean it up.
 	if (position == 0) {
-		overlay_window.get_style_context()->add_class("position_top");
+		overlay_window.add_css_class("position_top");
 		sidepanel_start->set_valign(Gtk::Align::START);
 		sidepanel_end->set_valign(Gtk::Align::START);
 		sidepanel_start->box_widgets.set_orientation(Gtk::Orientation::VERTICAL);
@@ -51,7 +51,7 @@ void sysbar::setup_overlay_widgets() {
 		sidepanel_end->box_widgets.set_valign(Gtk::Align::START);
 	}
 	else if (position == 1) {
-		overlay_window.get_style_context()->add_class("position_right");
+		overlay_window.add_css_class("position_right");
 		sidepanel_start->set_valign(Gtk::Align::START);
 		sidepanel_end->set_valign(Gtk::Align::END);
 		sidepanel_start->set_halign(Gtk::Align::END);
@@ -62,7 +62,7 @@ void sysbar::setup_overlay_widgets() {
 		sidepanel_end->box_widgets.set_valign(Gtk::Align::START);
 	}
 	else if (position == 2) {
-		overlay_window.get_style_context()->add_class("position_bottom");
+		overlay_window.add_css_class("position_bottom");
 		sidepanel_start->set_valign(Gtk::Align::END);
 		sidepanel_end->set_valign(Gtk::Align::END);
 		sidepanel_start->box_widgets.set_orientation(Gtk::Orientation::VERTICAL);
@@ -73,7 +73,7 @@ void sysbar::setup_overlay_widgets() {
 		sidepanel_end->box_widgets.set_valign(Gtk::Align::END);
 	}
 	else if (position == 3) {
-		overlay_window.get_style_context()->add_class("position_left");
+		overlay_window.add_css_class("position_left");
 		sidepanel_start->set_valign(Gtk::Align::START);
 		sidepanel_end->set_valign(Gtk::Align::END);
 		sidepanel_start->grid_main.set_valign(Gtk::Align::START);

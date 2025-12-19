@@ -8,7 +8,7 @@
 #include <fstream>
 
 module_network::module_network(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), default_if_index(0) {
-	get_style_context()->add_class("module_network");
+	add_css_class("module_network");
 
 	if (win->config_main["network"]["show-label"] != "true")
 		label_info.hide();

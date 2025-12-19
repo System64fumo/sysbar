@@ -5,7 +5,7 @@
 #include <iomanip>
 
 module_performance::module_performance(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), precision(0), interval(1000) {
-	get_style_context()->add_class("module_performance");
+	add_css_class("module_performance");
 	image_icon.set_from_icon_name("cpu-symbolic");
 
 	// TODO: Add config support

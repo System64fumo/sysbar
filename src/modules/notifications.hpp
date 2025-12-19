@@ -7,23 +7,21 @@
 #include <gtkmm/button.h>
 #include <gtkmm/label.h>
 #include <gtkmm/flowbox.h>
-#include <map>
+#include <unordered_map>
 #include <ctime>
 
-class module_notifications;
-
 struct NotificationData {
-	guint32 id;
-	guint32 replaces_id;
+	guint32 id{};
+	guint32 replaces_id{};
 	Glib::ustring app_name;
 	Glib::ustring app_icon;
 	Glib::ustring summary;
 	Glib::ustring body;
 	std::vector<Glib::ustring> actions;
 	Glib::RefPtr<Gdk::Pixbuf> image_data;
-	int32_t expire_timeout;
-	bool is_transient;
-	std::tm timestamp;
+	int32_t expire_timeout{};
+	bool is_transient{};
+	std::tm timestamp{};
 	Glib::ustring sender;
 };
 
@@ -32,6 +30,7 @@ public:
 	NotificationWidget(const NotificationData& data, bool is_alert);
 	
 	guint32 get_id() const { return data.id; }
+	const NotificationData& get_data() const { return data; }
 	void start_timeout(std::function<void()> callback);
 	void stop_timeout();
 	void toggle_expand();
@@ -51,7 +50,6 @@ private:
 	void build_ui();
 	void build_body(Gtk::Box* parent);
 	void build_actions(Gtk::Box* parent);
-	void update_body_display();
 	Glib::ustring sanitize_markup(const Glib::ustring& text);
 };
 
@@ -76,12 +74,9 @@ private:
 	const Gio::DBus::InterfaceVTable vtable{
 		sigc::mem_fun(*this, &module_notifications::on_method_call)
 	};
-	guint object_id;
+	guint object_id{};
 
 	guint32 next_id;
-	std::map<guint32, NotificationData> notifications;
-	std::map<guint32, NotificationWidget*> list_widgets;
-	std::map<guint32, NotificationWidget*> alert_widgets;
 	std::string command;
 	
 	void setup_ui();
@@ -89,6 +84,8 @@ private:
 	void update_ui();
 	void clear_all();
 	void clear_alerts();
+	
+	NotificationWidget* find_widget_by_id(Gtk::FlowBox& flowbox, guint32 id);
 	
 	guint32 handle_notify(const Glib::ustring& sender, const Glib::VariantContainerBase& params);
 	void show_notification(const NotificationData& data);

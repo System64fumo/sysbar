@@ -4,7 +4,7 @@
 #include <cstdio>
 
 module_battery::module_battery(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
-	get_style_context()->add_class("module_battery");
+	add_css_class("module_battery");
 	
 	image_icon.set_from_icon_name("battery-missing-symbolic"); // Fallback
 	label_info.set_text("No battery detected"); // Fallback

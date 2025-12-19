@@ -145,7 +145,7 @@ wl_registry_listener registry_listener = {
 
 module_taskbar::module_taskbar(sysbar* window, const bool &icon_on_start) : module(window, icon_on_start) {
 	// Undo normal widget stuff
-	get_style_context()->remove_class("module");
+	remove_css_class("module");
 	set_cursor(Gdk::Cursor::create("default"));
 	image_icon.unparent();
 	label_info.unparent();
@@ -178,7 +178,7 @@ module_taskbar::module_taskbar(sysbar* window, const bool &icon_on_start) : modu
 		zwlr_foreign_toplevel_handle_v1_activate(toplevel_entry->handle, seat);
 	});
 
-	box_container.get_style_context()->add_class("module_taskbar");
+	box_container.add_css_class("module_taskbar");
 	box_container.append(flowbox_main);
 
 	scrolledwindow.set_child(box_container);

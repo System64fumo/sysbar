@@ -1,8 +1,8 @@
 #include "controls.hpp"
 
 module_controls::module_controls(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
-	get_style_context()->add_class("widget");
-	get_style_context()->add_class("widget_controls");
+	add_css_class("widget");
+	add_css_class("widget_controls");
 	image_icon.hide();
 	label_info.hide();
 	append(flowbox_controls);
@@ -16,7 +16,7 @@ module_controls::module_controls(sysbar* window, const bool& icon_on_start) : mo
 }
 
 control_page::control_page(sysbar* window, const std::string& name) : Gtk::Box(Gtk::Orientation::VERTICAL), box_body(Gtk::Orientation::VERTICAL) {
-	get_style_context()->add_class("control_page_" + name);
+	add_css_class("control_page_" + name);
 	append(box_body);
 
 	// TODO: Detect position
@@ -24,10 +24,10 @@ control_page::control_page(sysbar* window, const std::string& name) : Gtk::Box(G
 }
 
 control::control(sysbar* window, const std::string& icon, const bool& extra, const std::string& name, const bool& position_start) {
-	get_style_context()->add_class("control");
+	add_css_class("control");
 	append(button_action);
 	button_action.set_icon_name(icon);
-	button_action.get_style_context()->add_class("button_action");
+	button_action.add_css_class("button_action");
 	button_action.set_focusable(false);
 	button_action.set_has_frame(false);
 	button_action.set_hexpand(true);
@@ -35,7 +35,7 @@ control::control(sysbar* window, const std::string& icon, const bool& extra, con
 	// This is for sub menus
 	if (extra) {
 		append(button_expand);
-		button_action.get_style_context()->add_class("button_expand");
+		button_action.add_css_class("button_expand");
 		button_expand.set_focusable(false);
 		button_expand.set_has_frame(false);
 		button_expand.set_icon_name("arrow-right");

@@ -1,7 +1,7 @@
 #include "volume.hpp"
 
 module_volume::module_volume(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start), sys_wp(nullptr, &dispatcher_callback) {
-	get_style_context()->add_class("module_volume");
+	add_css_class("module_volume");
 	volume_icons[0] = "audio-volume-low-symbolic";
 	volume_icons[1] = "audio-volume-medium-symbolic";
 	volume_icons[2] = "audio-volume-high-symbolic";
@@ -30,8 +30,8 @@ module_volume::module_volume(sysbar* window, const bool& icon_on_start) : module
 }
 
 void module_volume::setup_widget() {
-	box_widget.get_style_context()->add_class("widget");
-	box_widget.get_style_context()->add_class("widget_volume");
+	box_widget.add_css_class("widget");
+	box_widget.add_css_class("widget_volume");
 
 	scale_volume.set_hexpand(true);
 	scale_volume.set_vexpand(true);

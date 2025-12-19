@@ -9,7 +9,7 @@
 #include <algorithm>
 
 module_weather::module_weather(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
-	get_style_context()->add_class("module_weather");
+	add_css_class("module_weather");
 	image_icon.set_from_icon_name("content-loading-symbolic");
 	label_info.hide();
 

@@ -2,7 +2,7 @@
 #include "../config_parser.hpp"
 
 module_menu::module_menu(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
-	get_style_context()->add_class("module_menu");
+	add_css_class("module_menu");
 
 	// TODO: Add option to set other icons maybe even images?
 	if (win->config_main["menu"]["show-icon"] == "true")

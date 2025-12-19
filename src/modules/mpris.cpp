@@ -189,7 +189,7 @@ static void player_vanished(PlayerctlPlayerManager* manager, PlayerctlPlayerName
 }
 
 module_mpris::module_mpris(sysbar *window, const bool &icon_on_start) : module(window, icon_on_start), player(nullptr) {
-	get_style_context()->add_class("module_mpris");
+	add_css_class("module_mpris");
 
 	if (win->config_main["mpris"]["show-icon"] != "true")
 		image_icon.hide();
@@ -263,9 +263,9 @@ void module_mpris::update_info() {
 void module_mpris::setup_widget() {
 	win->sidepanel_end->grid_main.attach(box_player, widget_layout[0], widget_layout[1], widget_layout[2], widget_layout[3]);
 
-	box_player.get_style_context()->add_class("widget");
-	box_player.get_style_context()->add_class("widget_mpris");
-	image_album_art.get_style_context()->add_class("image_album_art");
+	box_player.add_css_class("widget");
+	box_player.add_css_class("widget_mpris");
+	image_album_art.add_css_class("image_album_art");
 	image_album_art.set_from_icon_name("music-app-symbolic");
 	image_album_art.set_size_request(album_size, album_size);
 	box_player.append(image_album_art);
@@ -273,13 +273,13 @@ void module_mpris::setup_widget() {
 	box_player.append(box_right);
 	box_right.set_orientation(Gtk::Orientation::VERTICAL);
 
-	label_title.get_style_context()->add_class("label_title");
+	label_title.add_css_class("label_title");
 	label_title.set_ellipsize(Pango::EllipsizeMode::END);
 	label_title.set_max_width_chars(0);
 	label_title.set_text("Not playing");
 	box_right.append(label_title);
 
-	label_artist.get_style_context()->add_class("label_artist");
+	label_artist.add_css_class("label_artist");
 	label_artist.set_ellipsize(Pango::EllipsizeMode::END);
 	label_artist.set_max_width_chars(0);
 	box_right.append(label_artist);
@@ -313,7 +313,7 @@ void module_mpris::setup_widget() {
 	});
 
 	box_right.append(box_controls);
-	box_controls.get_style_context()->add_class("box_controls");
+	box_controls.add_css_class("box_controls");
 	box_controls.set_vexpand(true);
 	box_controls.set_hexpand(true);
 	box_controls.set_halign(Gtk::Align::CENTER);

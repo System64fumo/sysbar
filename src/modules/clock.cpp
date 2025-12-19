@@ -6,7 +6,7 @@
 #include <ctime>
 
 module_clock::module_clock(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
-	get_style_context()->add_class("module_clock");
+	add_css_class("module_clock");
 	image_icon.set_from_icon_name("preferences-system-time-symbolic");
 
 	std::string cfg_label_format = win->config_main["clock"]["label-format"];
@@ -52,13 +52,13 @@ bool module_clock::update_info() {
 
 void module_clock::setup_widget() {
 	Gtk::Box* box_widget = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL);
-	box_widget->get_style_context()->add_class("widget");
-	box_widget->get_style_context()->add_class("widget_calendar");
+	box_widget->add_css_class("widget");
+	box_widget->add_css_class("widget_calendar");
 	box_widget->append(calendar);
 	box_widget->append(revealer_events);
 	calendar.set_hexpand(true);
 	label_event.set_xalign(0);
-	label_event.get_style_context()->add_class("event_label");
+	label_event.add_css_class("event_label");
 	revealer_events.set_child(label_event);
 	revealer_events.set_transition_type(Gtk::RevealerTransitionType::SLIDE_DOWN);
 	revealer_events.set_transition_duration(500);
@@ -107,9 +107,9 @@ void module_clock::on_calendar_change() {
 void module_clock::check_for_events() {
 	revealer_events.set_reveal_child(false);
 	if (!event_class.empty()) {
-		win->get_style_context()->remove_class(event_class);
-		win->sidepanel_start->grid_main.get_style_context()->remove_class(event_class);
-		win->sidepanel_end->grid_main.get_style_context()->remove_class(event_class);
+		win->remove_css_class(event_class);
+		win->sidepanel_start->grid_main.remove_css_class(event_class);
+		win->sidepanel_end->grid_main.remove_css_class(event_class);
 		event_class = "";
 	}
 
@@ -134,9 +134,9 @@ void module_clock::check_for_events() {
 			event_class.push_back(std::tolower(c));
 	}
 	event_class = "event_" + event_class;
-	win->get_style_context()->add_class(event_class);
-	win->sidepanel_start->grid_main.get_style_context()->add_class(event_class);
-	win->sidepanel_end->grid_main.get_style_context()->add_class(event_class);
+	win->add_css_class(event_class);
+	win->sidepanel_start->grid_main.add_css_class(event_class);
+	win->sidepanel_end->grid_main.add_css_class(event_class);
 }
 
 module_clock::date_time module_clock::parse_date_time(const std::string& date_str) {

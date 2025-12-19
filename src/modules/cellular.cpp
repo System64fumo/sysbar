@@ -3,7 +3,7 @@
 #include <giomm/dbusconnection.h>
 
 module_cellular::module_cellular(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
-	get_style_context()->add_class("module_cellular");
+	add_css_class("module_cellular");
 	image_icon.set_from_icon_name("network-cellular-acquiring-symbolic");
 	label_info.set_text("0");
 
