@@ -233,7 +233,34 @@ module_notifications::module_notifications(sysbar* window, const bool& icon_on_s
 	
 	setup_ui();
 	setup_dbus();
+
+	if (win->config_main["notification"]["show-control"] == "true") {
+		setup_control();
+	}
 }
+
+#ifdef MODULE_CONTROLS
+void module_notifications::setup_control() {
+	if (!win->box_controls)
+		return;
+
+	auto container = static_cast<module_controls*>(win->box_controls);
+	// TODO: Add support for control levels (Put the controls in the notifications tab)
+	control_notifications = Gtk::make_managed<control>(win, "weather-clear-night-symbolic", false, "notifications", false);
+	container->flowbox_controls.append(*control_notifications);
+
+	// Do Not Disturb button
+	control_notifications->button_action.signal_toggled().connect([this]() {
+		if (control_notifications->button_action.get_active()) {
+			notification_level = 0;
+		}
+		else {
+			notification_level = 3;
+		}
+		update_ui();
+	});
+}
+#endif
 
 NotificationWidget* module_notifications::find_widget_by_id(Gtk::FlowBox& flowbox, guint32 id) {
 	auto* child = flowbox.get_first_child();
@@ -470,7 +497,8 @@ guint32 module_notifications::handle_notify(const Glib::ustring& sender, const G
 	auto data = parse_notification(id, sender, params);
 	show_notification(data);
 	
-	if (!command.empty()) {
+	// TODO: Add notification level support
+	if (!command.empty() && notification_level != 0) {
 		std::thread([this]() { (void)system(command.c_str()); }).detach();
 	}
 	
@@ -499,7 +527,8 @@ void module_notifications::show_notification(const NotificationData& data) {
 		list_widget->set_reveal_child(true);
 	});
 
-	if (!win->overlay_window.is_visible() && !data.is_transient) {
+	// TODO: Add support for notification levels
+	if (!win->overlay_window.is_visible() && !data.is_transient && notification_level != 0) {
 		auto* alert_widget = Gtk::make_managed<NotificationWidget>(data, true);
 		
 		alert_widget->signal_close.connect([this, id = data.id](guint32 reason) {
@@ -626,19 +655,24 @@ void module_notifications::update_ui() {
 		count++;
 		child = child->get_next_sibling();
 	}
-	
+
+	// TODO: Add custom tooltip for notification levels
+	std::string icon = "notification";
+	if (notification_level != 3)
+		icon += "-disabled";
+
 	if (count == 0) {
 		box_header.set_visible(false);
 		scroll_list.set_visible(false);
 		set_tooltip_text("No notifications");
-		image_icon.set_from_icon_name("notification-symbolic");
 	} else {
 		box_header.set_visible(true);
 		scroll_list.set_visible(true);
 		label_count.set_text(std::to_string(count) + " Notification" + (count > 1 ? "s" : ""));
 		set_tooltip_text(label_count.get_text());
-		image_icon.set_from_icon_name("notification-new-symbolic");
+		icon += "-new";
 	}
+	image_icon.set_from_icon_name(icon + "-symbolic");
 }
 
 void module_notifications::clear_all() {

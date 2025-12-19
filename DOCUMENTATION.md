@@ -91,6 +91,9 @@ The config system is INI based and can be configured by editing `~/.config/sys64
 | end-size             | 350                         | Width or Height of the Right/Bottom sidepanel      |
 | end-label            | Quick settings              | Default/Main page header text (Empty to hide)      |
 |&nbsp;                |                             |                                                    |
+| [controls]           |                             |                                                    |
+| columns              | 2                           | Column count in the controls box                   |
+|&nbsp;                |                             |                                                    |
 | [clock]              |                             | Clock module configuration                         |
 | interval             | 1000                        | How long (in ms) to refresh the time               |
 | label-format         | %H:%M                       | [Label format](https://www.man7.org/linux/man-pages/man1/date.1.html) |
@@ -119,6 +122,7 @@ The config system is INI based and can be configured by editing `~/.config/sys64
 |&nbsp;                |                             |                                                    |
 | [notification]       |                             | Notification widget configuration                  |
 | command              | ffplay /usr/share/..        | Command to run whenever you recieve a notification |
+| show-control         | true                        | Show Do Not Disturb control                        |
 |&nbsp;                |                             |                                                    |
 | [backlight]          |                             | Backlight module configuration                     |
 | path                 |                             | Path to backlight (/sys/class/backlight/panel)     |

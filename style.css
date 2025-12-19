@@ -87,13 +87,11 @@
 	border-radius: 6px;
 	background: alpha(CurrentColor, 0.05);
 }
-
-#sysbar_overlay .sidepanel .control >:first-child {
-	border-radius: 5px 0px 0px 5px;
+#sysbar_overlay .sidepanel .control >:first-child:not(:only-child) {
+	border-radius: 6px 0px 0px 6px;
 }
-
-#sysbar_overlay .sidepanel .control >:last-child {
-	border-radius: 0px 5px 5px 0px;
+#sysbar_overlay .sidepanel .control > :last-child:not(:only-child) {
+	border-radius: 0px 6px 6px 0px;
 	min-width: 40px;
 }
 

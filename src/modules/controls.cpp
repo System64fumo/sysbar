@@ -5,11 +5,13 @@ module_controls::module_controls(sysbar* window, const bool& icon_on_start) : mo
 	add_css_class("widget_controls");
 	image_icon.hide();
 	label_info.hide();
+
+	int cols = std::stoi(win->config_main["controls"]["columns"]);
+
 	append(flowbox_controls);
-	flowbox_controls.set_orientation(Gtk::Orientation::VERTICAL);
 	flowbox_controls.set_homogeneous(true);
 	flowbox_controls.set_hexpand(true);
-	flowbox_controls.set_max_children_per_line(1);
+	flowbox_controls.set_max_children_per_line(cols);
 	flowbox_controls.set_selection_mode(Gtk::SelectionMode::NONE);
 
 	win->sidepanel_end->grid_main.attach(*this, 0, 0, 4, 1);

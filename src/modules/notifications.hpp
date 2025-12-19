@@ -1,6 +1,7 @@
 #pragma once
 #include "../module.hpp"
 #ifdef MODULE_NOTIFICATION
+#include "controls.hpp"
 
 #include <giomm/dbusconnection.h>
 #include <gtkmm/revealer.h>
@@ -81,6 +82,17 @@ private:
 	
 	void setup_ui();
 	void setup_dbus();
+
+	#ifdef MODULE_CONTROLS
+	// 0 silent
+	// 1 critical only
+	// 2 normal
+	// 3 all
+	int notification_level = 3;
+	control* control_notifications = nullptr;
+	void setup_control();
+	#endif
+
 	void update_ui();
 	void clear_all();
 	void clear_alerts();
