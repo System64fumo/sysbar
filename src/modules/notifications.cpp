@@ -136,12 +136,12 @@ void NotificationWidget::toggle_expand() {
 	if (is_expanded) {
 		lbl_body->set_lines(0);
 		lbl_body->set_ellipsize(Pango::EllipsizeMode::NONE);
-		btn_expand->set_icon_name("collapse");
+		btn_expand->set_icon_name("collapse-symbolic");
 		btn_expand->set_tooltip_text("Collapse");
 	} else {
 		lbl_body->set_lines(3);
 		lbl_body->set_ellipsize(Pango::EllipsizeMode::END);
-		btn_expand->set_icon_name("expand");
+		btn_expand->set_icon_name("expand-symbolic");
 		btn_expand->set_tooltip_text("Expand");
 	}
 }
@@ -259,6 +259,7 @@ void module_notifications::setup_control() {
 		}
 		update_ui();
 	});
+	control_notifications->label_title.set_text("Do Not Disturb");
 }
 #endif
 
@@ -484,22 +485,21 @@ void module_notifications::parse_hints(NotificationData& data, const std::map<Gl
 
 guint32 module_notifications::handle_notify(const Glib::ustring& sender, const Glib::VariantContainerBase& params) {
 	Glib::VariantIter iter(params);
-	Glib::VariantBase child;
-	iter.next_value(child);
+	Glib::VariantBase unused;
+	iter.next_value(unused);
 	guint32 replaces_id = extract_variant<guint32>(iter);
 	
 	guint32 id = (replaces_id != 0 && find_widget_by_id(flowbox_list, replaces_id)) ? replaces_id : next_id++;
 	
-	if (replaces_id != 0 && find_widget_by_id(flowbox_list, replaces_id)) {
+	if (replaces_id != 0 && id == replaces_id) {
 		remove_notification(id, 0);
 	}
 	
 	auto data = parse_notification(id, sender, params);
 	show_notification(data);
 	
-	// TODO: Add notification level support
 	if (!command.empty() && notification_level != 0) {
-		std::thread([this]() { (void)system(command.c_str()); }).detach();
+		std::thread([cmd = command]() { (void)system(cmd.c_str()); }).detach();
 	}
 	
 	return id;
@@ -527,7 +527,6 @@ void module_notifications::show_notification(const NotificationData& data) {
 		list_widget->set_reveal_child(true);
 	});
 
-	// TODO: Add support for notification levels
 	if (!win->overlay_window.is_visible() && !data.is_transient && notification_level != 0) {
 		auto* alert_widget = Gtk::make_managed<NotificationWidget>(data, true);
 		
@@ -581,13 +580,12 @@ void module_notifications::remove_notification(guint32 id, guint32 reason) {
 	auto* w = find_widget_by_id(flowbox_list, id);
 	if (w) {
 		w->set_reveal_child(false);
-		Glib::signal_timeout().connect([this, w, id]() {
+		Glib::signal_timeout().connect([this, w]() {
 			if (w->get_parent()) {
 				flowbox_list.remove(*w->get_parent());
 			}
 			
-			auto* child = flowbox_list.get_first_child();
-			if (!child) {
+			if (!flowbox_list.get_first_child()) {
 				update_ui();
 			}
 			return false;
@@ -603,8 +601,7 @@ void module_notifications::remove_notification(guint32 id, guint32 reason) {
 		send_closed_signal(id, reason);
 	}
 	
-	auto* any_child = flowbox_list.get_first_child();
-	if (any_child) {
+	if (flowbox_list.get_first_child()) {
 		update_ui();
 	}
 }

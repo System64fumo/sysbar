@@ -100,7 +100,10 @@ void module_network::update_info() {
 		icon = "network-error-symbolic";
 
 	#ifdef MODULE_CONTROLS
-	if (control_network) control_network->button_action.set_image_from_icon_name(icon);
+	if (control_network) {
+		control_network->button_action.set_image_from_icon_name(icon);
+		control_network->label_title.set_text(default_if->type); // TODO: Add WiFi Name
+	}
 	#endif
 
 	set_tooltip_text("Adapter: " + default_if->interface + "\nAddress: " + default_if->ipv4);

@@ -4,6 +4,7 @@
 
 #include <gtkmm/flowbox.h>
 #include <gtkmm/button.h>
+#include <gtkmm/label.h>
 #include <gtkmm/togglebutton.h>
 
 class control_page : public Gtk::Box {
@@ -16,6 +17,8 @@ class control_page : public Gtk::Box {
 class control : public Gtk::Box {
 	public:
 		control(sysbar* window, const std::string& icon, const bool& extra, const std::string& name, const bool& position_start);
+		Gtk::Label label_title;
+		Gtk::Box box_container;
 		Gtk::ToggleButton button_action;
 		Gtk::Button button_expand;
 		control_page* page = nullptr;

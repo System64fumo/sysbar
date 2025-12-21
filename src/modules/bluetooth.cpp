@@ -415,6 +415,7 @@ void module_bluetooth::setup_control() {
 			toggle_adapter_power();
 		}
 	});
+	ctrl->label_title.set_text("Bluetooth"); // TODO: Make this say "Connected/Not connected"
 
 	container = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL, 8);
 	container->set_margin(12);

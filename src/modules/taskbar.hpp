@@ -6,6 +6,10 @@
 
 #include <gtkmm/flowbox.h>
 #include <gtkmm/scrolledwindow.h>
+#include <gtkmm/popovermenu.h>
+#include <gtkmm/gestureclick.h>
+
+class taskbar_item;
 
 class module_taskbar : public module {
 	public:
@@ -30,12 +34,27 @@ class module_taskbar : public module {
 class taskbar_item : public Gtk::Box {
 	public:
 		taskbar_item(module_taskbar*, const module_taskbar::config_tb&);
+		~taskbar_item();
 
 		Gtk::Label toplevel_label;
 		Gtk::Image image_icon;
-		zwlr_foreign_toplevel_handle_v1* handle;
+		zwlr_foreign_toplevel_handle_v1* handle = nullptr;
 
 		uint text_length;
+		std::string app_id;
+		std::string full_title;
+		
+		bool is_maximized = false;
+		bool is_minimized = false;
+		bool is_fullscreen = false;
+		bool is_activated = false;
+
+		void show_context_menu(module_taskbar*);
+
+	private:
+		Gtk::PopoverMenu context_menu;
+		
+		void setup_context_menu(module_taskbar*);
 };
 
 #endif

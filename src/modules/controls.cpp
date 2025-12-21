@@ -25,9 +25,17 @@ control_page::control_page(sysbar* window, const std::string& name) : Gtk::Box(G
 	window->sidepanel_end->stack_pages.add(*this, name);
 }
 
-control::control(sysbar* window, const std::string& icon, const bool& extra, const std::string& name, const bool& position_start) {
-	add_css_class("control");
-	append(button_action);
+control::control(sysbar* window, const std::string& icon, const bool& extra, const std::string& name, const bool& position_start) : Gtk::Box(Gtk::Orientation::VERTICAL) {
+	box_container.add_css_class("control");
+
+	// TODO: Add option to disable titles
+	label_title.set_text(name); // Placeholder
+	label_title.set_margin_top(5); // TODO: Make this user configurable instead.
+
+	append(box_container);
+	append(label_title);
+
+	box_container.append(button_action);
 	button_action.set_icon_name(icon);
 	button_action.add_css_class("button_action");
 	button_action.set_focusable(false);
@@ -36,8 +44,8 @@ control::control(sysbar* window, const std::string& icon, const bool& extra, con
 
 	// This is for sub menus
 	if (extra) {
-		append(button_expand);
-		button_action.add_css_class("button_expand");
+		box_container.append(button_expand);
+		button_expand.add_css_class("button_expand");
 		button_expand.set_focusable(false);
 		button_expand.set_has_frame(false);
 		button_expand.set_icon_name("arrow-right");
