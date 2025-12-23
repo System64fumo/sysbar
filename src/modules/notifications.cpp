@@ -536,9 +536,11 @@ void module_notifications::show_notification(const NotificationData& data) {
 			
 			w->stop_timeout();
 			w->set_reveal_child(false);
-			Glib::signal_timeout().connect([this, w, id]() {
-				if (w->get_parent()) {
-					flowbox_alert.remove(*w->get_parent());
+			
+			auto parent = w->get_parent();
+			Glib::signal_timeout().connect([this, parent]() {
+				if (parent && parent->get_parent()) {
+					flowbox_alert.remove(*parent);
 				}
 				if (!flowbox_alert.get_first_child()) {
 					window_alert.hide();
@@ -580,14 +582,12 @@ void module_notifications::remove_notification(guint32 id, guint32 reason) {
 	auto* w = find_widget_by_id(flowbox_list, id);
 	if (w) {
 		w->set_reveal_child(false);
-		Glib::signal_timeout().connect([this, w]() {
-			if (w->get_parent()) {
-				flowbox_list.remove(*w->get_parent());
+		Glib::signal_timeout().connect([this, id]() {
+			auto* widget = find_widget_by_id(flowbox_list, id);
+			if (widget && widget->get_parent()) {
+				flowbox_list.remove(*widget->get_parent());
 			}
-			
-			if (!flowbox_list.get_first_child()) {
-				update_ui();
-			}
+			update_ui();
 			return false;
 		}, w->get_transition_duration());
 	}
@@ -601,7 +601,7 @@ void module_notifications::remove_notification(guint32 id, guint32 reason) {
 		send_closed_signal(id, reason);
 	}
 	
-	if (flowbox_list.get_first_child()) {
+	if (w) {
 		update_ui();
 	}
 }
@@ -653,7 +653,6 @@ void module_notifications::update_ui() {
 		child = child->get_next_sibling();
 	}
 
-	// TODO: Add custom tooltip for notification levels
 	std::string icon = "notification";
 	if (notification_level != 3)
 		icon += "-disabled";
