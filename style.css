@@ -3,9 +3,16 @@
 #sysbar {
 }
 
-/* Example window tag
+/* The following can be used for reactive styling
+#sysbar.focused_window {
+	background: @theme_bg_color;
+	border-bottom: unset;
+}
 #sysbar.window_frog {
 	background: green;
+}
+#sysbar.window_terminal {
+	background: black;
 }
 */
 

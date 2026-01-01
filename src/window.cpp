@@ -269,6 +269,12 @@ void sysbar::on_window_change() {
 
 	remove_css_class("window_" + previous_active_window);
 	add_css_class("window_" + active_window);
+
+	if (!active_window.empty())
+		add_css_class("focused_window");
+	else
+		remove_css_class("focused_window");
+
 	previous_active_window = active_window;
 }
 
