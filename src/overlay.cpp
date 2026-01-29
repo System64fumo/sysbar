@@ -238,11 +238,6 @@ void sysbar::on_drag_start(const double& x, const double& y) {
 			initial_size_end = sidepanel_end->box_widgets.get_allocated_height();
 		}
 	}
-
-	sidepanel_start->set_visible(sliding_start_widget);
-	sidepanel_end->set_visible(!sliding_start_widget);
-	sidepanel_start->set_page("main");
-	sidepanel_end->set_page("main");
 }
 
 void sysbar::on_drag_update(const double& x, const double& y) {
@@ -301,6 +296,11 @@ void sysbar::on_drag_stop(const double& x, const double& y) {
 
 	scrolled_Window->set_size_request(-1, -1);
 
-	if (!sidepanel_start->get_visible() && !sidepanel_end->get_visible())
+	if (!sidepanel_start->get_visible() && !sidepanel_end->get_visible()) {
 		overlay_window.hide();
+		sidepanel_start->set_visible(sliding_start_widget);
+		sidepanel_end->set_visible(!sliding_start_widget);
+		sidepanel_start->set_page("main");
+		sidepanel_end->set_page("main");
+	}
 }

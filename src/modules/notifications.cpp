@@ -537,16 +537,21 @@ void module_notifications::show_notification(const NotificationData& data) {
 			w->stop_timeout();
 			w->set_reveal_child(false);
 			
-			auto parent = w->get_parent();
-			Glib::signal_timeout().connect([this, parent]() {
-				if (parent && parent->get_parent()) {
-					flowbox_alert.remove(*parent);
+			auto duration = w->get_transition_duration();
+			
+			Glib::signal_timeout().connect([this, id]() {
+				auto* widget = find_widget_by_id(flowbox_alert, id);
+				if (widget) {
+					auto parent = widget->get_parent();
+					if (parent && parent->get_parent()) {
+						flowbox_alert.remove(*parent);
+					}
 				}
 				if (!flowbox_alert.get_first_child()) {
 					window_alert.hide();
 				}
 				return false;
-			}, w->get_transition_duration());
+			}, duration);
 		});
 		
 		alert_widget->signal_action.connect([this, id = data.id](Glib::ustring action) {
@@ -584,8 +589,11 @@ void module_notifications::remove_notification(guint32 id, guint32 reason) {
 		w->set_reveal_child(false);
 		Glib::signal_timeout().connect([this, id]() {
 			auto* widget = find_widget_by_id(flowbox_list, id);
-			if (widget && widget->get_parent()) {
-				flowbox_list.remove(*widget->get_parent());
+			if (widget) {
+				auto parent = widget->get_parent();
+				if (parent && parent->get_parent()) {
+					flowbox_list.remove(*parent);
+				}
 			}
 			update_ui();
 			return false;
