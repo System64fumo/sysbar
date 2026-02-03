@@ -281,7 +281,12 @@ NotificationWidget* module_notifications::find_widget_by_id(Gtk::FlowBox& flowbo
 void module_notifications::setup_ui() {
 	flowbox_list.set_max_children_per_line(1);
 	flowbox_list.set_selection_mode(Gtk::SelectionMode::NONE);
-	flowbox_list.set_valign(Gtk::Align::START);
+	flowbox_list.set_vexpand(true);
+
+	if (win->position % 2)
+		flowbox_list.set_valign(Gtk::Align::START);
+	else
+		flowbox_list.set_valign(Gtk::Align::END);
 	
 	flowbox_list.signal_child_activated().connect([this](Gtk::FlowBoxChild* child) {
 		auto* revealer = dynamic_cast<NotificationWidget*>(child->get_child());

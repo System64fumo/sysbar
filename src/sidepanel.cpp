@@ -40,6 +40,13 @@ sidepanel::sidepanel(sysbar* window, const bool& position_start) : box_sidepanel
 	box_widgets.add_css_class("sidepanel");
 	box_sidepanel.append(box_widgets);
 
+	if (window->position == 0) {
+		box_sidepanel.set_valign(Gtk::Align::START);
+	}
+	else if (window->position == 2) {
+		box_sidepanel.set_valign(Gtk::Align::END);
+	}
+
 	set_page("main");
 }
 

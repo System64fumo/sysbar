@@ -136,64 +136,41 @@ void sysbar::setup_overlay_widgets() {
 	sidepanel_end->set_visible(false);
 }
 
-// TODO: The whole gesture system needs a rework
-// This is a horrible mess..
+bool is_point_in_widget(Gtk::Widget* widget, double x, double y) {
+	auto allocation = widget->get_allocation();
+
+	return (x >= allocation.get_x() && 
+			x <= allocation.get_x() + allocation.get_width() &&
+			y >= allocation.get_y() && 
+			y <= allocation.get_y() + allocation.get_height());
+}
+
 void sysbar::setup_gestures() {
-	gesture_drag_s = Gtk::GestureDrag::create();
-	gesture_drag_s->signal_drag_begin().connect([&](const double& x, const double& y) {
-		gesture_touch = gesture_drag_s->get_current_event()->get_pointer_emulated();
-		sliding_start_widget = true;
+	// Bar gestures
+	gesture_drag_bar = Gtk::GestureDrag::create();
+	gesture_drag_bar->signal_drag_begin().connect([&](const double& x, const double& y) {
+		bool start = is_point_in_widget(&box_start, x, y);
+		bool end = is_point_in_widget(&box_end, x, y);
+
+		if (!(start || end))
+			return;
+
+		sliding_start_widget = start;
 		on_drag_start(x, y);
 
-		if (!gesture_touch)
-			gesture_drag_s->reset();
+		gesture_touch = gesture_drag_bar->get_current_event()->get_pointer_emulated();
+		if (!gesture_touch) gesture_drag_bar->reset(); // This prevents further updates from mouse related dragging
 	});
-	gesture_drag_s->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
-	gesture_drag_s->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
-	box_start.add_controller(gesture_drag_s);
+	gesture_drag_bar->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
+	gesture_drag_bar->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
+	add_controller(gesture_drag_bar);
 
-	gesture_drag_e = Gtk::GestureDrag::create();
-	gesture_drag_e->signal_drag_begin().connect([&](const double& x, const double& y) {
-		gesture_touch = gesture_drag_e->get_current_event()->get_pointer_emulated();
-		sliding_start_widget = false;
-		on_drag_start(x, y);
-
-		if (!gesture_touch)
-			gesture_drag_e->reset();
-	});
-	gesture_drag_e->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
-	gesture_drag_e->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
-	box_end.add_controller(gesture_drag_e);
-
-	gesture_drag_start = Gtk::GestureDrag::create();
-	gesture_drag_start->signal_drag_begin().connect([&](const double& x, const double& y) {
-		gesture_touch = gesture_drag_start->get_current_event()->get_pointer_emulated();
-		if (!gesture_touch) {
-			gesture_drag_start->reset();
-			return;
-		}
-
-		on_drag_start(0, 0);
-		on_drag_update(0, 0);
-	});
-	gesture_drag_start->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
-	gesture_drag_start->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
-	sidepanel_start->add_controller(gesture_drag_start);
-
-	gesture_drag_end = Gtk::GestureDrag::create();
-	gesture_drag_end->signal_drag_begin().connect([&](const double& x, const double& y) {
-		gesture_touch = gesture_drag_end->get_current_event()->get_pointer_emulated();
-		if (!gesture_touch) {
-			gesture_drag_end->reset();
-			return;
-		}
-
-		on_drag_start(monitor_geometry.height, monitor_geometry.width);
-		on_drag_update(0, 0);
-	});
-	gesture_drag_end->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
-	gesture_drag_end->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
-	sidepanel_end->add_controller(gesture_drag_end);
+	// Overlay gestures
+	gesture_drag_overlay = Gtk::GestureDrag::create();
+	gesture_drag_overlay->signal_drag_begin().connect(sigc::mem_fun(*this, &sysbar::on_drag_start));
+	gesture_drag_overlay->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
+	gesture_drag_overlay->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
+	overlay_window.add_controller(gesture_drag_overlay);
 }
 
 void sysbar::on_drag_start(const double& x, const double& y) {
@@ -203,8 +180,8 @@ void sysbar::on_drag_start(const double& x, const double& y) {
 	sidepanel_end->set_valign(Gtk::Align::START);
 
 	if (position == 0) {
-		sidepanel_start->set_valign(Gtk::Align::START);
-		sidepanel_end->set_valign(Gtk::Align::START);
+		sidepanel_start->set_valign(Gtk::Align::START); // TODO: This should be END, Need to add another nested scrolled window for that to work though
+		sidepanel_end->set_valign(Gtk::Align::START);   // TODO: Same as above
 	}
 	else if (position == 1) {
 		sidepanel_start->set_halign(Gtk::Align::END);
@@ -238,6 +215,9 @@ void sysbar::on_drag_start(const double& x, const double& y) {
 			initial_size_end = sidepanel_end->box_widgets.get_allocated_height();
 		}
 	}
+
+	sidepanel_start->set_visible(sliding_start_widget);
+	sidepanel_end->set_visible(!sliding_start_widget);
 }
 
 void sysbar::on_drag_update(const double& x, const double& y) {
@@ -298,8 +278,6 @@ void sysbar::on_drag_stop(const double& x, const double& y) {
 
 	if (!sidepanel_start->get_visible() && !sidepanel_end->get_visible()) {
 		overlay_window.hide();
-		sidepanel_start->set_visible(sliding_start_widget);
-		sidepanel_end->set_visible(!sliding_start_widget);
 		sidepanel_start->set_page("main");
 		sidepanel_end->set_page("main");
 	}
