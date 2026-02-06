@@ -167,7 +167,14 @@ void sysbar::setup_gestures() {
 
 	// Overlay gestures
 	gesture_drag_overlay = Gtk::GestureDrag::create();
-	gesture_drag_overlay->signal_drag_begin().connect(sigc::mem_fun(*this, &sysbar::on_drag_start));
+	gesture_drag_overlay->signal_drag_begin().connect([&](const double& x, const double& y) {
+		gesture_touch = gesture_drag_overlay->get_current_event()->get_pointer_emulated();
+		if (!gesture_touch) {
+			gesture_drag_overlay->reset(); // This prevents further updates from mouse related dragging
+			return;
+		}
+		on_drag_start(x, y);
+	});
 	gesture_drag_overlay->signal_drag_update().connect(sigc::mem_fun(*this, &sysbar::on_drag_update));
 	gesture_drag_overlay->signal_drag_end().connect(sigc::mem_fun(*this, &sysbar::on_drag_stop));
 	overlay_window.add_controller(gesture_drag_overlay);
