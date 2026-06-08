@@ -10,7 +10,7 @@ Sidebars can be accessed by either clicking or tapping and dragging on either en
 
 * clock
   * Module: Show time and date
-  * Widget: Clendar (Planned: Show events and holidays)
+  * Widget: Calendar (Planned: Show events and holidays)
 
 * weather
   * Module: Show weather
@@ -78,6 +78,7 @@ The config system is INI based and can be configured by editing `~/.config/sys64
 | exclusive            | true                        | Exclude part of the screen for the bar             |
 | verbose              | false                       | Verbose output (For debugging)                     |
 | main-monitor         | HDMI-A-1                    | Monitor output name (DP-1, HDMI-A-1, ect..)        |
+| window-tracking      | false                       | Apply CSS class based on active window class       |
 |&nbsp;                |                             |                                                    |
 | [modules]            |                             |                                                    |
 | start                | clock,weather,tray          | Modules shown at the start of the bar (Left/Top)   |

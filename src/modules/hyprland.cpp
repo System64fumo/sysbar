@@ -189,7 +189,7 @@ void module_hyprland::update_fullscreen_status(const bool& override) {
 	if (!override && monitor_active->connector != win->config_main["main"]["main-monitor"])
 		return;
 	
-	bool window_active_state;
+	bool window_active_state = false;
 	if (window_active != nullptr)
 		window_active_state = window_active->fullscreen;
 

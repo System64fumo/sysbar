@@ -21,17 +21,18 @@ module_weather::module_weather(sysbar* window, const bool& icon_on_start) : modu
 	if (!cfg_unit.empty())
 		unit = cfg_unit[0];
 
+	dispatcher.connect(sigc::mem_fun(*this, &module_weather::update_info));
 
-	std::thread update_thread(&module_weather::update_info, this);
-	update_thread.detach();
+	std::thread fetch_thread(&module_weather::fetch_data, this);
+	fetch_thread.detach();
 
-	Glib::signal_timeout().connect(sigc::mem_fun(*this, &module_weather::update_info), 60 * 60 * 1000); // Update every hour
+	Glib::signal_timeout().connect([this]() {
+		std::thread(&module_weather::fetch_data, this).detach();
+		return true;
+	}, 60 * 60 * 1000); // Update every hour
 }
 
-bool module_weather::update_info() {
-	// TODO: Ideally this should run on another thread,
-	// You know.. Juuuust in case it blocks ui updataes
-
+bool module_weather::fetch_data() {
 	std::string home_dir = getenv("HOME");
 	weather_file = std::move(home_dir) + "/.cache/sysbar-weather.json";
 
@@ -46,7 +47,6 @@ bool module_weather::update_info() {
 
 	// The file is not okay
 	if (!file.is_open() || file.tellg() < 10) {
-		image_icon.set_from_icon_name("weather-none-available-symbolic");
 		std::fprintf(stderr, "Failed to parse weather data\n");
 		return true;
 	}
@@ -58,7 +58,6 @@ bool module_weather::update_info() {
 	std::string errs;
 
 	if (!Json::parseFromStream(builder, file, &root, &errs)) {
-		image_icon.set_from_icon_name("weather-none-available-symbolic");
 		std::fprintf(stderr, "The weather file does not seem to be valid: %s\n", errs.c_str());
 		return false;
 	}
@@ -80,15 +79,33 @@ bool module_weather::update_info() {
 
 	get_weather_data(date, time);
 
+	return true;
+}
+
+void module_weather::update_info() {
+	weather_info info;
+	{
+		std::lock_guard<std::mutex> lock(data_mutex);
+		if (!data_ready) {
+			image_icon.set_from_icon_name("weather-none-available-symbolic");
+			return;
+		}
+		info = pending_weather;
+		data_ready = false;
+	}
+
+	// Apply the weather data to the UI (main thread only)
+	weather_info_current = info;
+
 	if (unit == 'c')
-		label_info.set_text(weather_info_current.temp_C);\
+		label_info.set_text(weather_info_current.temp_C);
 	else if (unit == 'f')
 		label_info.set_text(weather_info_current.temp_F);
 	else
 		std::fprintf(stderr, "Unknown unit: %c\n", unit);
 
 	// Add more cases, Snow, Storms, ect ect
-	std::map<std::string, std::string> icon_from_desc = {
+	const std::map<std::string, std::string> icon_from_desc = {
 		{"sunny", "weather-clear-symbolic"},
 		{"clear", "weather-clear-symbolic"},
 		{"partly cloudy", "weather-few-clouds-symbolic"},
@@ -102,14 +119,14 @@ bool module_weather::update_info() {
 	};
 
 	// Set icon according to weather description
-	if (icon_from_desc.find(weather_info_current.weatherDesc) != icon_from_desc.end())
-		image_icon.set_from_icon_name(icon_from_desc[weather_info_current.weatherDesc]);
+	auto it = icon_from_desc.find(weather_info_current.weatherDesc);
+	if (it != icon_from_desc.end())
+		image_icon.set_from_icon_name(it->second);
 	else
 		image_icon.set_from_icon_name("weather-none-available-symbolic");
 
 	set_tooltip_text(weather_info_current.weatherDesc);
-
-	return true;
+	label_info.show();
 }
 
 void module_weather::download_file() {
@@ -118,7 +135,6 @@ void module_weather::download_file() {
 	CURLcode res;
 	curl = curl_easy_init();
 	if (!curl) {
-		image_icon.set_from_icon_name("weather-none-available-symbolic");
 		std::fprintf(stderr, "Error: unable to initialize curl.\n");
 		return;
 	}
@@ -134,7 +150,6 @@ void module_weather::download_file() {
 	fclose(fp);
 
 	if (res != CURLE_OK) {
-		image_icon.set_from_icon_name("weather-none-available-symbolic");
 		std::fprintf(stderr, "Error: curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 		return;
 	}
@@ -151,21 +166,29 @@ void module_weather::get_weather_data(const std::string& date, const std::string
 			// Iterate over each hourly section
 			for (const auto& hourly : hourlyArray) {
 				if (hourly["time"].asString() == time) {
-					weather_info_current.feels_like_C = hourly["FeelsLikeC"].asString();
-					weather_info_current.feels_like_F = hourly["FeelsLikeF"].asString();
-					weather_info_current.temp_C = hourly["tempC"].asString();
-					weather_info_current.temp_F = hourly["tempF"].asString();
-					weather_info_current.humidity = hourly["humidity"].asString();
-					weather_info_current.weatherDesc = hourly["weatherDesc"][0]["value"].asString();
-					std::transform(weather_info_current.weatherDesc.begin(),
-						weather_info_current.weatherDesc.end(),
-						weather_info_current.weatherDesc.begin(),
+					weather_info info;
+					info.feels_like_C = hourly["FeelsLikeC"].asString();
+					info.feels_like_F = hourly["FeelsLikeF"].asString();
+					info.temp_C = hourly["tempC"].asString();
+					info.temp_F = hourly["tempF"].asString();
+					info.humidity = hourly["humidity"].asString();
+					info.weatherDesc = hourly["weatherDesc"][0]["value"].asString();
+					std::transform(info.weatherDesc.begin(),
+						info.weatherDesc.end(),
+						info.weatherDesc.begin(),
 						[](unsigned char c) { return std::tolower(c); });
 
-					 // For whatever reason, sometimes the last character is a space
-					if (weather_info_current.weatherDesc.back() == ' ')
-						weather_info_current.weatherDesc.pop_back();
-					label_info.show();
+					// For whatever reason, sometimes the last character is a space
+					if (info.weatherDesc.back() == ' ')
+						info.weatherDesc.pop_back();
+
+					// Store the data and signal the main thread
+					{
+						std::lock_guard<std::mutex> lock(data_mutex);
+						pending_weather = info;
+						data_ready = true;
+					}
+					dispatcher.emit();
 					return;
 				}
 			}

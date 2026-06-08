@@ -114,7 +114,7 @@ void module_cellular::extract_data(const Glib::VariantBase& variant_base) {
 	}
 }
 
-std::string module_cellular::tech_to_icon(const int& tech) {
+std::string module_cellular::tech_to_icon(const int& tech) const {
 	// 2G
 	bool GSM = tech & MM_MODEM_ACCESS_TECHNOLOGY_GSM;
 	bool GPRS = tech & MM_MODEM_ACCESS_TECHNOLOGY_GPRS;

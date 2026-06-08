@@ -15,8 +15,8 @@ class module_performance : public module {
 		int interval;
 		cpu_stats prev_stats;
 		bool update_info();
-		cpu_stats get_cpu_stats();
-		double calculate_cpu_load(const cpu_stats&, const cpu_stats&);
+		cpu_stats get_cpu_stats() const;
+		double calculate_cpu_load(const cpu_stats&, const cpu_stats&) const;
 };
 
 #endif

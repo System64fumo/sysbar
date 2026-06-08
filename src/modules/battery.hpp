@@ -42,7 +42,7 @@ class module_battery : public module {
 		void find_power_sources();
 		void initialize_battery_proxy(const Glib::DBusObjectPathString& battery_path);
 		void initialize_ac_proxy(const Glib::DBusObjectPathString& ac_path);
-		std::string get_battery_icon_name(double percentage, guint32 state);
+		std::string get_battery_icon_name(double percentage, guint32 state) const;
 		void update_battery_icon();
 		void on_battery_properties_changed(
 			const Gio::DBus::Proxy::MapChangedProperties&,

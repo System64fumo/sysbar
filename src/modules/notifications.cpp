@@ -1,8 +1,8 @@
 #include "notifications.hpp"
 #include <gtk4-layer-shell.h>
 #include <giomm/dbusownname.h>
+#include <glibmm/spawn.h>
 #include <filesystem>
-#include <thread>
 
 const auto introspection_xml = R"(<?xml version="1.0" encoding="UTF-8"?>
 <node name="/org/freedesktop/Notifications">
@@ -263,7 +263,14 @@ void module_notifications::setup_control() {
 }
 #endif
 
-NotificationWidget* module_notifications::find_widget_by_id(Gtk::FlowBox& flowbox, guint32 id) {
+NotificationWidget* module_notifications::find_widget_by_id(Gtk::FlowBox& flowbox, guint32 id) const {
+	if (&flowbox == &flowbox_list) {
+		auto it = widget_map_list.find(id);
+		return (it != widget_map_list.end()) ? it->second : nullptr;
+	} else if (&flowbox == &flowbox_alert) {
+		auto it = widget_map_alert.find(id);
+		return (it != widget_map_alert.end()) ? it->second : nullptr;
+	}
 	auto* child = flowbox.get_first_child();
 	while (child) {
 		auto* flowbox_child = dynamic_cast<Gtk::FlowBoxChild*>(child);
@@ -504,7 +511,11 @@ guint32 module_notifications::handle_notify(const Glib::ustring& sender, const G
 	show_notification(data);
 	
 	if (!command.empty() && notification_level != 0) {
-		std::thread([cmd = command]() { (void)system(cmd.c_str()); }).detach();
+		try {
+			Glib::spawn_command_line_async(command);
+		} catch (const Glib::Error& e) {
+			std::fprintf(stderr, "Failed to execute notification command: %s\n", e.what());
+		}
 	}
 	
 	return id;
@@ -527,7 +538,9 @@ void module_notifications::show_notification(const NotificationData& data) {
 	});
 	
 	flowbox_list.prepend(*list_widget);
-	
+
+	widget_map_list[data.id] = list_widget;
+
 	Glib::signal_idle().connect_once([list_widget]() {
 		list_widget->set_reveal_child(true);
 	});
@@ -552,6 +565,7 @@ void module_notifications::show_notification(const NotificationData& data) {
 						flowbox_alert.remove(*parent);
 					}
 				}
+				widget_map_alert.erase(id);
 				if (!flowbox_alert.get_first_child()) {
 					window_alert.hide();
 				}
@@ -573,6 +587,8 @@ void module_notifications::show_notification(const NotificationData& data) {
 		
 		flowbox_alert.prepend(*alert_widget);
 		
+		widget_map_alert[data.id] = alert_widget;
+
 		if (!window_alert.is_visible()) {
 			window_alert.show();
 		}
@@ -600,6 +616,7 @@ void module_notifications::remove_notification(guint32 id, guint32 reason) {
 					flowbox_list.remove(*parent);
 				}
 			}
+			widget_map_list.erase(id);
 			update_ui();
 			return false;
 		}, w->get_transition_duration());
@@ -658,13 +675,7 @@ void module_notifications::close_notification(guint32 id, guint32 reason) {
 }
 
 void module_notifications::update_ui() {
-	auto* child = flowbox_list.get_first_child();
-	size_t count = 0;
-	
-	while (child) {
-		count++;
-		child = child->get_next_sibling();
-	}
+	size_t count = widget_map_list.size();
 
 	std::string icon = "notification";
 	if (notification_level != 3)
@@ -685,35 +696,24 @@ void module_notifications::update_ui() {
 }
 
 void module_notifications::clear_all() {
-	std::vector<NotificationWidget*> widgets;
-	auto* child = flowbox_list.get_first_child();
-	while (child) {
-		auto* flowbox_child = dynamic_cast<Gtk::FlowBoxChild*>(child);
-		if (flowbox_child) {
-			auto* widget = dynamic_cast<NotificationWidget*>(flowbox_child->get_child());
-			if (widget) widgets.push_back(widget);
-		}
-		child = child->get_next_sibling();
+	std::vector<guint32> ids;
+	for (const auto& [id, widget] : widget_map_list) {
+		ids.push_back(id);
 	}
-	
-	for (auto* widget : widgets) {
-		remove_notification(widget->get_id(), 2);
+	for (auto id : ids) {
+		remove_notification(id, 2);
 	}
 }
 
 void module_notifications::clear_alerts() {
-	std::vector<NotificationWidget*> alerts;
-	auto* child = flowbox_alert.get_first_child();
-	while (child) {
-		auto* flowbox_child = dynamic_cast<Gtk::FlowBoxChild*>(child);
-		if (flowbox_child) {
-			auto* widget = dynamic_cast<NotificationWidget*>(flowbox_child->get_child());
-			if (widget) alerts.push_back(widget);
-		}
-		child = child->get_next_sibling();
+	std::vector<guint32> ids;
+	for (const auto& [id, widget] : widget_map_alert) {
+		ids.push_back(id);
 	}
-	
-	for (auto* widget : alerts) {
-		widget->signal_close.emit(2);
+	for (auto id : ids) {
+		auto* widget = find_widget_by_id(flowbox_alert, id);
+		if (widget) {
+			widget->signal_close.emit(2);
+		}
 	}
 }

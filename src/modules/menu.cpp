@@ -1,5 +1,6 @@
 #include "menu.hpp"
 #include "../config_parser.hpp"
+#include <glibmm/spawn.h>
 
 module_menu::module_menu(sysbar* window, const bool& icon_on_start) : module(window, icon_on_start) {
 	add_css_class("module_menu");
@@ -26,7 +27,11 @@ void module_menu::on_clicked(const int& n_press, const double& x, const double& 
 	// TODO: Add native sysmenu integration if no command is specified
 	// TODO: Add custom command support
 
-	system("pkill -34 sysmenu || pkill -34 sysshell");
+	try {
+		Glib::spawn_command_line_async("pkill -34 sysmenu || pkill -34 sysshell");
+	} catch (const Glib::Error& e) {
+		std::fprintf(stderr, "Failed to signal app launcher: %s\n", e.what());
+	}
 
 	// Prevent gestures bellow from triggering
 	gesture_click->reset();

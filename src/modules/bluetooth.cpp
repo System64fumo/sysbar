@@ -18,7 +18,7 @@ static bool get_bool(const Glib::VariantBase& v) {
 	return false;
 }
 
-module_bluetooth::module_bluetooth(sysbar* win, bool show_icon) : module(win, show_icon) {
+module_bluetooth::module_bluetooth(sysbar* win, const bool& show_icon) : module(win, show_icon) {
 	add_css_class("module_bluetooth");
 	label_info.hide();
 	image_icon.hide();

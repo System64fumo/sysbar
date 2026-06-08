@@ -27,7 +27,7 @@ bool module_performance::update_info() {
 	return true;
 }
 
-cpu_stats module_performance::get_cpu_stats() {
+cpu_stats module_performance::get_cpu_stats() const {
 	std::ifstream file("/proc/stat");
 	std::string line;
 	cpu_stats stats = {};
@@ -43,7 +43,7 @@ cpu_stats module_performance::get_cpu_stats() {
 	return stats;
 }
 
-double module_performance::calculate_cpu_load(const cpu_stats& prev, const cpu_stats& curr) {
+double module_performance::calculate_cpu_load(const cpu_stats& prev, const cpu_stats& curr) const {
 	unsigned long long prev_idle = prev.idle + prev.iowait;
 	unsigned long long curr_idle = curr.idle + curr.iowait;
 

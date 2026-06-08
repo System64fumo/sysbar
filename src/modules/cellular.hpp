@@ -44,7 +44,7 @@ class module_cellular : public module {
 			const Glib::VariantContainerBase&);
 		void update_info();
 		void extract_data(const Glib::VariantBase&);
-		std::string tech_to_icon(const int&);
+		std::string tech_to_icon(const int&) const;
 };
 
 #endif

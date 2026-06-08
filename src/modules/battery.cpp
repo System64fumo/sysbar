@@ -131,7 +131,7 @@ void module_battery::initialize_ac_proxy(const Glib::DBusObjectPathString& ac_pa
 	update_info("Online", ac_proxy.get(), ac_source);
 }
 
-std::string module_battery::get_battery_icon_name(double percentage, guint32 state) {
+std::string module_battery::get_battery_icon_name(double percentage, guint32 state) const {
 	std::string icon_base;
 	int level = static_cast<int>(percentage / 10) * 10;
 	

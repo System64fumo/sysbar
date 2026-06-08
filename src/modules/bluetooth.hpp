@@ -33,7 +33,7 @@ struct adapter {
 
 class module_bluetooth : public module {
 public:
-	module_bluetooth(sysbar*, bool);
+	module_bluetooth(sysbar*, const bool&);
 
 private:
 	Glib::RefPtr<Gio::DBus::Proxy> adapter_proxy;

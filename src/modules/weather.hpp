@@ -3,6 +3,8 @@
 #ifdef MODULE_WEATHER
 
 #include <json/json.h>
+#include <glibmm/dispatcher.h>
+#include <mutex>
 
 class module_weather : public module {
 	public:
@@ -23,7 +25,13 @@ class module_weather : public module {
 		std::string weather_file;
 		std::string weather_file_url = "https://wttr.in/?format=j1";
 
-		bool update_info();
+		Glib::Dispatcher dispatcher;
+		std::mutex data_mutex;
+		weather_info pending_weather;
+		bool data_ready = false;
+
+		bool fetch_data();
+		void update_info();
 		void download_file();
 		void get_weather_data(const std::string&, const std::string&);
 };

@@ -79,6 +79,9 @@ private:
 
 	guint32 next_id;
 	std::string command;
+
+	std::unordered_map<guint32, NotificationWidget*> widget_map_list;
+	std::unordered_map<guint32, NotificationWidget*> widget_map_alert;
 	
 	void setup_ui();
 	void setup_dbus();
@@ -97,7 +100,7 @@ private:
 	void clear_all();
 	void clear_alerts();
 	
-	NotificationWidget* find_widget_by_id(Gtk::FlowBox& flowbox, guint32 id);
+	NotificationWidget* find_widget_by_id(Gtk::FlowBox& flowbox, guint32 id) const;
 	
 	guint32 handle_notify(const Glib::ustring& sender, const Glib::VariantContainerBase& params);
 	void show_notification(const NotificationData& data);
