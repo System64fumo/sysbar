@@ -147,14 +147,20 @@ void module_network::request_dump(const int& type) {
 	memset(&rtg, 0, sizeof(rtg));
 	rtg.rtgen_family = AF_INET;
 
-	struct iovec iov = { &nlh, nlh.nlmsg_len };
-	struct sockaddr_nl sa = { .nl_family = AF_NETLINK };
+	struct sockaddr_nl sa;
+	memset(&sa, 0, sizeof(sa));
+	sa.nl_family = AF_NETLINK;
+
+	struct iovec iov[2] = {
+		{ &nlh, sizeof(nlh) },
+		{ &rtg, sizeof(rtg) }
+	};
 
 	struct msghdr msg = {
 		.msg_name = &sa,
 		.msg_namelen = sizeof(sa),
-		.msg_iov = &iov,
-		.msg_iovlen = 1,
+		.msg_iov = iov,
+		.msg_iovlen = 2,
 	};
 
 	sendmsg(nl_socket, &msg, 0);
